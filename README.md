@@ -10,10 +10,17 @@ script.js     CONFIG at the top, then behaviour
 assets/       everything the site actually loads
 ```
 
-The source media the assets were cut from — `Radhika.png`, `background.mp4`,
-`video1–4.mp4`, `bg song.mp3` and the WhatsApp originals — is **not in the
-repo**. It stays on disk (see `.gitignore`) so the assets can be regenerated,
-but it is around 39 MB the published site never loads.
+Everything the site loads lives in `assets/` — all 20 files, all referenced.
+The source media those were cut from (`Radhika.png`, `background.mp4`,
+`envelope.mp4`, `video1–4.mp4`, `bg song.mp3` and the WhatsApp originals) has
+been deleted: it was 42 MB the site never loaded, and every asset derived from
+it is already here. Three of those were byte-identical copies of files in
+`assets/` anyway. If an asset ever needs re-cutting at a different size or
+crop, the original has to come back from the client first.
+
+`wedding-details.txt` is a working document for the client — what is on record
+and what is still missing. It is gitignored: it carries the families' mobile
+numbers and this repo is public.
 
 ## Viewing it
 

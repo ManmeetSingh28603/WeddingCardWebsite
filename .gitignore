@@ -10,6 +10,10 @@
 /*.jpg
 /Radhika.png
 
+# Working document for the client. Carries the families' mobile numbers and
+# is not part of the site — keep it out of a public repo.
+wedding-details.txt
+
 # Playwright MCP scratch output
 .playwright-mcp/
 

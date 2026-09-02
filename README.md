@@ -46,9 +46,11 @@ future.
 | File | Source |
 | --- | --- |
 | `hero/crest.png`, `hero/couple.png` | supplied JPEGs, backdrop keyed out to alpha |
-| `scratch/foil.png`, `music/kamaicha.png` | as above |
+| `scratch/foil.png`, `music/kamaicha.png`, `music/bow.png` | as above |
 | `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
-| `hero/sky.webp`, `invite/palace.webp`, `events/mandap.webp` | single frames cut from the supplied recordings |
+| `hero/sky.webp` | `latest2.jpeg`, the clean artwork, used whole |
+| `invite/palace.webp`, `events/mandap.webp`, `events/sangeet.webp` | single frames cut from the supplied recordings |
+| `assets/og/og.jpg` | share card, composed from the crest |
 
 The supplied JPEGs arrived with a flat backdrop where the originals had
 transparency, so each was cut back to alpha before use — otherwise the crest
@@ -64,13 +66,18 @@ originals are untouched in this folder if you want them back.
 ## Still missing
 
 - **`assets/music/music.mp3`** — drop a file in and the kamaicha control
-  appears by itself. With no file it stays hidden and nothing else changes.
+  appears by itself, bottom right: the bow is drawn across the strings while
+  the score plays and lifts clear when it is muted. With no file the control
+  stays hidden and nothing else changes, so none of it is visible until an
+  mp3 is added.
 - **Two wardrobe artworks.** Only two trolleys were supplied, so Wedding and
   Reception borrow the nearest match. Add `dress_wedding.png` and
   `dress_reception.png` to `assets/wardrobe/` and point `CONFIG.wardrobe[n].art`
   at them.
-- **Section artwork.** Mayra, Sangeet and Reception have no painting of their
+- **Section artwork for Mayra and Reception.** Neither has a painting of its
   own, so each is drawn in CSS — a watercolour gradient in that function's
   palette with an SVG palace elevation along the foot. Every one of those is
   marked `painted ground` in `style.css`. To use a real painting instead, give
-  that event an `art.still` in `CONFIG.events` the way the Wedding card has one.
+  that event an `art.still` in `CONFIG.events`, the way Sangeet and Wedding
+  have one. Drop the event's `art.ornament` at the same time if the painting
+  already contains that ornament.

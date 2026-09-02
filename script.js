@@ -58,7 +58,9 @@ const CONFIG = {
       sub: 'Sangeet',
       time: '7:30 pm onwards',
       venue: 'At Grand Ballroom',
-      art: { ornament: 'jhoomer', particles: 'stars' },
+      /* no ornament: this painting has its own chandeliers, and the drawn
+         pair would hang a second set over them */
+      art: { still: 'assets/events/sangeet.webp', particles: 'stars' },
     },
     {
       id: 'wedding', palette: 'wedding',

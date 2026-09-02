@@ -118,12 +118,15 @@ exactly at every viewport ratio; the element is laid out at the film's own
 aspect ratio for that to work. If you swap in a film of a different shape,
 change the `aspect-ratio` on `.hero-film` to match.
 
-`.hero-film` is anchored by its **sky**, not its floor — `--sky-hold` keeps the
-top 12% of the film above the fold. That is what keeps the venue line off the
-hotel's brickwork: anchoring the floor instead scrolled the sky away on any
-viewport shorter than about 900px, and the line landed on the building. The
-trade is at the other end — a short desktop window now crops the couple
-instead of the sky.
+`.hero-film` is anchored by its **floor**. The couple stand at the foot of the
+frame and they are the subject, so they are what must never be cropped. An
+earlier attempt to hold the sky at the top instead pushed them off the bottom
+of a phone and left only their heads showing — don't reintroduce it.
+
+On a phone that still leaves the sky across roughly the top fifth of the
+screen, which is where the venue line sits: about 90px of clearance above the
+hotel's roofline at 390x844. It is only a short desktop window that runs out
+of sky, and the venue line is small enough now to sit high in what remains.
 
 ## Section artwork
 

@@ -213,23 +213,22 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
    on the hero's floor instead of leaving a strip of bare sky there. */
 .hero-film {
   --crop: 6.5%;
-  /* How much of the film's sky is held above the fold. The venue line sits
-     in that band, so this is what keeps it off the hotel's brickwork.
-     Anchoring the film's FLOOR instead (bottom: 0) scrolled the sky away on
-     any viewport shorter than ~900px, which is how the line ended up on the
-     building. The trade is at the other end: a short desktop window now
-     crops the couple rather than the sky. */
-  --sky-hold: 12%;
   position: absolute;
   left: 50%;
-  top: 0;
-  /* Wide enough that the film still reaches the hero's floor once the sky is
-     held back and the watermark cut. Usable height runs from --sky-hold to
-     93.5% of the film, i.e. 0.815 of it, so width must reach
-     height * (728/1904) / 0.815 = height * 0.469; 0.48 leaves margin. */
-  width: max(100%, calc(100svh * 0.48));
+  /* Anchored by the FLOOR. The couple stand at the foot of the frame and
+     they are the subject, so they are what must never be cropped — holding
+     the sky at the top instead pushed them off the bottom of a phone and
+     left only their heads showing. On a phone the sky still reaches roughly
+     the top fifth of the screen, which is where the venue line sits; it is
+     only a short desktop window that runs out of sky. */
+  bottom: 0;
+  /* Wide enough that the 93.5% surviving the crop still covers the hero at
+     any ratio. Visible height = width / (728/1904) * 0.935 = width * 2.445,
+     so width must reach height/2.445 = height * 0.409; 0.416 leaves a
+     little over 1% in hand for rounding. */
+  width: max(100%, calc(100svh * 0.416));
   aspect-ratio: 728 / 1904;
-  transform: translate(-50%, calc(-1 * var(--sky-hold)));
+  transform: translate(-50%, var(--crop));
   clip-path: inset(0 0 var(--crop) 0);
   pointer-events: none;
   user-select: none;

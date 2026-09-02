@@ -63,11 +63,11 @@ Two things were inferred rather than given, and are worth confirming:
 
 | File | Source |
 | --- | --- |
-| `hero/couple.png`, `scratch/foil.png` | supplied JPEGs, backdrop keyed out to alpha |
+| `scratch/foil.png` | supplied JPEG, backdrop keyed out to alpha |
 | `music/kamaicha.png`, `music/bow.png` | as above |
 | `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
 | `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
-| `hero/sky.webp` | the clean fountain painting, used whole |
+| `video/hero.mp4`, `hero/hero_poster.webp` | `background.mp4` — the hero plays as video, the poster holds the frame while it buffers |
 | `music/music.mp3` | `bg song.mp3` |
 | `events/sangeet.webp` | video1 |
 | `events/wedding.webp` | video2 |
@@ -83,9 +83,13 @@ floating music control and a recorder watermark burned along the bottom of the
 frame, so each still has that bottom strip cropped away. They also barely
 move — the reason they are stills rather than video.
 
-`hero/couple.png` is placeholder art: it is the illustrated couple from the
-reference invitation, not Radhika and Raghav. Swap it when there is artwork of
-your own.
+The hero is the one film that stays a film — it has the hotel, the fort and
+the couple in a single shot, so there is no separate cut-out layer over it.
+Its watermark strip is cut with `clip-path` rather than `object-fit`, because
+clip-path percentages resolve against the element's own box and so crop
+exactly at every viewport ratio; the element is laid out at the film's own
+aspect ratio for that to work. If you swap in a film of a different shape,
+change the `aspect-ratio` on `.hero-film` to match.
 
 ## Section artwork
 

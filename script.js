@@ -940,7 +940,7 @@ function initHero() {
   const hero = document.getElementById('hero');
   if (!hero) return;
 
-  initHeroParallax(hero);
+  initHeroFilm();
 
   /* The flight is the hand-off from the opening card, so it is armed only
      when the gate is really there to hand off from. Armed BEFORE the reveal
@@ -1089,41 +1089,39 @@ function runCrestFlight(hero) {
   window.addEventListener('scroll', () => { if (window.scrollY > 4) onResize(); }, { passive: true });
 }
 
-function initHeroParallax(hero) {
-  const fg = document.getElementById('heroFg');
-  if (!fg || CFG.reducedMotion) return;
+/* A muted film needs no user activation, so it plays on its own; the calls
+   here are a net for browsers that refuse the attribute and honour an
+   explicit play(). It is stopped whenever the hero is off screen or the tab
+   is away — there is nothing to gain from decoding frames nobody is looking
+   at, and this is the heaviest asset on the page.
+   Under reduced motion the poster stands in for the whole hero. */
+function initHeroFilm() {
+  const film = document.getElementById('heroBg');
+  if (!film || typeof film.play !== 'function') return;
 
-  let targetX = 0, targetY = 0, curX = 0, curY = 0, scrollP = 0, raf = 0;
+  let dead = false;
+  film.addEventListener('error', () => { dead = true; }, { once: true });
+  if (CFG.reducedMotion) { try { film.pause(); } catch (_) {} return; }
 
-  const onPointer = (e) => {
-    const r = hero.getBoundingClientRect();
-    if (!r.height) return;
-    targetX = ((e.clientX - r.left) / r.width - 0.5) * 2;   /* -1 … 1 */
-    targetY = ((e.clientY - r.top) / r.height - 0.5) * 2;
-    schedule();
+  const play = () => {
+    if (dead || !film.paused) return;
+    film.muted = true;             /* re-assert — an unmuted play is refused */
+    const p = film.play();
+    if (p && p.catch) p.catch(() => {});
   };
-  const onLeave = () => { targetX = 0; targetY = 0; schedule(); };
-  const onScroll = () => {
-    const r = hero.getBoundingClientRect();
-    scrollP = Math.min(1, Math.max(0, -r.top / (r.height || 1)));
-    schedule();
-  };
-  const tick = () => {
-    raf = 0;
-    curX += (targetX - curX) * 0.08;
-    curY += (targetY - curY) * 0.08;
-    /* small offsets only — the layers are registered artwork */
-    const x = curX * 7;
-    const y = curY * 5 + scrollP * 26;
-    fg.style.transform = `scale(1.08) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
-    if (Math.abs(targetX - curX) > 0.002 || Math.abs(targetY - curY) > 0.002) schedule();
-  };
-  const schedule = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  const stop = () => { try { film.pause(); } catch (_) {} };
+  play();
 
-  hero.addEventListener('pointermove', onPointer, { passive: true });
-  hero.addEventListener('pointerleave', onLeave, { passive: true });
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  let inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) play(); else stop();
+    }, { threshold: 0.01 }).observe(film);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop(); else if (inView) play();
+  });
 }
 
 

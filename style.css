@@ -260,24 +260,38 @@ html, body {
   isolation: isolate;
 }
 .hero-parallax { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
-.hero-layer {
+
+/* The hero film — the hotel, the fort and the couple, all in the one shot.
+   Its bottom strip carries the source site's floating control, so it is cut
+   with clip-path rather than object-fit: clip-path percentages resolve
+   against the ELEMENT's own box, which makes the crop exact at every
+   viewport ratio. An object-fit crop cannot — it has to be sized for the
+   worst ratio, and at that depth it eats the couple as well.
+   For that to work the element must show the WHOLE frame, so it is laid out
+   at the film's own aspect ratio with no object-fit; its bottom edge is then
+   the film's bottom edge, which is what clip-path needs to reach. The
+   translate afterwards drops the clipped result so its visible bottom sits
+   on the hero's floor instead of leaving a strip of bare sky there. */
+.hero-film {
+  --crop: 6.5%;
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center bottom;
+  left: 50%;
+  bottom: 0;
+  /* Wide enough that the 93.5% surviving the crop still covers the hero at
+     any ratio. Visible height = width / (728/1904) * 0.935 = width * 2.445,
+     so width must reach height/2.445 = height * 0.409; 0.416 leaves a
+     little over 1% in hand for rounding. */
+  width: max(100%, calc(100svh * 0.416));
+  aspect-ratio: 728 / 1904;
+  transform: translate(-50%, var(--crop));
+  clip-path: inset(0 0 var(--crop) 0);
+  pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-  will-change: transform;
+  background: var(--sky);
 }
-.hero-fg {
-  z-index: 1;
-  transform: scale(1.08);
-  opacity: 0;
-  transition: opacity 1600ms ease 300ms;
-}
-.hero-screen.is-animated .hero-fg { opacity: 1; }
+video.hero-film::-webkit-media-controls,
+video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
 
 /* ivory wash at the head so the crest and venue hold over the sky, and a
    whisper of warm light at the floor for the scroll cue to sit on */
@@ -303,6 +317,27 @@ html, body {
   margin: 0 auto;
   padding: 2.6dvh 16px 9dvh;
   text-align: center;
+}
+/* The film puts the hotel's brickwork directly behind the venue line, and
+   terracotta ink disappears into it. So the crest and the venue get a plate
+   of their own — the same trick the invitation card uses: a soft wash sized
+   to the type and feathered out to nothing, so it reads as light falling on
+   the painting rather than a panel laid over it. */
+.hero-content::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -10%;
+  width: 165%;
+  height: 66%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse 52% 48% at 50% 42%,
+    rgba(253, 246, 236, .94) 0%,
+    rgba(253, 246, 236, .80) 42%,
+    rgba(253, 246, 236, .42) 66%,
+    rgba(253, 246, 236, 0)   86%);
 }
 
 .hero-crest {
@@ -385,8 +420,6 @@ html, body {
   opacity: 1;
   animation: heroCrestFloat 6.5s ease-in-out 700ms infinite !important;
 }
-.hero-screen.is-crest-flight.is-animated .hero-fg { opacity: 0; transition: opacity 1400ms ease; }
-.hero-screen.is-crest-flight.is-crest-landed .hero-fg { opacity: 1; }
 .hero-screen.is-crest-flight.is-animated .hero-venue { animation: none; }
 .hero-screen.is-crest-flight.is-crest-landed .hero-venue {
   animation: heroVenueReveal 1700ms cubic-bezier(.16,1,.3,1) forwards 1300ms;
@@ -458,7 +491,9 @@ html, body {
   letter-spacing: .045em;
   text-indent: .045em;
   line-height: 1.25;
-  text-shadow: 0 1px 14px rgba(253,246,236,.8);
+  /* a tight halo as well as the wide glow: this line lands on the hotel's
+     brickwork, the busiest part of the frame */
+  text-shadow: 0 1px 3px rgba(253, 246, 236, .95), 0 1px 16px rgba(253, 246, 236, .9);
   opacity: 0;
   transform: translateY(14px);
 }
@@ -662,6 +697,11 @@ html, body {
      bottom-heavy — this lifts the pair onto the oval's widest part */
   padding-bottom: 8%;
   gap: clamp(5px, 1.5vh, 9px);
+  /* Both lines are centred here rather than left to the flex box. A long
+     month fills the oval's whole width, and once its box stops shrinking to
+     fit, `text-align: start` is what actually places the line — which put
+     the month hard against the left edge under the centred day. */
+  text-align: center;
   pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(ellipse at 50% 50%,
@@ -695,14 +735,19 @@ html, body {
 .scratch-date-month {
   position: relative;
   margin: 0;
-  /* tracked caps hang their last gap off the end of the line, so a centred
-     line sits half a gap left — this pads it back */
-  padding-left: .19em;
+  /* Tracked caps carry a trailing gap after the last letter, which is inside
+     the line box — so a centred line sits half a gap left of true centre.
+     One full gap of left padding puts the ink back on centre exactly. */
+  padding-left: .15em;
   font-family: var(--font-caps);
-  font-size: clamp(.7rem, 3vw, .88rem);
+  /* held smaller and less tracked than the day above it: a long month
+     ("November 2026", "September 2026") otherwise runs the full width of
+     the oval and wraps into the frame's blossoms */
+  font-size: clamp(.62rem, 2.7vw, .78rem);
   font-weight: 500;
-  letter-spacing: .19em;
+  letter-spacing: .15em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--terra-deep);
   opacity: 0;
 }
@@ -717,7 +762,7 @@ html, body {
   from { opacity: 0; transform: translateY(10px); letter-spacing: .05em; }
   /* must land on the resting tracking, or the line jumps as the animation
      hands back to the stylesheet */
-  to   { opacity: 1; transform: translateY(0);    letter-spacing: .19em; }
+  to   { opacity: 1; transform: translateY(0);    letter-spacing: .15em; }
 }
 
 .scratch-canvas {
@@ -2406,7 +2451,7 @@ html, body {
     transition-duration: .001ms !important;
     scroll-behavior: auto !important;
   }
-  .hero-fg, .hero-crest, .hero-venue, .scroll-cue { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .hero-crest, .hero-venue, .scroll-cue { opacity: 1 !important; filter: none !important; transform: none !important; }
   .scroll-cue { transform: translateX(-50%) !important; }
   .inv-petals, .ev-motes, .ev-stars, .countdown-particles { display: none; }
 }

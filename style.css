@@ -128,6 +128,16 @@ html, body {
   height: auto;
   filter: drop-shadow(0 8px 26px rgba(124,56,15,.18));
 }
+/* stands in for the crest when there is no monogram artwork */
+.intro-crest-name {
+  display: block;
+  font-family: var(--font-script);
+  font-size: clamp(2.9rem, 13vw, 4.2rem);
+  line-height: 1.14;
+  text-align: center;
+  color: var(--crimson);
+  text-shadow: 0 2px 18px rgba(255, 250, 242, .85);
+}
 @keyframes introCrestIn {
   0%   { opacity: 0; filter: blur(14px); transform: translateY(18px) scale(.94); }
   60%  { opacity: 1; }
@@ -318,8 +328,19 @@ html, body {
   color: var(--terra);
 }
 .hero-crest.is-fallback img { display: none; }
-.hero-crest.is-fallback { font-size: initial; line-height: initial; }
+/* Artwork carries its own transparent headroom; type has none, so the air
+   the crest used to stand in is put back here — otherwise a two-line name
+   sits hard against the top of the frame. */
+.hero-crest.is-fallback {
+  font-size: initial;
+  line-height: initial;
+  margin-top: clamp(8px, 3.4dvh, 40px);
+}
 .hero-crest.is-fallback .hero-crest-fallback { display: block; }
+/* The shine below is clipped to the crest artwork. With no artwork the mask
+   never resolves, and an unresolved mask leaves the element UNMASKED — the
+   gradient band would sweep the whole hero instead of the monogram. */
+.hero-crest.is-fallback::after { display: none; }
 
 .hero-screen.is-animated .hero-crest {
   animation:
@@ -343,8 +364,8 @@ html, body {
   background-repeat: no-repeat;
   background-position: -80% 0;
   mix-blend-mode: screen;
-  -webkit-mask-image: url("assets/hero/crest.png");
-          mask-image: url("assets/hero/crest.png");
+  -webkit-mask-image: var(--crest-mask, none);
+          mask-image: var(--crest-mask, none);
   -webkit-mask-size: contain;  mask-size: contain;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center;  mask-position: center;
@@ -414,8 +435,8 @@ html, body {
   background-repeat: no-repeat;
   background-position: -80% 0;
   mix-blend-mode: screen;
-  -webkit-mask-image: url("assets/hero/crest.png");
-          mask-image: url("assets/hero/crest.png");
+  -webkit-mask-image: var(--crest-mask, none);
+          mask-image: var(--crest-mask, none);
   -webkit-mask-size: contain;  mask-size: contain;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: center;  mask-position: center;

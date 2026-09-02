@@ -1,13 +1,14 @@
-# Wedding invitation — static site
+# Radhika & Raghav — wedding invitation
 
-A rebuild of the kirtiwedsharsh.in invitation in plain HTML, CSS and JavaScript.
-No build step and no dependencies: three files plus an `assets/` folder.
+A static site: plain HTML, CSS and JavaScript, no build step and no
+dependencies.
 
 ```
 index.html    structure + the SVG ornament library (arch, skyline, chandeliers, boughs)
 style.css     all styling and animation
 script.js     CONFIG at the top, then behaviour
 assets/       images
+video1–4.mp4  the source films the section stills were cut from
 ```
 
 ## Viewing it
@@ -17,67 +18,80 @@ degradation is that the flying grains during the scratch use fallback colours
 instead of ones sampled from the foil, because a browser will not let a page
 read pixels back from a `file://` image.
 
-To serve it properly instead:
-
-```
-npx serve .
-```
+To serve it properly instead: `npx serve .`
 
 ## Changing the content
 
 **Everything the invitation says lives in the `CONFIG` object at the top of
-`script.js`** — names, dates, venue, hashtag, the four events, the dress codes,
-the blessings lists and the RSVP contacts. Nothing below `CONFIG` needs
-touching to change a name, a time or a phone number.
+`script.js`.** Nothing below it needs touching to change a name, a time or a
+number. Anything not yet supplied is marked `MISSING` in a comment there.
 
-Placeholders that still need real content are written as `— name & name —`,
-`— firm name —` and `00000 00000`, so they are obvious on the page:
+Two conventions worth knowing:
 
-- `CONFIG.invitation.brideLineage` / `groomLineage`
-- `CONFIG.blessings.groom` / `bride`
-- `CONFIG.rsvp.groom` / `bride` — `tel` is the full international number used
-  for the call and WhatsApp links, `shown` is what is printed
+- An **empty string** removes a line rather than printing a blank. That is how
+  the hashtag and the invocation are currently handled — a gap where a line
+  should be reads as a fault, a shorter card does not.
+- A contact with an empty `tel` renders **without** call and WhatsApp buttons,
+  since a `tel:+` link with no number leads nowhere.
 
-The countdown reads zero until `CONFIG.dates.moment` is set to a date in the
-future.
+## Still missing
+
+Placeholders on the page are written as `— dress code —`, `— name —` and so
+on, so they are obvious. These are what is outstanding:
+
+| | |
+| --- | --- |
+| Hashtag | not supplied — the line is hidden in the scratch section and the footer |
+| Invocation | the line above "We request the honor" is hidden until one is set |
+| Venue city | the venue reads "Hotel Damson Plum" with no city |
+| Groom's grandparents | only the parents' line (`S/O …`) was supplied |
+| Groom's side blessings | the whole list |
+| Groom's side RSVP | no names or numbers |
+| Dress codes | all three functions |
+| Third wardrobe artwork | only two trolleys exist, so Reception borrows the Sangeet one |
+
+Two things were inferred rather than given, and are worth confirming:
+
+- **The year is 2026.** It was never stated, but 20 November falls on a Friday
+  and 21 November on a Saturday only in 2026, which is what the details say.
+- **The first group of bride's-side names** was supplied without a heading, so
+  it sits under "With Best Compliments". The template also supports "Special
+  Request", "Sharing the Joy" and "Establishments" blocks; add them to
+  `CONFIG.blessings` if the families use them.
 
 ## Assets
 
 | File | Source |
 | --- | --- |
-| `hero/crest.png`, `hero/couple.png` | supplied JPEGs, backdrop keyed out to alpha |
-| `scratch/foil.png`, `music/kamaicha.png`, `music/bow.png` | as above |
+| `hero/couple.png`, `scratch/foil.png` | supplied JPEGs, backdrop keyed out to alpha |
+| `music/kamaicha.png`, `music/bow.png` | as above |
 | `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
-| `hero/sky.webp` | `latest2.jpeg`, the clean artwork, used whole |
-| `invite/palace.webp`, `events/mandap.webp`, `events/sangeet.webp` | single frames cut from the supplied recordings |
-| `assets/og/og.jpg` | share card, composed from the crest |
+| `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
+| `hero/sky.webp` | the clean fountain painting, used whole |
+| `music/music.mp3` | `bg song.mp3` |
+| `events/sangeet.webp` | video1 |
+| `events/wedding.webp` | video2 |
+| `events/reception.webp` | video3 |
+| `invite/palace.webp` | video4 |
+| `og/og.jpg`, `favicon.png`, `apple-touch-icon.png` | composed from the couple's names |
 
-The supplied JPEGs arrived with a flat backdrop where the originals had
-transparency, so each was cut back to alpha before use — otherwise the crest
-sits on the hero sky in a white box.
+The supplied JPEGs arrived with a flat backdrop where transparency was needed,
+so each was cut back to alpha before use.
 
-The three MP4s were phone screen-recordings of the source site, with its
-floating music control (and on one, a screen-recorder watermark) burned into
-the bottom of the frame. Two of them held a still image for their whole length,
-and the third animated only slightly, so all three became stills with that
-bottom strip cropped away — 313 KB of WebP in place of 3.5 MB of video. The
-originals are untouched in this folder if you want them back.
+The four films are phone screen-recordings and every one of them carries a
+floating music control and a recorder watermark burned along the bottom of the
+frame, so each still has that bottom strip cropped away. They also barely
+move — the reason they are stills rather than video.
 
-## Still missing
+`hero/couple.png` is placeholder art: it is the illustrated couple from the
+reference invitation, not Radhika and Raghav. Swap it when there is artwork of
+your own.
 
-- **`assets/music/music.mp3`** — drop a file in and the kamaicha control
-  appears by itself, bottom right: the bow is drawn across the strings while
-  the score plays and lifts clear when it is muted. With no file the control
-  stays hidden and nothing else changes, so none of it is visible until an
-  mp3 is added.
-- **Two wardrobe artworks.** Only two trolleys were supplied, so Wedding and
-  Reception borrow the nearest match. Add `dress_wedding.png` and
-  `dress_reception.png` to `assets/wardrobe/` and point `CONFIG.wardrobe[n].art`
-  at them.
-- **Section artwork for Mayra and Reception.** Neither has a painting of its
-  own, so each is drawn in CSS — a watercolour gradient in that function's
-  palette with an SVG palace elevation along the foot. Every one of those is
-  marked `painted ground` in `style.css`. To use a real painting instead, give
-  that event an `art.still` in `CONFIG.events`, the way Sangeet and Wedding
-  have one. Drop the event's `art.ornament` at the same time if the painting
-  already contains that ornament.
+## Section artwork
+
+Every function now has a real painting behind it. If a fourth is ever added
+without one, its panel falls back to a CSS watercolour gradient in that
+function's palette with an SVG palace elevation along the foot — those are
+marked `painted ground` in `style.css`. Give the event an `art.still` in
+`CONFIG.events` to use a painting instead, and drop its `art.ornament` at the
+same time if the painting already contains that ornament.

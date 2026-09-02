@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="preload" as="image" href="assets/hero/crest.png" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/hero/crest.webp" fetchpriority="high" />
   <link rel="preload" as="image" href="assets/hero/couple.png" fetchpriority="high" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -212,8 +212,11 @@
        ============================================================ -->
   <div class="intro-screen is-active" id="introScreen" role="button" tabindex="0" aria-label="Open the invitation">
     <div class="intro-paper" aria-hidden="true"></div>
+    <!-- The crest is artwork when CONFIG.couple.crest names a file, and the
+         couple's names set in script when it does not. -->
     <div class="intro-crest" id="introCrest">
-      <img src="assets/hero/crest.png" alt="" draggable="false" />
+      <img class="intro-crest-art" alt="" draggable="false" hidden />
+      <span class="intro-crest-name" data-couple-names></span>
     </div>
     <button id="beginButton" class="begin-button" type="button">
       <span class="begin-main">Tap to begin celebration</span>
@@ -235,10 +238,10 @@
     </div>
 
     <div class="hero-content">
-      <h1 class="hero-crest">
-        <img src="assets/hero/crest.png" alt="" draggable="false"
+      <h1 class="hero-crest is-fallback">
+        <img alt="" draggable="false" hidden
              onerror="this.closest('.hero-crest').classList.add('is-fallback')" />
-        <span class="hero-crest-fallback" data-couple-names>Kirti &amp; Harsh</span>
+        <span class="hero-crest-fallback" data-couple-names></span>
       </h1>
       <p class="hero-venue" data-venue>Fairmont, Jaipur</p>
     </div>

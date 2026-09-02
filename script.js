@@ -12,115 +12,128 @@
 const CONFIG = {
 
   couple: {
-    names:   'Kirti & Harsh',        // hero fallback + footer
-    bride:   'Kirti',
-    groom:   'Harsh',
-    venue:   'Fairmont, Jaipur',
-    hashtag: '#dilseHarshKi',
+    names:   'Radhika & Raghav',
+    bride:   'Radhika',
+    groom:   'Raghav',
+    venue:   'Hotel Damson Plum',
+    /* MISSING — not supplied. Left empty, which hides it in the scratch
+       section and the footer rather than printing a placeholder. */
+    hashtag: '',
+    /* Set to null to drop the artwork and set the names in script instead,
+       on the opening card and in the hero. */
+    crest:   'assets/hero/crest.webp',
   },
 
   dates: {
-    scratchNumber: '23 – 24',        // revealed under the foil
-    scratchMonth:  'August 2026',
-    footer:        '23<sup>rd</sup> – 24<sup>th</sup> August 2026',
-    /* drives the countdown; mo is 0-indexed, so 7 = August */
-    moment: { y: 2026, mo: 7, d: 24, h: 12, min: 0 },
+    scratchNumber: '20 – 21',        // revealed under the foil
+    scratchMonth:  'November 2026',
+    footer:        '20<sup>th</sup> – 21<sup>st</sup> November 2026',
+    /* Drives the countdown; mo is 0-indexed, so 10 = November. Set to the
+       wedding itself. The year is not stated anywhere in the details, but
+       20 Nov falls on a Friday and 21 Nov on a Saturday in 2026 and in no
+       neighbouring year, so 2026 is the only fit. */
+    moment: { y: 2026, mo: 10, d: 21, h: 13, min: 0 },
   },
 
   invitation: {
-    mantra:  '|| Shri Mahaviraya Namah ||',
+    /* MISSING — no invocation supplied. Empty hides the line entirely; the
+       card then opens on the request. */
+    mantra:  '',
     request: ['We request the honor', 'of your presence for', 'the wedding celebration of'],
-    /* ↓ replace with the family's own lines */
     brideLineage: [
-      'GD/O — grandparents’ names —',
-      'D/O — parents’ names —',
+      'GD/O Late Smt Vijay Rastogi &amp; Shri Sharad Chandra Rastogi',
+      'D/O Smt Meetu Rastogi &amp; Shri Atul Chandra Rastogi',
     ],
+    /* only the parents' line was supplied for the groom */
     groomLineage: [
-      'GS/O — grandparents’ names —',
-      'S/O — parents’ names —',
+      'S/O Smt. Sonia Khanna &amp; Late Manoj Khanna',
     ],
   },
 
+  /* The four supplied films, in their numbered order: video1 opens the
+     functions, video4 stands behind the invitation. */
   events: [
     {
-      id: 'mayra', palette: 'mayra',
-      day: '23', suffix: 'rd', month: 'August, 2026',
-      title: 'Rangilo Mayra',
-      sub: 'Mayra Ceremony with Dandiya',
-      time: '1:00 pm onwards',
-      venue: 'At Zui',
-      art: { ornament: 'bough', particles: 'motes' },
-    },
-    {
       id: 'sangeet', palette: 'sangeet',
-      day: '23', suffix: 'rd', month: 'August, 2026',
-      title: 'Celestial Evening',
-      sub: 'Sangeet',
-      time: '7:30 pm onwards',
-      venue: 'At Grand Ballroom',
+      day: '20', suffix: 'th', month: 'November, 2026',
+      title: 'Engagement &amp; Sangeet',
+      sub: 'Friday',
+      time: '6:00 pm onwards',
+      venue: 'Hotel Damson Plum',
       /* no ornament: this painting has its own chandeliers, and the drawn
          pair would hang a second set over them */
       art: { still: 'assets/events/sangeet.webp', particles: 'stars' },
     },
     {
       id: 'wedding', palette: 'wedding',
-      day: '24', suffix: 'th', month: 'August, 2026',
-      title: 'Shubh Vivah',
-      time: '10:00 am onwards',
-      /* two places, not a timetable: the one time above covers the day */
-      schedule: ['Baraat from Saheliyon ki Badi', 'Varmala & Pheras at Pool Side'],
-      art: { still: 'assets/events/mandap.webp', ornament: 'vine', particles: 'motes' },
+      day: '21', suffix: 'st', month: 'November, 2026',
+      title: 'Wedding',
+      sub: 'Saturday',
+      time: '1:00 – 2:00 pm onwards',
+      venue: 'Hotel Damson Plum',
+      art: { still: 'assets/events/wedding.webp', ornament: 'vine', particles: 'motes' },
     },
     {
       id: 'reception', palette: 'reception',
-      day: '24', suffix: 'th', month: 'August, 2026',
-      title: 'The First Dance',
-      sub: 'Reception',
+      day: '21', suffix: 'st', month: 'November, 2026',
+      title: 'Reception',
+      sub: 'Dinner',
       time: '7:00 pm onwards',
-      venue: 'At Grand Ballroom',
-      art: { ornament: 'vine', particles: 'motes' },
+      venue: 'Hotel Damson Plum',
+      /* no ornament: the painting already carries a floral arch */
+      art: { still: 'assets/events/reception.webp', particles: 'motes' },
     },
   ],
 
-  /* Only two trolley artworks were supplied. Wedding and Reception borrow
-     the nearest match; drop dress_wedding.png / dress_reception.png into
-     assets/wardrobe/ and point `art` at them to finish the set. */
+  /* MISSING — no dress codes supplied, and only two trolley artworks exist,
+     so the Reception borrows the nearest match. Fill `dress` in, and drop a
+     third artwork into assets/wardrobe/ when there is one. */
   wardrobe: [
-    { id: 'mayra',     label: 'Mayra',     dress: 'Traditional Rajasthani or Gujarati Style', art: 'assets/wardrobe/dress_mayra.png' },
-    { id: 'sangeet',   label: 'Sangeet',   dress: 'Indo Western Bling',                       art: 'assets/wardrobe/dress_sangeet.png' },
-    { id: 'wedding',   label: 'Wedding',   dress: 'Traditional',                              art: 'assets/wardrobe/dress_mayra.png' },
-    { id: 'reception', label: 'Reception', dress: 'Dress Your Best',                          art: 'assets/wardrobe/dress_sangeet.png' },
+    { id: 'sangeet',   label: 'Sangeet',   dress: '— dress code —', art: 'assets/wardrobe/dress_sangeet.png' },
+    { id: 'wedding',   label: 'Wedding',   dress: '— dress code —', art: 'assets/wardrobe/dress_mayra.png' },
+    { id: 'reception', label: 'Reception', dress: '— dress code —', art: 'assets/wardrobe/dress_sangeet.png' },
   ],
 
-  /* ↓ replace the placeholder names with the family's own lists */
   blessings: {
     note: 'With the love and good wishes of our families.',
+    /* MISSING — no groom's side list supplied */
     groom: [
-      { title: 'With Best Compliments', names: ['— name & name —', '— name & name —', '— name & name —'] },
+      { title: 'With Best Compliments', names: ['— name —', '— name —', '— name —'] },
       { title: 'Awaiting Eyes',         names: ['— names of the children —'] },
-      { title: 'Special Request',       names: ['— name & name —', '— name & name —'] },
-      { title: 'Sharing the Joy',       names: ['— name & name —', '— name & name —'] },
-      { title: 'Establishments (Groom Side)', names: ['— firm name —', '— city | city —'] },
     ],
     bride: [
-      { title: 'With Best Compliments', names: ['— name & name —', '— name & name —', '— name & name —'] },
-      { title: 'Awaiting Eyes',         names: ['— names of the children —'] },
-      { title: 'Special Request',       names: ['— name & name —', '— name & name —'] },
-      { title: 'Sharing the Joy',       names: ['— name & name —', '— name & name —'] },
-      { title: 'Establishment (Bride Side)', names: ['— firm name —', '— address —'] },
+      {
+        title: 'With Best Compliments',
+        names: [
+          'Smt Vijaylaxmi Rastogi',
+          'Shri Rajnikant Rastogi',
+          'Smt Malini Rastogi',
+          'Ritu &ndash; Abhishek',
+          'Meenal &ndash; Ajay',
+          'Pragya &ndash; Prateek',
+        ],
+      },
+      {
+        title: 'Awaiting Eyes',
+        names: [
+          'Keshav',
+          'Shashwat &ndash; Vasundhara',
+          'Arnav, Twisha, Aradhya &amp; Ritanshi',
+        ],
+      },
     ],
   },
 
-  /* ↓ replace with real names and numbers. `tel` is the full international
-     form used for the call and WhatsApp links; `shown` is what is printed. */
+  /* `tel` is the full international form behind the call and WhatsApp
+     links; `shown` is what is printed on the page. */
   rsvp: {
+    /* MISSING — no groom's side contacts supplied */
     groom: [
-      { name: '— name —', shown: '00000 00000', tel: '910000000000' },
-      { name: '— name —', shown: '00000 00000', tel: '910000000000' },
+      { name: '— name —', shown: '— number —', tel: '' },
     ],
     bride: [
-      { name: '— name —', shown: '00000 00000', tel: '910000000000' },
-      { name: '— name —', shown: '00000 00000', tel: '910000000000' },
+      { name: 'Atul',  shown: '94150 22314', tel: '919415022314' },
+      { name: 'Meetu', shown: '99199 96769', tel: '919919996769' },
     ],
   },
 };
@@ -200,7 +213,33 @@ const el = (tag, cls, html) => {
 function renderStrings() {
   document.querySelectorAll('[data-couple-names]').forEach(n => { n.textContent = CONFIG.couple.names; });
   document.querySelectorAll('[data-venue]').forEach(n => { n.textContent = CONFIG.couple.venue; });
-  document.querySelectorAll('[data-hashtag]').forEach(n => { n.textContent = CONFIG.couple.hashtag; });
+
+  /* An unset line is removed rather than printed empty — an invitation with
+     a blank where the hashtag goes reads as a fault, a shorter one does not. */
+  document.querySelectorAll('[data-hashtag]').forEach(n => {
+    if (CONFIG.couple.hashtag) n.textContent = CONFIG.couple.hashtag;
+    else n.remove();
+  });
+
+  /* With no crest artwork the couple's names stand in, set in script. The
+     hero markup ships in the fallback state, so only the artwork case has
+     anything to switch on. */
+  const crest = CONFIG.couple.crest;
+  const heroCrest = document.querySelector('.hero-crest');
+  const heroArt = heroCrest && heroCrest.querySelector('img');
+  const introArt = document.querySelector('.intro-crest-art');
+  const introName = document.querySelector('.intro-crest-name');
+  if (crest) {
+    if (heroArt) { heroArt.src = crest; heroArt.hidden = false; heroCrest.classList.remove('is-fallback'); }
+    if (introArt) { introArt.src = crest; introArt.hidden = false; }
+    if (introName) introName.remove();
+    /* the gold shine is clipped to the artwork, so the mask follows it */
+    document.documentElement.style.setProperty('--crest-mask', `url("${crest}")`);
+  } else {
+    if (heroArt) heroArt.remove();
+    if (introArt) introArt.remove();
+  }
+
   const num = document.querySelector('[data-date-num]');
   const mon = document.querySelector('[data-date-month]');
   if (num) num.textContent = CONFIG.dates.scratchNumber;
@@ -213,7 +252,8 @@ function renderStrings() {
 function renderInvitation() {
   const inv = CONFIG.invitation;
   const mantra = document.querySelector('[data-mantra]');
-  if (mantra) mantra.textContent = inv.mantra;
+  /* no invocation set — take the line out so the card opens on the request */
+  if (mantra) { if (inv.mantra) mantra.innerHTML = inv.mantra; else mantra.remove(); }
 
   const req = document.querySelector('.inv-request');
   if (req) req.innerHTML = inv.request.map(l => `<span>${l}</span>`).join('');
@@ -345,19 +385,23 @@ function renderRsvp() {
     ul.setAttribute('aria-label', `${label} contacts`);
     people.forEach(p => {
       const li = el('li', 'rsvp-row');
+      /* A contact with no number gets no buttons: `tel:+` and a bare wa.me
+         link both lead nowhere, and a dead button is worse than none. */
+      const actions = p.tel
+        ? `<div class="rsvp-actions">
+             <a href="tel:+${p.tel}" class="rsvp-action rsvp-action--phone" aria-label="Call ${p.name}">
+               <svg aria-hidden="true"><use href="#ic-phone"/></svg>
+             </a>
+             <a href="https://wa.me/${p.tel}" class="rsvp-action rsvp-action--wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp ${p.name}">
+               <svg aria-hidden="true"><use href="#ic-wa"/></svg>
+             </a>
+           </div>`
+        : '';
       li.innerHTML =
         `<div class="rsvp-identity">
            <span class="rsvp-name">${p.name}</span>
            <span class="rsvp-num">${p.shown}</span>
-         </div>
-         <div class="rsvp-actions">
-           <a href="tel:+${p.tel}" class="rsvp-action rsvp-action--phone" aria-label="Call ${p.name}">
-             <svg aria-hidden="true"><use href="#ic-phone"/></svg>
-           </a>
-           <a href="https://wa.me/${p.tel}" class="rsvp-action rsvp-action--wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp ${p.name}">
-             <svg aria-hidden="true"><use href="#ic-wa"/></svg>
-           </a>
-         </div>`;
+         </div>${actions}`;
       ul.appendChild(li);
     });
     host.appendChild(ul);
@@ -901,7 +945,10 @@ function initHero() {
   /* The flight is the hand-off from the opening card, so it is armed only
      when the gate is really there to hand off from. Armed BEFORE the reveal
      so the hero's own crest animation never gets a frame in. */
-  if (document.getElementById('introScreen') && !CFG.reducedMotion) {
+  /* The flight carries the crest from the opening card into the hero, so it
+     is only armed when there is a crest to carry. With the names set in
+     script instead, the hero plays its ordinary reveal. */
+  if (CONFIG.couple.crest && document.getElementById('introScreen') && !CFG.reducedMotion) {
     hero.classList.add('is-crest-flight');
     prepareCrestFlight(hero);
   }

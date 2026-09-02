@@ -22,6 +22,11 @@ const CONFIG = {
     /* Set to null to drop the artwork and set the names in script instead,
        on the opening card and in the hero. */
     crest:   'assets/hero/crest.webp',
+    /* The crest opens the invitation, then stands aside: the hero film has
+       the hotel's own sign in it, and the crest landing over the building
+       stacked two marks on top of each other. Set true to bring it back —
+       the flight from the opening card into the hero comes back with it. */
+    heroCrest: false,
   },
 
   dates: {
@@ -225,7 +230,16 @@ function renderStrings() {
      hero markup ships in the fallback state, so only the artwork case has
      anything to switch on. */
   const crest = CONFIG.couple.crest;
-  const heroCrest = document.querySelector('.hero-crest');
+  let heroCrest = document.querySelector('.hero-crest');
+
+  /* the crest can open the invitation without also standing in the hero */
+  if (!CONFIG.couple.heroCrest && heroCrest) {
+    heroCrest.remove();
+    heroCrest = null;
+    const content = document.querySelector('.hero-content');
+    if (content) content.classList.add('is-bare');
+  }
+
   const heroArt = heroCrest && heroCrest.querySelector('img');
   const introArt = document.querySelector('.intro-crest-art');
   const introName = document.querySelector('.intro-crest-name');
@@ -946,9 +960,11 @@ function initHero() {
      when the gate is really there to hand off from. Armed BEFORE the reveal
      so the hero's own crest animation never gets a frame in. */
   /* The flight carries the crest from the opening card into the hero, so it
-     is only armed when there is a crest to carry. With the names set in
-     script instead, the hero plays its ordinary reveal. */
-  if (CONFIG.couple.crest && document.getElementById('introScreen') && !CFG.reducedMotion) {
+     needs a crest at BOTH ends: artwork to fly, and a place in the hero for
+     it to land. Without either, the hero plays its ordinary reveal and the
+     opening card simply dissolves. */
+  if (CONFIG.couple.crest && hero.querySelector('.hero-crest img')
+      && document.getElementById('introScreen') && !CFG.reducedMotion) {
     hero.classList.add('is-crest-flight');
     prepareCrestFlight(hero);
   }

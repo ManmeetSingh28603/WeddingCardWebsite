@@ -7,9 +7,13 @@ dependencies.
 index.html    structure + the SVG ornament library (arch, skyline, chandeliers, boughs)
 style.css     all styling and animation
 script.js     CONFIG at the top, then behaviour
-assets/       images
-video1–4.mp4  the source films the section stills were cut from
+assets/       everything the site actually loads
 ```
+
+The source media the assets were cut from — `Radhika.png`, `background.mp4`,
+`video1–4.mp4`, `bg song.mp3` and the WhatsApp originals — is **not in the
+repo**. It stays on disk (see `.gitignore`) so the assets can be regenerated,
+but it is around 39 MB the published site never loads.
 
 ## Viewing it
 
@@ -33,6 +37,10 @@ Two conventions worth knowing:
   should be reads as a fault, a shorter card does not.
 - A contact with an empty `tel` renders **without** call and WhatsApp buttons,
   since a `tel:+` link with no number leads nowhere.
+- `CONFIG.couple.heroCrest` is `false`: the crest opens the invitation and
+  then stands aside, because the hero film carries the hotel's own sign and
+  the crest landed on top of the building. Set it `true` to put the crest
+  back in the hero — the flight from the opening card comes back with it.
 
 ## Still missing
 

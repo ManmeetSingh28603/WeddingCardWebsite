@@ -340,6 +340,21 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
     rgba(253, 246, 236, 0)   86%);
 }
 
+/* With the crest standing aside, the venue is the only line in the hero.
+   It drops into the band of open sky above the hotel rather than sitting on
+   the very top edge, and the plate shrinks to just that line. */
+.hero-content.is-bare { padding-top: clamp(26px, 8.5dvh, 92px); }
+.hero-content.is-bare::before {
+  top: -2%;
+  height: 24%;
+  width: 150%;
+  background: radial-gradient(ellipse 46% 52% at 50% 50%,
+    rgba(253, 246, 236, .92) 0%,
+    rgba(253, 246, 236, .74) 44%,
+    rgba(253, 246, 236, .34) 68%,
+    rgba(253, 246, 236, 0)   88%);
+}
+
 .hero-crest {
   position: relative;
   margin: 0;

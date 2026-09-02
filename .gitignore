@@ -1,3 +1,15 @@
+# Source media, kept out of the repo.
+# The site serves the derived files in assets/ — the crest cut from
+# Radhika.png, the section stills cut from the videos, the score copied to
+# assets/music/. The originals stay on disk so those can be regenerated, but
+# they are ~39 MB the published site never loads. Anchored to the root with
+# a leading slash so nothing under assets/ is caught.
+/*.mp4
+/*.mp3
+/*.jpeg
+/*.jpg
+/Radhika.png
+
 # Playwright MCP scratch output
 .playwright-mcp/
 

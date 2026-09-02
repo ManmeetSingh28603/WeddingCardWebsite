@@ -55,8 +55,13 @@ const CONFIG = {
     ],
   },
 
-  /* The four supplied films, in their numbered order: video1 opens the
-     functions, video4 stands behind the invitation. */
+  /* Each panel is the original painting with its own transparent overlay on
+     top — a bough or a pair of chandeliers that drifts against the scroll.
+       still | film  the painting behind
+       overlay       the artwork laid over it
+       sway          how the overlay moves: bough, jhoomer or vine
+       drift         how far it travels with the scroll, in px
+       particles     motes (warm) or stars (cool) */
   events: [
     {
       id: 'sangeet', palette: 'sangeet',
@@ -65,9 +70,8 @@ const CONFIG = {
       sub: 'Friday',
       time: '6:00 pm onwards',
       venue: 'Hotel Damson Plum',
-      /* no ornament: this painting has its own chandeliers, and the drawn
-         pair would hang a second set over them */
-      art: { still: 'assets/events/sangeet.webp', particles: 'stars' },
+      art: { still: 'assets/events/sangeet.webp', overlay: 'assets/events/jhoomer.webp',
+             sway: 'jhoomer', drift: 10, particles: 'stars' },
     },
     {
       id: 'wedding', palette: 'wedding',
@@ -76,7 +80,8 @@ const CONFIG = {
       sub: 'Saturday',
       time: '1:00 – 2:00 pm onwards',
       venue: 'Hotel Damson Plum',
-      art: { still: 'assets/events/wedding.webp', ornament: 'vine', particles: 'motes' },
+      art: { film: 'assets/video/wedding.mp4', overlay: 'assets/events/wedding_fg.webp',
+             sway: 'vine', drift: 18, particles: 'motes' },
     },
     {
       id: 'reception', palette: 'reception',
@@ -85,8 +90,8 @@ const CONFIG = {
       sub: 'Dinner',
       time: '7:00 pm onwards',
       venue: 'Hotel Damson Plum',
-      /* no ornament: the painting already carries a floral arch */
-      art: { still: 'assets/events/reception.webp', particles: 'motes' },
+      art: { film: 'assets/video/reception.mp4', overlay: 'assets/events/reception_fg.webp',
+             sway: 'vine', drift: 18, particles: 'motes' },
     },
   ],
 
@@ -167,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHero();
   initInvite();
   initEvents();
+  initEventFilms();
   initWardrobe();
   initBlessings();
   initRsvp();
@@ -294,10 +300,23 @@ function renderEvents() {
     /* ── the painting ── */
     const art = el('div', 'ev-art');
     art.setAttribute('aria-hidden', 'true');
-    if (ev.art && ev.art.still) {
+    const a = ev.art || {};
+    if (a.film) {
+      /* No autoplay attribute: these cards are several screens down, and a
+         film that starts on load is decoded for a guest still reading the
+         opening. initEventFilms() starts it as the card comes near. */
+      const v = el('video', 'plate');
+      v.src = a.film;
+      v.muted = true; v.loop = true; v.playsInline = true;
+      v.preload = 'none';
+      v.setAttribute('webkit-playsinline', '');
+      v.setAttribute('disablepictureinpicture', '');
+      v.setAttribute('aria-hidden', 'true');
+      art.appendChild(v);
+    } else if (a.still) {
       const plate = new Image();
       plate.className = 'plate';
-      plate.src = ev.art.still;
+      plate.src = a.still;
       plate.alt = '';
       plate.draggable = false;
       plate.loading = 'lazy';
@@ -307,25 +326,30 @@ function renderEvents() {
       art.appendChild(plate);
     } else {
       art.appendChild(el('div', 'ev-still'));
-      /* a painted card gets a horizon of its own — without one the panel
-         reads as a bare gradient behind the type */
+      /* a card with no painting gets a horizon of its own — without one the
+         panel reads as a bare gradient behind the type */
       art.insertAdjacentHTML('beforeend',
         '<svg class="ev-skyline" viewBox="0 0 400 210" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
         '<use href="#orn-skyline"/></svg>');
     }
-    if (ev.art && ev.art.ornament) {
-      const o = ev.art.ornament;
-      /* The bough is drawn growing from the left, and these cards hang it in
-         the right-hand corner. Mirroring INSIDE the viewBox rather than with
-         a CSS scaleX: a reflection about the element's own hinge (88% 4%,
-         where the branch meets the frame) would walk the whole box most of
-         its width to the right and off the panel. */
-      const flip = o === 'bough' ? ' transform="translate(200,0) scale(-1,1)"' : '';
-      /* the drift is HALF the travel in each direction — the scroll loop runs
-         its progress -1…+1 — so the chandeliers are held short of the copy */
-      art.insertAdjacentHTML('beforeend',
-        `<svg class="ev-fg ev-fg--${o}" data-drift="${o === 'jhoomer' ? 10 : 20}" ` +
-        `viewBox="0 0 200 200" aria-hidden="true"><use href="#orn-${o}"${flip}/></svg>`);
+
+    if (a.overlay) {
+      /* Corner art laid over the painting — a bough or the chandeliers. It is
+         `contain`ed and pinned to the top rather than cover-cropped, which on
+         a tall phone would shave the outermost blossoms and the left
+         chandelier's chain off the frame. */
+      const fg = new Image();
+      fg.className = `ev-fg ev-fg--${a.sway || 'vine'}`;
+      fg.src = a.overlay;
+      fg.alt = '';
+      fg.draggable = false;
+      fg.loading = 'lazy';
+      fg.decoding = 'async';
+      /* the scroll loop runs its progress -1…+1, so this is HALF the travel
+         in each direction */
+      fg.dataset.drift = a.drift || 18;
+      fg.addEventListener('error', () => { fg.style.display = 'none'; }, { once: true });
+      art.appendChild(fg);
     }
     card.appendChild(art);
 
@@ -508,6 +532,45 @@ function initEvents() {
     stagger(card.querySelectorAll('.ev-sub, .ev-time, .ev-venue, .ev-sch-row'), '--ev-delay', 190, 1420);
 
     revealOnce(card, 'is-visible', { threshold: 0.25 });
+  });
+}
+
+/* Load and play a card's film only while the card is near, pause it when the
+   card leaves, and pause again whenever the tab is away. Nothing decodes for
+   a guest who is still several screens above it, and a refused or broken
+   film simply leaves the card as the painted panel it already is. */
+function initEventFilms() {
+  document.querySelectorAll('.ev-card video.plate').forEach((film) => {
+    if (typeof film.play !== 'function') return;
+
+    let dead = false;
+    film.addEventListener('error', () => { dead = true; }, { once: true });
+    if (CFG.reducedMotion) return;
+
+    let inView = false;
+    const play = () => {
+      if (dead || !film.paused) return;
+      film.muted = true;            /* re-assert — an unmuted play is refused */
+      const p = film.play();
+      if (p && p.catch) p.catch(() => {});
+    };
+    const stop = () => { try { film.pause(); } catch (_) {} };
+
+    if ('IntersectionObserver' in window) {
+      /* a generous margin, so the film is running by the time the card is
+         reached rather than starting under the guest */
+      new IntersectionObserver((entries) => {
+        inView = entries[0].isIntersecting;
+        if (inView) play(); else stop();
+      }, { threshold: 0.01, rootMargin: '30% 0px' }).observe(film.closest('.ev-card'));
+    } else {
+      inView = true;
+      play();
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else if (inView) play();
+    });
   });
 }
 

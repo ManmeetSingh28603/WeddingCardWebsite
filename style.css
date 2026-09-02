@@ -901,16 +901,18 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
    that point — a branch bends, it does not slide. */
 .inv-bough {
   position: absolute;
-  top: -3%; left: -7%;
+  inset: 0;
   z-index: 1;
-  width: 56%;
-  aspect-ratio: 1;
-  color: rgba(226, 132, 166, .82);
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
   transform: translate3d(0, var(--drift-y, 0px), 0);
   transform-origin: 12% 6%;
   will-change: transform;
-  filter: drop-shadow(0 2px 6px rgba(160, 90, 110, .16));
 }
 .invite.is-visible .inv-bough { animation: invBoughSway 9.5s ease-in-out infinite; }
 /* --drift-y is restated inside the keyframe on purpose: an animation owns
@@ -1170,11 +1172,22 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
   to   { transform: scale(1.11) translate3d(0,-1.2%,0); }
 }
 
-/* foreground ornament, pinned to the top of the frame */
+/* Foreground artwork over the painting. These are CORNER pieces, so they are
+   `contain`ed and pinned to the top of the frame rather than cover-cropped —
+   a cover crop on a tall phone eats ~11% off each side and takes the
+   outermost blossoms and the left chandelier's chain with it. The empty part
+   of each file is transparent, so nothing is given up by containing it. */
 .ev-fg {
   position: absolute;
+  inset: 0;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
   will-change: transform;
 }
 
@@ -1197,16 +1210,9 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
   from { opacity: .42; transform: translateY(0); }
   to   { opacity: .58; transform: translateY(-1.1%); }
 }
-/* the bough is rooted in the top-right corner, so it turns about that
-   corner: a branch bends, it does not slide. The mirror that points it into
-   the corner is applied inside the viewBox, not here — see renderEvents. */
+/* the bough is rooted where it meets the frame, so it turns about that
+   point: a branch bends, it does not slide */
 .ev-fg--bough {
-  /* held tight into the corner: the branch reaches ~70% down its own box,
-     and any wider than this its last blossoms come down onto the title */
-  top: -9%; right: -11%;
-  width: 44%;
-  aspect-ratio: 1;
-  color: var(--ev-orn, rgba(226, 148, 70, .85));
   transform: translate3d(0, var(--drift-y, 0px), 0);
   transform-origin: 88% 4%;
 }
@@ -1220,12 +1226,6 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
    swing from there; the glow is a second, slower rhythm so the two never
    lock into an obviously mechanical loop */
 .ev-fg--jhoomer {
-  /* the far chandelier sits ~66% across its own box, so the box is held
-     narrow enough to keep it off the title's first letters */
-  top: 0; left: -2%;
-  width: 44%;
-  aspect-ratio: 1;
-  color: var(--ev-orn, rgba(214, 178, 110, .95));
   transform: translate3d(0, var(--drift-y, 0px), 0);
   transform-origin: 22% 0%;
   filter: drop-shadow(0 0 16px rgba(255, 238, 198, .45));
@@ -1244,10 +1244,6 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
 
 /* a vine rooted where it meets the frame, hinged on its top-left corner */
 .ev-fg--vine {
-  top: -2%; left: -5%;
-  width: 40%;
-  aspect-ratio: 1;
-  color: var(--ev-orn, rgba(224, 122, 158, .85));
   transform: translate3d(0, var(--drift-y, 0px), 0);
   transform-origin: 6% 3%;
 }

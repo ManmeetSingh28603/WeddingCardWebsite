@@ -77,19 +77,23 @@ Two things were inferred rather than given, and are worth confirming:
 | `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
 | `video/hero.mp4`, `hero/hero_poster.webp` | `background.mp4` — the hero plays as video, the poster holds the frame while it buffers |
 | `music/music.mp3` | `bg song.mp3` |
-| `events/sangeet.webp` | video1 |
-| `events/wedding.webp` | video2 |
-| `events/reception.webp` | video3 |
-| `invite/palace.webp` | video4 |
+| `events/sangeet.webp` + `events/jhoomer.webp` | project originals |
+| `video/wedding.mp4` + `events/wedding_fg.webp` | project originals |
+| `video/reception.mp4` + `events/reception_fg.webp` | project originals |
+| `invite/palace.webp` + `invite/bough.webp` | project originals |
 | `og/og.jpg`, `favicon.png`, `apple-touch-icon.png` | composed from the couple's names |
 
 The supplied JPEGs arrived with a flat backdrop where transparency was needed,
 so each was cut back to alpha before use.
 
-The four films are phone screen-recordings and every one of them carries a
-floating music control and a recorder watermark burned along the bottom of the
-frame, so each still has that bottom strip cropped away. They also barely
-move — the reason they are stills rather than video.
+Every section panel is now the original artwork at full quality, each with its
+own transparent overlay — a blossom bough or the pair of chandeliers — that
+drifts against the scroll. Wedding and Reception are films, Sangeet and the
+Invitation are stills, which is how the source project renders them.
+
+The hero is the exception, and the only asset still cropped: `background.mp4`
+is a phone screen-recording with a floating music control burned along the
+bottom of the frame. See the note below on how that strip is removed.
 
 The hero is the one film that stays a film — it has the hotel, the fort and
 the couple in a single shot, so there is no separate cut-out layer over it.

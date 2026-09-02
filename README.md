@@ -51,7 +51,6 @@ on, so they are obvious. These are what is outstanding:
 | --- | --- |
 | Hashtag | not supplied — the line is hidden in the scratch section and the footer |
 | Invocation | the line above "We request the honor" is hidden until one is set |
-| Venue city | the venue reads "Hotel Damson Plum" with no city |
 | Groom's grandparents | only the parents' line (`S/O …`) was supplied |
 | Groom's side blessings | the whole list |
 | Groom's side RSVP | no names or numbers |
@@ -76,6 +75,7 @@ Two things were inferred rather than given, and are worth confirming:
 | `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
 | `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
 | `video/hero.mp4`, `hero/hero_poster.webp` | `background.mp4` — the hero plays as video, the poster holds the frame while it buffers |
+| `video/envelope.mp4`, `hero/envelope_poster.webp` | `envelope.mp4` — the opening gate |
 | `music/music.mp3` | `bg song.mp3` |
 | `events/sangeet.webp` + `events/jhoomer.webp` | project originals |
 | `video/wedding.mp4` + `events/wedding_fg.webp` | project originals |
@@ -91,9 +91,24 @@ own transparent overlay — a blossom bough or the pair of chandeliers — that
 drifts against the scroll. Wedding and Reception are films, Sangeet and the
 Invitation are stills, which is how the source project renders them.
 
-The hero is the exception, and the only asset still cropped: `background.mp4`
-is a phone screen-recording with a floating music control burned along the
-bottom of the frame. See the note below on how that strip is removed.
+Two assets are still cropped, both phone screen-recordings with something
+burned along the foot of the frame: `background.mp4` (a floating music
+control) and `envelope.mp4` (a recorder watermark). See the note below on how
+those strips are removed.
+
+## The opening gate
+
+The envelope film is the gate. It carries its own "Tap to begin celebration"
+in its first frame and closes on "Let the celebration begin", so there is no
+button over it — the tap plays it through, starts the score under it, and the
+film's **last frame** is the hand-off to the hero (the `ended` event, not a
+timer). If the film ever fails to load, the gate removes itself rather than
+leaving a tap that does nothing.
+
+Unlike every other panel the envelope is shown **whole**, letterboxed against
+the paper behind it rather than cover-cropped: it is a designed card with its
+prompt along the foot, and a cover crop would cut that off. The paper is the
+same cream, so the join does not read.
 
 The hero is the one film that stays a film — it has the hotel, the fort and
 the couple in a single shot, so there is no separate cut-out layer over it.
@@ -102,6 +117,13 @@ clip-path percentages resolve against the element's own box and so crop
 exactly at every viewport ratio; the element is laid out at the film's own
 aspect ratio for that to work. If you swap in a film of a different shape,
 change the `aspect-ratio` on `.hero-film` to match.
+
+`.hero-film` is anchored by its **sky**, not its floor — `--sky-hold` keeps the
+top 12% of the film above the fold. That is what keeps the venue line off the
+hotel's brickwork: anchoring the floor instead scrolled the sky away on any
+viewport shorter than about 900px, and the line landed on the building. The
+trade is at the other end — a short desktop window now crops the couple
+instead of the sky.
 
 ## Section artwork
 

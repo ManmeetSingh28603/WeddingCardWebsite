@@ -15,7 +15,7 @@ const CONFIG = {
     names:   'Radhika & Raghav',
     bride:   'Radhika',
     groom:   'Raghav',
-    venue:   'Hotel Damson Plum',
+    venue:   'Hotel Damson Plum, Lucknow',
     /* MISSING — not supplied. Left empty, which hides it in the scratch
        section and the footer rather than printing a placeholder. */
     hashtag: '',
@@ -902,7 +902,7 @@ function initIntro() {
   const screen = document.getElementById('introScreen');
   if (!screen) return;
 
-  const beginBtn = document.getElementById('beginButton');
+  const film = document.getElementById('introVideo');
   const dissolve = document.getElementById('ivoryDissolve');
 
   let begun = false, finished = false, touchHandled = false;
@@ -958,13 +958,44 @@ function initIntro() {
   const begin = () => {
     if (begun) return;
     begun = true;
-    if (beginBtn) beginBtn.classList.add('is-hidden');
-    /* called synchronously inside the gesture handler so the activation
-       token covers it; startBgMusic carries its own retry net if refused */
+
+    /* The score starts on THIS tap and plays under the film. Called
+       synchronously inside the gesture handler so the activation token
+       covers it; startBgMusic carries its own retry net if refused. */
     startBgMusic();
-    /* let the button clear before the hand-off starts */
-    setTimeout(finish, 420);
+
+    if (!film) { finish(); return; }
+    try { film.currentTime = 0; } catch (_) {}
+    /* the film is silent throughout — a muted play is always permitted, so
+       the envelope starts opening instantly even on the pointerdown path */
+    film.muted = true;
+    film.playsInline = true;
+    const p = film.play();
+    /* refused outright: hand over rather than strand the guest on a still */
+    if (p && p.catch) p.catch(() => finish());
+
+    /* the film closes on "Let the celebration begin" — that last frame is
+       the hand-off */
+    film.addEventListener('ended', finish, { once: true });
+    /* safety: if 'ended' never fires, go anyway on a generous cap */
+    setTimeout(finish, 15000);
   };
+
+  /* No film to open — take the gate away entirely rather than leave a tap
+     that does nothing, and arm the score on the first gesture instead. */
+  if (film) {
+    film.addEventListener('error', () => {
+      if (begun || finished) return;
+      finished = true;
+      screen.remove();
+      if (dissolve) dissolve.remove();
+      lockScroll(false);
+      revealHero();
+      ['pointerup', 'touchend', 'click'].forEach((ev) => {
+        document.addEventListener(ev, startBgMusic, { once: true, passive: true });
+      });
+    }, { once: true });
+  }
 
   /* pointerdown is the earliest possible start; touchend / click / keydown
      cover the activation-carrying paths. touchHandled stops the synthetic

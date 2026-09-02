@@ -5,27 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
   <meta name="color-scheme" content="only light" />
   <meta name="theme-color" content="#f6ead9" />
-  <title>Kirti &amp; Harsh — Fairmont, Jaipur</title>
+  <title>Radhika &amp; Raghav — Hotel Damson Plum, Lucknow</title>
 
-  <meta name="description" content="With love, Kirti &amp; Harsh invite you to celebrate their wedding at Fairmont, Jaipur. #dilseHarshKi" />
+  <meta name="description" content="With love, Radhika &amp; Raghav invite you to celebrate their wedding at Hotel Damson Plum, Lucknow." />
 
   <!-- Share card for WhatsApp, iMessage and the rest.
        og:url and og:image MUST be absolute — a relative path here is the
        usual reason a shared link comes through with no picture. Change the
        host below if the invitation ever moves off GitHub Pages. -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Kirti &amp; Harsh" />
-  <meta property="og:title" content="Kirti &amp; Harsh — Wedding Invitation" />
-  <meta property="og:description" content="With love, Kirti &amp; Harsh invite you to celebrate their wedding at Fairmont, Jaipur. #dilseHarshKi" />
+  <meta property="og:site_name" content="Radhika &amp; Raghav" />
+  <meta property="og:title" content="Radhika &amp; Raghav — Wedding Invitation" />
+  <meta property="og:description" content="With love, Radhika &amp; Raghav invite you to celebrate their wedding at Hotel Damson Plum, Lucknow." />
   <meta property="og:url" content="https://manmeetsingh28603.github.io/WeddingCardWebsite/" />
   <meta property="og:image" content="https://manmeetsingh28603.github.io/WeddingCardWebsite/assets/og/og.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Kirti &amp; Harsh — Fairmont, Jaipur" />
+  <meta property="og:image:alt" content="Radhika &amp; Raghav — Hotel Damson Plum, Lucknow" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Kirti &amp; Harsh — Wedding Invitation" />
-  <meta name="twitter:description" content="Fairmont, Jaipur · #dilseHarshKi" />
+  <meta name="twitter:title" content="Radhika &amp; Raghav — Wedding Invitation" />
+  <meta name="twitter:description" content="Hotel Damson Plum, Lucknow · 20–21 November 2026" />
   <meta name="twitter:image" content="https://manmeetsingh28603.github.io/WeddingCardWebsite/assets/og/og.jpg" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
@@ -37,7 +37,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
   <link rel="preload" as="image" href="assets/hero/crest.webp" fetchpriority="high" />
-  <link rel="preload" as="image" href="assets/hero/hero_poster.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/hero/envelope_poster.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/hero/hero_poster.webp" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -206,21 +207,19 @@
 
   <!-- ============================================================
        Intro — tap-to-begin gate.
-       The original opened on a film; none was supplied, so the gate
-       is the crest on ivory paper. The tap hands off to the hero by
-       flying the crest into its place there.
+       The envelope film is the gate. It carries its own prompt in the
+       opening frame and closes on "Let the celebration begin", so there
+       is no separate button over it: the tap plays the film through,
+       starts the score, and hands to the hero on the last frame.
        ============================================================ -->
-  <div class="intro-screen is-active" id="introScreen" role="button" tabindex="0" aria-label="Open the invitation">
+  <div class="intro-screen is-active" id="introScreen" role="button" tabindex="0"
+       aria-label="Tap to begin celebration">
     <div class="intro-paper" aria-hidden="true"></div>
-    <!-- The crest is artwork when CONFIG.couple.crest names a file, and the
-         couple's names set in script when it does not. -->
-    <div class="intro-crest" id="introCrest">
-      <img class="intro-crest-art" alt="" draggable="false" hidden />
-      <span class="intro-crest-name" data-couple-names></span>
-    </div>
-    <button id="beginButton" class="begin-button" type="button">
-      <span class="begin-main">Tap to begin celebration</span>
-    </button>
+    <video class="intro-film" id="introVideo"
+           src="assets/video/envelope.mp4"
+           poster="assets/hero/envelope_poster.webp"
+           muted playsinline webkit-playsinline preload="auto"
+           disablepictureinpicture aria-hidden="true"></video>
   </div>
   <div class="ivory-dissolve" id="ivoryDissolve" aria-hidden="true"></div>
 
@@ -246,7 +245,7 @@
              onerror="this.closest('.hero-crest').classList.add('is-fallback')" />
         <span class="hero-crest-fallback" data-couple-names></span>
       </h1>
-      <p class="hero-venue" data-venue>Fairmont, Jaipur</p>
+      <p class="hero-venue" data-venue>Hotel Damson Plum, Lucknow</p>
     </div>
 
     <div class="scroll-cue" aria-hidden="true">
@@ -289,7 +288,7 @@
         <svg class="scratch-frame-img" viewBox="0 0 300 420" aria-hidden="true"><use href="#orn-arch"/></svg>
       </div>
 
-      <p class="scratch-hashtag" id="scratchHashtag" data-hashtag>#dilseHarshKi</p>
+      <p class="scratch-hashtag" id="scratchHashtag" data-hashtag></p>
     </div>
   </section>
 
@@ -320,12 +319,12 @@
           <span>the wedding celebration of</span>
         </p>
 
-        <h2 class="inv-name" data-bride-name>Kirti</h2>
+        <h2 class="inv-name" data-bride-name>Radhika</h2>
         <p class="inv-lineage" data-bride-lineage></p>
 
         <p class="inv-amp" aria-hidden="true">&amp;</p>
 
-        <h2 class="inv-name" data-groom-name>Harsh</h2>
+        <h2 class="inv-name" data-groom-name>Raghav</h2>
         <p class="inv-lineage" data-groom-lineage></p>
       </div>
     </div>
@@ -429,10 +428,10 @@
       </div>
 
       <footer class="wedding-footer" aria-label="Wedding footer">
-        <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Kirti &amp; Harsh</p>
+        <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Radhika &amp; Raghav</p>
         <p class="footer-date countdown-reveal" data-footer-date style="--countdown-delay:1740ms"></p>
-        <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Fairmont, Jaipur</p>
-        <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms">#dilseHarshKi</p>
+        <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Hotel Damson Plum, Lucknow</p>
+        <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms"></p>
       </footer>
     </div>
   </section>

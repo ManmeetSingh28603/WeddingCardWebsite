@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+  <meta name="color-scheme" content="only light" />
+  <meta name="theme-color" content="#f6ead9" />
+  <title>Kirti &amp; Harsh — Fairmont, Jaipur</title>
+
+  <meta name="description" content="With love, Kirti &amp; Harsh invite you to celebrate their wedding at Fairmont, Jaipur. #dilseHarshKi" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kirti &amp; Harsh" />
+  <meta property="og:title" content="Kirti &amp; Harsh — Wedding Invitation" />
+  <meta property="og:description" content="With love, Kirti &amp; Harsh invite you to celebrate their wedding at Fairmont, Jaipur." />
+  <meta property="og:image" content="assets/hero/crest.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Cinzel = display caps · Cormorant Garamond = body · Pinyon Script = script accents -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet" />
+
+  <link rel="preload" as="image" href="assets/hero/crest.png" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/hero/couple.png" fetchpriority="high" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     Ornament library. The original invitation used bespoke painted
+     artwork for the arch, the cartouche and the rules; those files
+     were not supplied, so the shapes are drawn here instead and
+     tinted by CSS. Swap a <use> for an <img> if artwork arrives.
+     ============================================================ -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <!-- Jharokha arch framing the scratch oval. Three concentric rules on a
+         plinth, with a lotus finial. The opening is drawn wide enough to clear
+         the foil: the oval sits at x 70–230, y 112–322 of this viewBox, and
+         the innermost rule stands ~10 units outside it at its widest. -->
+    <symbol id="orn-arch" viewBox="0 0 300 420">
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <path d="M42 356 V198 C42 132 88 68 150 34 C212 68 258 132 258 198 V356" stroke-width="3.2"/>
+        <path d="M52 353 V199 C52 137  95 78 150 46 C205 78 248 137 248 199 V353" stroke-width=".9" opacity=".42"/>
+        <path d="M62 350 V200 C62 142 102 88 150 58 C198 88 238 142 238 200 V350" stroke-width="1.3" opacity=".6"/>
+      </g>
+      <!-- lotus finial -->
+      <path d="M150 36 C150 26 145 20 139 17 C145 14 150 9 150 2 C150 9 155 14 161 17 C155 20 150 26 150 36 Z"
+            fill="currentColor" opacity=".85"/>
+      <!-- plinth -->
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <path d="M34 358 H266" stroke-width="2.6" opacity=".8"/>
+        <rect x="24" y="366" width="252" height="13" rx="4" stroke-width="1.9" opacity=".7"/>
+        <rect x="12" y="383" width="276" height="16" rx="5" stroke-width="2.2" opacity=".8"/>
+      </g>
+      <!-- leaf curls where the arch springs from the jambs -->
+      <g fill="none" stroke="currentColor" stroke-width="1.3" opacity=".5">
+        <path d="M42 206 C60 202 72 190 76 172"/>
+        <path d="M42 230 C58 226 68 216 72 202"/>
+        <path d="M258 206 C240 202 228 190 224 172"/>
+        <path d="M258 230 C242 226 232 216 228 202"/>
+      </g>
+    </symbol>
+
+    <!-- cusped cartouche behind each countdown number -->
+    <symbol id="orn-cartouche" viewBox="0 0 150 200">
+      <path d="M75 4c6 8 14 12 24 13-6 7-6 14-1 20 14 2 26 8 33 18 8 11 11 24 11 42v56c0 18-3 31-11 42-7 10-19 16-33 18 5 6 5 13 1 20-10 1-18 5-24 13-6-8-14-12-24-13-4-7-4-14 1-20-14-2-26-8-33-18-8-11-11-24-11-42v-56c0-18 3-31 11-42 7-10 19-16 33-18-5-6-5-13-1-20 10-1 18-5 24-13z"
+            fill="rgba(255,252,246,.82)" stroke="currentColor" stroke-width="2"/>
+      <path d="M75 18c5 6 11 9 19 10-4 5-4 11 0 16 12 2 21 7 27 15 7 9 9 20 9 36v50c0 16-2 27-9 36-6 8-15 13-27 15 4 5 4 11 0 16-8 1-14 4-19 10-5-6-11-9-19-10-4-5-4-11 0-16-12-2-21-7-27-15-7-9-9-20-9-36v-50c0-16 2-27 9-36 6-8 15-13 27-15-4-5-4-11 0-16 8-1 14-4 19-10z"
+            fill="none" stroke="currentColor" stroke-width=".9" opacity=".55"/>
+    </symbol>
+
+    <!-- niche the wardrobe stands in -->
+    <symbol id="orn-niche" viewBox="0 0 300 520">
+      <path d="M150 22c-46 0-84 20-104 52-12 20-16 40-16 74v346h240V148c0-34-4-54-16-74-20-32-58-52-104-52z"
+            fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M150 44c-40 0-72 17-89 45-10 17-14 34-14 63v342h206V152c0-29-4-46-14-63-17-28-49-45-89-45z"
+            fill="none" stroke="currentColor" stroke-width="1.1" opacity=".55"/>
+      <g opacity=".6" stroke="currentColor" stroke-width="1.3" fill="none">
+        <path d="M40 96c16-4 28-14 34-28 8 12 20 18 34 18M260 96c-16-4-28-14-34-28-8 12-20 18-34 18"/>
+        <path d="M34 130c14-2 24-10 30-22M266 130c-14-2-24-10-30-22"/>
+      </g>
+      <path d="M150 12c-3 9-9 14-16 17 10 3 16 9 16 17 0-8 6-14 16-17-7-3-13-8-16-17z" fill="currentColor" opacity=".75"/>
+    </symbol>
+
+    <!-- A five-petal blossom, reused along every branch below. -->
+    <g id="blossom5">
+      <circle cx="0" cy="-5" r="3.4"/><circle cx="4.8" cy="-1.5" r="3.4"/>
+      <circle cx="3" cy="4" r="3.4"/><circle cx="-3" cy="4" r="3.4"/><circle cx="-4.8" cy="-1.5" r="3.4"/>
+      <circle cx="0" cy="0" r="1.9" opacity=".45"/>
+    </g>
+
+    <!-- Palace elevation standing along the foot of each painted panel:
+         central dome, flanking chhatris, an arcade and a terrace. Drawn as a
+         line elevation rather than a filled silhouette so it reads as the
+         same hand as the arch and the cartouche. -->
+    <symbol id="orn-skyline" viewBox="0 0 400 210" preserveAspectRatio="xMidYMax meet">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M0 200 H400"/>
+        <path d="M8 200 V176 H392 V200"/>
+        <path d="M132 176 V96 H268 V176"/>
+        <path d="M162 96 C162 62 176 44 200 34 C224 44 238 62 238 96"/>
+        <path d="M170 96 H230"/>
+        <path d="M200 34 V18"/>
+        <circle cx="200" cy="13" r="4"/>
+        <path d="M152 176 V132 C152 118 162 110 172 110 C182 110 192 118 192 132 V176"/>
+        <path d="M208 176 V132 C208 118 218 110 228 110 C238 110 248 118 248 132 V176"/>
+        <path d="M56 176 V124 H112 V176"/>
+        <path d="M64 124 C64 104 76 92 84 86 C92 92 104 104 104 124"/>
+        <path d="M84 86 V74"/>
+        <path d="M72 176 V146 C72 136 78 130 84 130 C90 130 96 136 96 146 V176"/>
+        <path d="M288 176 V124 H344 V176"/>
+        <path d="M296 124 C296 104 308 92 316 86 C324 92 336 104 336 124"/>
+        <path d="M316 86 V74"/>
+        <path d="M304 176 V146 C304 136 310 130 316 130 C322 130 328 136 328 146 V176"/>
+        <path d="M8 176 V152 H56"/>
+        <path d="M344 176 V152 H392"/>
+        <path d="M20 176 V160 C20 154 24 150 28 150 C32 150 36 154 36 160 V176"/>
+        <path d="M364 176 V160 C364 154 368 150 372 150 C376 150 380 154 380 160 V176"/>
+      </g>
+    </symbol>
+
+    <!-- Two chandeliers hanging from the head of the Sangeet panel. -->
+    <symbol id="orn-jhoomer" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M60 0 V54"/><path d="M132 0 V34"/>
+        <ellipse cx="60" cy="70" rx="26" ry="13"/>
+        <ellipse cx="60" cy="85" rx="17" ry="9"/>
+        <path d="M34 70 C38 96 48 112 60 120 C72 112 82 96 86 70"/>
+        <path d="M60 120 V131"/>
+        <path d="M40 78 V92M50 84 V100M70 84 V100M80 78 V92"/>
+        <ellipse cx="132" cy="50" rx="20" ry="10"/>
+        <ellipse cx="132" cy="61" rx="13" ry="7"/>
+        <path d="M112 50 C115 70 123 83 132 89 C141 83 149 70 152 50"/>
+        <path d="M132 89 V99"/>
+        <path d="M118 57 V69M126 62 V75M138 62 V75M146 57 V69"/>
+      </g>
+      <circle cx="60" cy="135" r="3.6" fill="currentColor"/>
+      <circle cx="132" cy="103" r="3" fill="currentColor"/>
+    </symbol>
+
+    <!-- Blossom bough, rooted in a corner of the frame. -->
+    <symbol id="orn-bough" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" opacity=".72">
+        <path d="M2 6 C40 20 74 42 100 74 C118 96 130 120 138 146"/>
+        <path d="M32 18 C44 32 50 48 52 64"/>
+        <path d="M68 42 C76 58 80 74 80 90"/>
+        <path d="M102 80 C112 94 118 110 120 126"/>
+      </g>
+      <g fill="currentColor">
+        <use href="#blossom5" x="20" y="12"/><use href="#blossom5" x="46" y="30"/>
+        <use href="#blossom5" x="34" y="56"/><use href="#blossom5" x="64" y="40"/>
+        <use href="#blossom5" x="56" y="72"/><use href="#blossom5" x="88" y="64"/>
+        <use href="#blossom5" x="80" y="98"/><use href="#blossom5" x="110" y="88"/>
+        <use href="#blossom5" x="118" y="120"/><use href="#blossom5" x="138" y="146"/>
+      </g>
+    </symbol>
+
+    <!-- Flowering vine that runs down the margin of a panel. -->
+    <symbol id="orn-vine" viewBox="0 0 200 200">
+      <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".7">
+        <path d="M8 2 C18 34 26 66 30 98 C33 124 34 152 30 180"/>
+        <path d="M18 34 C36 40 50 52 58 68"/>
+        <path d="M26 82 C46 86 62 96 72 110"/>
+        <path d="M31 132 C50 134 66 142 76 154"/>
+      </g>
+      <g fill="currentColor">
+        <use href="#blossom5" x="12" y="14"/><use href="#blossom5" x="40" y="44"/>
+        <use href="#blossom5" x="60" y="70"/><use href="#blossom5" x="22" y="62"/>
+        <use href="#blossom5" x="52" y="98"/><use href="#blossom5" x="74" y="112"/>
+        <use href="#blossom5" x="28" y="116"/><use href="#blossom5" x="58" y="140"/>
+        <use href="#blossom5" x="78" y="156"/><use href="#blossom5" x="30" y="172"/>
+      </g>
+    </symbol>
+
+    <!-- phone / whatsapp glyphs for RSVP -->
+    <symbol id="ic-phone" viewBox="0 0 24 24">
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.32.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71 3 4.5c0-.55.45-1 1-1H7.5c.55 0 1 .45 1 1 0 1.26.2 2.46.57 3.57.12.36.03.76-.24 1.02L6.6 10.8z"
+            fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-wa" viewBox="0 0 24 24">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+            fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+
+<div id="device-frame">
+
+  <!-- ============================================================
+       Intro — tap-to-begin gate.
+       The original opened on a film; none was supplied, so the gate
+       is the crest on ivory paper. The tap hands off to the hero by
+       flying the crest into its place there.
+       ============================================================ -->
+  <div class="intro-screen is-active" id="introScreen" role="button" tabindex="0" aria-label="Open the invitation">
+    <div class="intro-paper" aria-hidden="true"></div>
+    <div class="intro-crest" id="introCrest">
+      <img src="assets/hero/crest.png" alt="" draggable="false" />
+    </div>
+    <button id="beginButton" class="begin-button" type="button">
+      <span class="begin-main">Tap to begin celebration</span>
+    </button>
+  </div>
+  <div class="ivory-dissolve" id="ivoryDissolve" aria-hidden="true"></div>
+
+
+  <!-- ============================================================
+       Hero — layered watercolour: background film, couple in front,
+       crest and venue over the sky.
+       ============================================================ -->
+  <section class="hero-screen" id="hero" aria-label="Wedding invitation">
+    <div class="hero-parallax" aria-hidden="true">
+      <img class="plate" id="heroBg" src="assets/hero/sky.webp" alt=""
+           draggable="false" fetchpriority="high" onerror="this.style.display='none'" />
+      <img class="hero-layer hero-fg" id="heroFg" src="assets/hero/couple.png" alt=""
+           draggable="false" fetchpriority="high" onerror="this.style.display='none'" />
+    </div>
+
+    <div class="hero-content">
+      <h1 class="hero-crest">
+        <img src="assets/hero/crest.png" alt="" draggable="false"
+             onerror="this.closest('.hero-crest').classList.add('is-fallback')" />
+        <span class="hero-crest-fallback" data-couple-names>Kirti &amp; Harsh</span>
+      </h1>
+      <p class="hero-venue" data-venue>Fairmont, Jaipur</p>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true">
+      <span class="scroll-cue-label">Scroll</span>
+      <span class="scroll-arrows"><i></i><i></i><i></i></span>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Scratch to reveal — the dates sit under a rose-gold foil in
+       the arch's oval window. Grains fly off under the finger and a
+       shower of blossom follows once ~45% is cleared.
+       ============================================================ -->
+  <section class="scratch-section" id="scratchSection" aria-label="Scratch to reveal the wedding dates">
+    <canvas class="petal-canvas" id="petalCanvas" aria-hidden="true"></canvas>
+    <canvas class="sand-canvas" id="sandCanvas" aria-hidden="true"></canvas>
+
+    <div class="scratch-heading">
+      <p class="scratch-heading__eyebrow">A love story worth celebrating</p>
+      <p class="scratch-heading__cta">Scratch to unveil the dates</p>
+    </div>
+
+    <div class="scratch-card">
+      <div class="scratch-frame-wrap" id="scratchFrameWrap">
+        <div class="scratch-reveal" id="scratchReveal" aria-live="polite">
+          <p class="scratch-date-num" data-date-num>23 &ndash; 24</p>
+          <p class="scratch-date-month" data-date-month>August 2026</p>
+        </div>
+
+        <canvas class="scratch-canvas" id="scratchCanvas"
+                aria-label="Scratch here to reveal the wedding dates"></canvas>
+
+        <div class="scratch-glint" id="scratchGlint" aria-hidden="true"></div>
+
+        <div class="scratch-hint" id="scratchHint" aria-hidden="true">
+          <span class="scratch-hint__text">Gently scratch to reveal</span>
+        </div>
+
+        <svg class="scratch-frame-img" viewBox="0 0 300 420" aria-hidden="true"><use href="#orn-arch"/></svg>
+      </div>
+
+      <p class="scratch-hashtag" id="scratchHashtag" data-hashtag>#dilseHarshKi</p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Invitation — the formal request over the palace sky.
+       ============================================================ -->
+  <section class="invite" id="invite" aria-label="Invitation">
+    <div class="inv-art" aria-hidden="true">
+      <img class="plate" src="assets/invite/palace.webp" alt=""
+           draggable="false" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+      <svg class="inv-bough" data-drift="20" viewBox="0 0 200 200" aria-hidden="true"><use href="#orn-bough"/></svg>
+    </div>
+
+    <div class="inv-petals" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="inv-content">
+      <div class="inv-card">
+        <p class="inv-mantra" data-mantra>|| Shri Mahaviraya Namah ||</p>
+
+        <p class="inv-request">
+          <span>We request the honor</span>
+          <span>of your presence for</span>
+          <span>the wedding celebration of</span>
+        </p>
+
+        <h2 class="inv-name" data-bride-name>Kirti</h2>
+        <p class="inv-lineage" data-bride-lineage></p>
+
+        <p class="inv-amp" aria-hidden="true">&amp;</p>
+
+        <h2 class="inv-name" data-groom-name>Harsh</h2>
+        <p class="inv-lineage" data-groom-lineage></p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Events — one painted panel per function. Built from CONFIG.events
+       in script.js; each card carries its own palette.
+       ============================================================ -->
+  <section class="events" id="events" aria-label="Wedding events"></section>
+
+
+  <!-- ============================================================
+       Wardrobe planner — one dress code per function, hung on a rail.
+       ============================================================ -->
+  <section class="wardrobe" id="wardrobe" aria-label="Wardrobe planner">
+    <div class="wd-art" aria-hidden="true">
+      <svg class="wd-niche" viewBox="0 0 300 520" preserveAspectRatio="xMidYMid slice"><use href="#orn-niche"/></svg>
+    </div>
+
+    <header class="wd-header">
+      <div class="wd-rule" aria-hidden="true">
+        <span class="wd-rule-line"></span><span class="wd-rule-diamond">&#9670;</span><span class="wd-rule-line"></span>
+      </div>
+      <h2 class="wd-title">Wardrobe Planner</h2>
+      <p class="wd-note">Click on the function to see its dress code.</p>
+    </header>
+
+    <div class="wd-rail" id="wdRail" role="tablist" aria-label="Select a function"></div>
+
+    <div class="wd-stage" id="wdStage">
+      <div class="wd-trolley-vp" id="wdTrolleyVp"></div>
+      <p class="wd-caption" id="wdCaption" aria-live="polite"></p>
+      <p class="wd-dress" id="wdDress"></p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Blessings — one page per side, built from CONFIG.blessings.
+       ============================================================ -->
+  <section class="blessings" id="blessings" aria-label="Blessings"></section>
+
+
+  <!-- ============================================================
+       RSVP — call / WhatsApp, built from CONFIG.rsvp.
+       ============================================================ -->
+  <section class="rsvp" id="rsvp" aria-label="RSVP">
+    <div class="rsvp-inner">
+      <div class="rsvp-rule" aria-hidden="true">
+        <span class="rsvp-rule-line"></span><span class="rsvp-rule-diamond">&#9670;</span><span class="rsvp-rule-line"></span>
+      </div>
+      <h2 class="rsvp-heading">RSVP</h2>
+      <div class="rsvp-sub-rule" aria-hidden="true"></div>
+      <p class="rsvp-note">We are only a call away &mdash; for timings, travel, or anything at all.</p>
+      <div id="rsvpLists"></div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Countdown + footer.
+       ============================================================ -->
+  <section class="countdown-section" id="countdown" aria-labelledby="countdownTitle">
+    <div class="countdown-bg" aria-hidden="true"></div>
+    <div class="countdown-particles" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="countdown-content">
+      <p class="countdown-eyebrow countdown-reveal" data-countdown-letters style="--countdown-delay:130ms">Counting down to</p>
+      <h2 class="countdown-names countdown-reveal" id="countdownTitle" style="--countdown-delay:460ms">Forever</h2>
+      <div class="countdown-divider countdown-reveal" aria-hidden="true" style="--countdown-delay:720ms"></div>
+
+      <div class="countdown-grid" aria-label="Wedding countdown">
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:880ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="days">0</span><span class="countdown-label">Days</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1010ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="hours">00</span><span class="countdown-label">Hours</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1140ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="minutes">00</span><span class="countdown-label">Minutes</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1270ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="seconds">00</span><span class="countdown-label">Seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="wedding-footer" aria-label="Wedding footer">
+        <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Kirti &amp; Harsh</p>
+        <p class="footer-date countdown-reveal" data-footer-date style="--countdown-delay:1740ms"></p>
+        <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Fairmont, Jaipur</p>
+        <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms">#dilseHarshKi</p>
+      </footer>
+    </div>
+  </section>
+
+</div><!-- /#device-frame -->
+
+
+<!-- Background score. Drop an mp3 at assets/music/music.mp3 to enable it;
+     with no file the control hides itself and nothing else changes. -->
+<audio id="bgMusic" src="assets/music/music.mp3" loop preload="auto" aria-hidden="true"></audio>
+<button id="musicBtn" class="music-btn" type="button" aria-label="Play music" title="Toggle music" hidden>
+  <span class="mb-disc" aria-hidden="true"></span>
+  <img class="mb-bow" src="assets/music/kamaicha.png" alt="" aria-hidden="true" draggable="false" />
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>

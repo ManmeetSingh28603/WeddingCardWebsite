@@ -1,0 +1,2377 @@
+/* ============================================================
+   Wedding invitation — Fairmont, Jaipur
+   Intro gate · Hero · Scratch-to-reveal · Invitation · Events ·
+   Wardrobe · Blessings · RSVP · Countdown · Music
+
+   Palette taken from the crest artwork: pale rose sky, Amer
+   sandstone, bougainvillea pink, peacock teal, terracotta ink.
+
+   Where the original invitation used painted artwork that was not
+   supplied (section grounds, boughs, the garden floor), the ground
+   is painted here in layered gradients instead. Every one of those
+   is marked "painted ground" — drop a real image in and delete the
+   gradient when artwork arrives.
+   ============================================================ */
+
+:root {
+  --sky:        #f4ecf4;
+  --ivory:      #fdf6ec;
+  --ivory-warm: #f8ecd9;
+  --sand:       #e3c79a;
+  --sand-deep:  #c9a469;
+  --gold:       #c08a3e;
+  --gold-soft:  #dcb473;
+  --gold-deep:  #a06a1f;
+  --terra:      #9c4a1c;
+  --terra-deep: #7c380f;
+  --bougain:    #e07a9e;
+  --bougain-dp: #c2547c;
+  --peacock:    #1f6f6b;
+  --crimson:    #a4213c;
+  --ink:        #4a3524;
+  --ink-soft:   #86664a;
+
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-caps:    "Cinzel", "Cormorant Garamond", Georgia, serif;
+  --font-script:  "Pinyon Script", "Brush Script MT", cursive;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Hold the scrollbar's gutter open. The intro locks scrolling and releases it
+   as the veil lifts; without this that release shunts the layout sideways at
+   exactly the moment the scene arrives.
+   On html ONLY. Set on body as well, the gutter is reserved twice: the column
+   then centres inside a box ~15px narrower than the one the fixed overlays
+   (.intro-screen, .ivory-dissolve) resolve their 50% against, and the veil
+   sits half a gutter to the right of the invitation it is meant to cover. */
+html { scrollbar-gutter: stable; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--font-display);
+  overscroll-behavior-x: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The painted panels. Each is a still cut from the supplied footage with the
+   bottom strip already removed in the pixels — that strip carried the source
+   site's floating control and a screen-recorder watermark. Cropping it here
+   in CSS instead would have to be sized for the worst viewport ratio, and at
+   that depth it takes the fountain and the flowers with it, so the cut was
+   made once in the file.
+   Anchored to the bottom: that is where each painting's subject sits. */
+.plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  background: var(--sky);
+}
+
+
+/* ============================================================
+   INTRO  (tap-to-begin gate)
+   ============================================================ */
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #efe3d0;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 1400ms ease, filter 1400ms ease, transform 1800ms ease;
+}
+/* painted ground — laid paper the card opens on */
+.intro-paper {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 38%, rgba(255,253,248,.95), transparent 70%),
+    radial-gradient(circle at 18% 16%, rgba(224,122,158,.10), transparent 42%),
+    radial-gradient(circle at 84% 78%, rgba(192,138,62,.12), transparent 46%),
+    linear-gradient(170deg, #fbf1e2 0%, #f4e5d0 52%, #efdcc2 100%);
+}
+.intro-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .5;
+  background: repeating-linear-gradient(92deg, rgba(150,120,80,.035) 0 1px, transparent 1px 6px);
+}
+.intro-crest {
+  position: relative;
+  z-index: 2;
+  width: min(62vw, 268px);
+  opacity: 0;
+  transform: translateY(18px) scale(.94);
+  filter: blur(14px);
+  animation: introCrestIn 1800ms cubic-bezier(.16,1,.3,1) forwards 220ms;
+}
+.intro-crest img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 26px rgba(124,56,15,.18));
+}
+@keyframes introCrestIn {
+  0%   { opacity: 0; filter: blur(14px); transform: translateY(18px) scale(.94); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0);    transform: translateY(0) scale(1); }
+}
+.intro-screen.is-fading {
+  opacity: 0;
+  filter: blur(16px);
+  transform: scale(1.035);
+  pointer-events: none;
+}
+
+.begin-button {
+  position: absolute;
+  left: 50%;
+  bottom: max(8dvh, 48px);
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  padding: 8px 6px;
+  color: var(--terra-deep);
+  text-align: center;
+  border: 0;
+  background: none;
+  text-shadow: 0 1px 10px rgba(255,250,242,.9);
+  transform: translateX(-50%);
+  cursor: pointer;
+  transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+}
+/* an ivory halo, never a scrim — the ground here is cream paper, so the
+   plate under the line lightens rather than darkens */
+.begin-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -40% -22%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    rgba(255,250,242,.88) 0%, rgba(255,250,242,.5) 45%, rgba(255,250,242,0) 74%);
+  filter: blur(12px);
+}
+.begin-button:not(:disabled):active { transform: translateX(-50%) translateY(1px); }
+.begin-button.is-hidden {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateX(-50%) translateY(16px);
+  pointer-events: none;
+}
+.begin-button:not(.is-hidden) .begin-main { animation: beginBreath 3.4s ease-in-out infinite; }
+.begin-main {
+  position: relative;
+  max-width: min(82vw, 340px);
+  margin: 0 auto;
+  padding-bottom: 16px;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 5.8vw, 1.85rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.begin-main::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: 36px; height: 1px;
+  background: var(--gold);
+  opacity: .8;
+  transform: translateX(-50%);
+}
+@keyframes beginBreath {
+  0%, 100% { opacity: .86; transform: translateY(0); }
+  50%      { opacity: 1;   transform: translateY(-3px); }
+}
+
+/* Ivory cross-dissolve between the card and the scene. */
+.ivory-dissolve {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 44%, #fffdf8 0%, #fdf6ec 36%, #f6e7d2 66%, #efdcc2 100%);
+}
+.ivory-dissolve::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(192,138,62,.20), transparent 58%);
+  mix-blend-mode: screen;
+}
+.ivory-dissolve.is-active { animation: ivoryDissolve 2400ms cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes ivoryDissolve {
+  0%   { opacity: 0; transform: scale(1.05); filter: blur(8px); }
+  30%  { opacity: 1; transform: scale(1);    filter: blur(0); }
+  60%  { opacity: 1; transform: scale(1);    filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.07); filter: blur(5px); }
+}
+/* Held veil, used while the crest is in flight. A STATIC opacity, not a
+   keyframe: the hand-off is the heaviest moment on the page, and a keyframe
+   started here can miss its own fade-in and leave the veil transparent while
+   the card fades off it. A static value cannot be skipped. */
+.ivory-dissolve.is-active.is-hold { animation: none; opacity: 1; }
+.ivory-dissolve.is-active.is-hold.is-lifting {
+  opacity: 0;
+  transform: scale(1.05);
+  filter: blur(4px);
+  transition: opacity 1100ms ease, transform 1300ms ease, filter 1100ms ease;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero-screen {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--sky);
+  isolation: isolate;
+}
+.hero-parallax { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.hero-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+.hero-fg {
+  z-index: 1;
+  transform: scale(1.08);
+  opacity: 0;
+  transition: opacity 1600ms ease 300ms;
+}
+.hero-screen.is-animated .hero-fg { opacity: 1; }
+
+/* ivory wash at the head so the crest and venue hold over the sky, and a
+   whisper of warm light at the floor for the scroll cue to sit on */
+.hero-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(253,246,236,.5) 0%, rgba(253,246,236,.14) 26%, transparent 48%),
+    linear-gradient(0deg, rgba(253,246,236,.42) 0%, transparent 14%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  width: min(92vw, 430px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 2.6dvh 16px 9dvh;
+  text-align: center;
+}
+
+.hero-crest {
+  position: relative;
+  margin: 0;
+  font-size: 0;
+  line-height: 0;
+  opacity: 0;
+  filter: blur(18px);
+  transform: translateY(34px) scale(1.06);
+}
+.hero-crest img {
+  display: block;
+  width: min(59vw, 256px);
+  height: auto;
+  filter: drop-shadow(0 6px 20px rgba(124,56,15,.16));
+}
+.hero-crest-fallback {
+  display: none;
+  font-family: var(--font-script);
+  font-size: clamp(2.6rem, 12vw, 3.6rem);
+  line-height: 1.1;
+  color: var(--terra);
+}
+.hero-crest.is-fallback img { display: none; }
+.hero-crest.is-fallback { font-size: initial; line-height: initial; }
+.hero-crest.is-fallback .hero-crest-fallback { display: block; }
+
+.hero-screen.is-animated .hero-crest {
+  animation:
+    heroCrestReveal 2200ms cubic-bezier(.16,1,.3,1) forwards 260ms,
+    heroCrestFloat  6.5s ease-in-out 2.6s infinite;
+}
+/* A gold shine crosses the crest once it has settled. The BAND slides, never
+   the element: the mask travels with the element, so moving it would walk the
+   clip off the crest and streak the sky. */
+.hero-crest::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background-image: linear-gradient(105deg,
+    transparent 38%, rgba(255,244,214,.55) 47%, rgba(255,232,178,.75) 50%,
+    rgba(255,244,214,.55) 53%, transparent 62%);
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-position: -80% 0;
+  mix-blend-mode: screen;
+  -webkit-mask-image: url("assets/hero/crest.png");
+          mask-image: url("assets/hero/crest.png");
+  -webkit-mask-size: contain;  mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center;  mask-position: center;
+}
+.hero-screen.is-animated .hero-crest::after { animation: heroCrestShine 2600ms ease-out forwards 2100ms; }
+
+/* ── crest flight (intro → hero hand-off) ──
+   Everything after the crest hangs off the LANDING, not a stopwatch: if the
+   flight is cut short the scene still arrives in the right order, just
+   sooner. Each rule carries .is-crest-flight as well as .is-animated, since
+   the plain-reveal rules it competes with sit later in this file. */
+.hero-screen.is-crest-flight .hero-crest {
+  opacity: 0; filter: none; transform: none; animation: none !important;
+}
+.hero-screen.is-crest-flight .hero-crest::after { opacity: 0; animation: none !important; }
+.hero-screen.is-crest-flight.is-crest-landed .hero-crest {
+  opacity: 1;
+  animation: heroCrestFloat 6.5s ease-in-out 700ms infinite !important;
+}
+.hero-screen.is-crest-flight.is-animated .hero-fg { opacity: 0; transition: opacity 1400ms ease; }
+.hero-screen.is-crest-flight.is-crest-landed .hero-fg { opacity: 1; }
+.hero-screen.is-crest-flight.is-animated .hero-venue { animation: none; }
+.hero-screen.is-crest-flight.is-crest-landed .hero-venue {
+  animation: heroVenueReveal 1700ms cubic-bezier(.16,1,.3,1) forwards 1300ms;
+}
+.hero-screen.is-crest-flight.is-animated .scroll-cue {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity 1000ms ease 2200ms, transform 1000ms ease 2200ms;
+}
+.hero-screen.is-crest-flight.is-crest-landed .scroll-cue { opacity: 1; transform: translateX(-50%); }
+
+.crest-flight {
+  position: fixed;
+  z-index: 51;
+  left: 0; top: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, filter;
+}
+.crest-flight img { display: block; width: 100%; height: auto; -webkit-user-drag: none; }
+.crest-flight.is-in {
+  opacity: 1;
+  filter: drop-shadow(0 10px 34px rgba(124,56,15,.24)) drop-shadow(0 0 26px rgba(224,178,96,.55));
+  transition: opacity 900ms ease, filter 1100ms ease, transform 1000ms cubic-bezier(.16,1,.3,1);
+}
+/* opacity is restated: the travel drops .is-in to be rid of its shorter
+   transition, and without this the crest blinks out as it starts moving */
+.crest-flight.is-home {
+  opacity: 1;
+  filter: drop-shadow(0 6px 20px rgba(124,56,15,.16));
+  transition: filter 1200ms ease, transform 1400ms cubic-bezier(.34,1.12,.36,1);
+}
+.crest-flight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background-image: linear-gradient(105deg,
+    transparent 36%, rgba(255,244,214,.6) 46%, rgba(255,236,190,.85) 50%,
+    rgba(255,244,214,.6) 54%, transparent 64%);
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-position: -80% 0;
+  mix-blend-mode: screen;
+  -webkit-mask-image: url("assets/hero/crest.png");
+          mask-image: url("assets/hero/crest.png");
+  -webkit-mask-size: contain;  mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center;  mask-position: center;
+}
+.crest-flight.is-shining::after { animation: crestFlightShine 1500ms ease-out forwards; }
+@keyframes crestFlightShine {
+  0%   { opacity: 0;   background-position: -80% 0; }
+  20%  { opacity: 1; }
+  76%  { opacity: .78; }
+  100% { opacity: 0;   background-position: 180% 0; }
+}
+
+.hero-venue {
+  margin: clamp(0px, .35vh, 6px) 0 0;
+  color: var(--terra);
+  font-family: var(--font-caps);
+  font-size: clamp(1.16rem, 5.6vw, 1.67rem);
+  font-weight: 500;
+  letter-spacing: .045em;
+  text-indent: .045em;
+  line-height: 1.25;
+  text-shadow: 0 1px 14px rgba(253,246,236,.8);
+  opacity: 0;
+  transform: translateY(14px);
+}
+.hero-screen.is-animated .hero-venue {
+  animation: heroVenueReveal 1700ms cubic-bezier(.16,1,.3,1) forwards 1750ms;
+}
+
+@keyframes heroCrestReveal {
+  0%   { opacity: 0; filter: blur(18px); transform: translateY(34px) scale(1.08); }
+  55%  { opacity: 1; }
+  78%  { filter: blur(0); transform: translateY(-6px) scale(1.012); }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+}
+@keyframes heroCrestFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes heroCrestShine {
+  0%   { opacity: 0;   background-position: -80% 0; }
+  22%  { opacity: .95; }
+  78%  { opacity: .72; }
+  100% { opacity: 0;   background-position: 180% 0; }
+}
+/* the letters draw apart as the line lands */
+@keyframes heroVenueReveal {
+  0%   { opacity: 0; filter: blur(7px); transform: translateY(14px); letter-spacing: .30em; }
+  60%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0);   transform: translateY(0);    letter-spacing: .045em; }
+}
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: max(3.4dvh, 20px);
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity 1000ms ease 3600ms, transform 1000ms ease 3600ms;
+  pointer-events: none;
+}
+.scroll-cue::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -16px -30px;
+  background: radial-gradient(ellipse at center,
+    rgba(255,250,242,.82) 0%, rgba(255,250,242,.42) 48%, rgba(255,250,242,0) 78%);
+  filter: blur(9px);
+}
+.hero-screen.is-animated .scroll-cue { opacity: 1; transform: translateX(-50%); }
+.scroll-cue-label {
+  color: var(--terra);
+  font-family: var(--font-caps);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .32em;
+  text-indent: .32em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 10px rgba(255,250,242,.95);
+}
+.scroll-arrows { display: grid; justify-items: center; height: 30px; }
+.scroll-arrows i {
+  display: block;
+  width: 13px; height: 13px;
+  margin-top: -6px;
+  border-right: 3px solid var(--terra);
+  border-bottom: 3px solid var(--terra);
+  transform: rotate(45deg);
+  opacity: 0;
+  animation: scrollArrow 2.1s ease-in-out infinite;
+  filter: drop-shadow(0 1px 4px rgba(255,250,242,.9));
+}
+.scroll-arrows i:nth-child(2) { animation-delay: .22s; }
+.scroll-arrows i:nth-child(3) { animation-delay: .44s; }
+@keyframes scrollArrow {
+  0%   { opacity: 0;   transform: rotate(45deg) translate(-4px,-4px); }
+  45%  { opacity: .95; }
+  100% { opacity: 0;   transform: rotate(45deg) translate(5px,5px); }
+}
+
+
+/* ============================================================
+   SCRATCH TO REVEAL
+   The oval is cut by a canvas clip path rather than a CSS mask —
+   mask-image switches between alpha and luminance behaviour across
+   browsers, and the foil has to disappear exactly on the oval.
+   ============================================================ */
+.scratch-section {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(40px, 10vh, 68px) 24px 56px;
+  overflow: hidden;
+  /* painted ground — a blossom garden in place of the supplied art */
+  background:
+    radial-gradient(ellipse 42% 30% at 8% 6%,   rgba(240,178,196,.42), transparent 70%),
+    radial-gradient(ellipse 38% 26% at 94% 10%, rgba(236,170,190,.38), transparent 70%),
+    radial-gradient(ellipse 46% 24% at 12% 94%, rgba(232,160,182,.40), transparent 72%),
+    radial-gradient(ellipse 50% 28% at 88% 97%, rgba(238,176,196,.42), transparent 72%),
+    radial-gradient(ellipse 60% 40% at 50% 48%, rgba(255,253,248,.85), transparent 76%),
+    linear-gradient(170deg, #fdf3ea 0%, #fbeee6 40%, #f9e8e2 100%);
+}
+.scratch-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .5;
+  /* scattered petals in the ground itself */
+  background-image:
+    radial-gradient(circle at 20% 22%, rgba(226,138,168,.5) 0 3px, transparent 4px),
+    radial-gradient(circle at 76% 34%, rgba(226,138,168,.4) 0 2px, transparent 3px),
+    radial-gradient(circle at 34% 72%, rgba(214,126,158,.4) 0 3px, transparent 4px),
+    radial-gradient(circle at 86% 68%, rgba(226,138,168,.35) 0 2px, transparent 3px);
+  background-size: 180px 200px, 150px 170px, 210px 230px, 130px 160px;
+}
+.scratch-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(253,246,236,.5) 0%, transparent 12%),
+    linear-gradient(0deg,   rgba(253,246,236,.45) 0%, transparent 9%);
+}
+
+.scratch-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: clamp(16px, 3.6vh, 28px);
+  text-align: center;
+}
+.scratch-heading__eyebrow {
+  margin: 0;
+  font-size: clamp(1rem, 4.2vw, 1.3rem);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--terra);
+  text-shadow: 0 1px 12px rgba(253,246,236,.9);
+}
+.scratch-heading__cta {
+  margin: 4px 0 0;
+  font-family: var(--font-caps);
+  font-size: clamp(.76rem, 3.3vw, .92rem);
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  color: var(--terra-deep);
+  text-shadow: 0 1px 10px rgba(253,246,236,.95);
+}
+
+.scratch-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 3.2vh, 24px);
+  width: 100%;
+}
+/* the frame is in normal flow, so its own proportions set the wrap's
+   height; the canvas, the date and the prompt are absolute inside it */
+.scratch-frame-wrap { position: relative; width: min(78vw, 292px); }
+.scratch-frame-img {
+  display: block;
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 300 / 420;
+  color: var(--gold);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 16px rgba(124,56,15,.14));
+}
+
+/* ── the dates, waiting underneath ── */
+.scratch-reveal {
+  position: absolute;
+  top: 27.5%; left: 24.1%;
+  width: 51.7%; height: 48.5%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* the box is the oval's bounding box, and a big line over a small one is
+     bottom-heavy — this lifts the pair onto the oval's widest part */
+  padding-bottom: 8%;
+  gap: clamp(5px, 1.5vh, 9px);
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(253,246,236,.92) 0%, rgba(253,246,236,.52) 55%, transparent 100%);
+}
+.scratch-reveal::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 47%,
+    rgba(224,122,158,.42) 0%, rgba(192,138,62,.28) 42%, rgba(192,138,62,0) 72%);
+}
+.scratch-reveal.show::before { animation: scrDateGlow 3.2s ease-in-out .25s infinite; }
+@keyframes scrDateGlow {
+  0%, 100% { opacity: .38; transform: scale(.9); }
+  50%      { opacity: .92; transform: scale(1.08); }
+}
+.scratch-date-num {
+  position: relative;
+  margin: 0;
+  font-size: clamp(2rem, 8.4vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--crimson);
+  text-shadow: 0 2px 14px rgba(255,250,242,.9);
+  opacity: 0;
+}
+.scratch-date-month {
+  position: relative;
+  margin: 0;
+  /* tracked caps hang their last gap off the end of the line, so a centred
+     line sits half a gap left — this pads it back */
+  padding-left: .19em;
+  font-family: var(--font-caps);
+  font-size: clamp(.7rem, 3vw, .88rem);
+  font-weight: 500;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+  color: var(--terra-deep);
+  opacity: 0;
+}
+.scratch-reveal.show .scratch-date-num   { animation: scrRevealNum   1s   .05s cubic-bezier(.16,1,.3,1) both; }
+.scratch-reveal.show .scratch-date-month { animation: scrRevealMonth .8s  .34s cubic-bezier(.16,1,.3,1) both; }
+@keyframes scrRevealNum {
+  0%   { opacity: 0; transform: scale(.6) translateY(14px);  filter: blur(12px); }
+  55%  { opacity: 1; transform: scale(1.08) translateY(-2px); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0);       filter: blur(0); }
+}
+@keyframes scrRevealMonth {
+  from { opacity: 0; transform: translateY(10px); letter-spacing: .05em; }
+  /* must land on the resting tracking, or the line jumps as the animation
+     hands back to the stylesheet */
+  to   { opacity: 1; transform: translateY(0);    letter-spacing: .19em; }
+}
+
+.scratch-canvas {
+  position: absolute;
+  top: 26.7%; left: 23.5%;
+  width: 53%; height: 50%;
+  z-index: 2;
+  /* the scratch must never turn into a page scroll under the finger */
+  touch-action: none;
+  cursor: grab;
+  transition: opacity 700ms ease;
+}
+.scratch-canvas:active { cursor: grabbing; }
+.scratch-canvas.gone { opacity: 0; pointer-events: none; }
+
+.scratch-hint {
+  position: absolute;
+  top: 27.5%; left: 24.1%;
+  width: 51.7%; height: 48.5%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8%;
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+.scratch-hint.hidden { opacity: 0; }
+.scratch-hint__text {
+  font-size: clamp(.92rem, 4vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .05em;
+  text-align: center;
+  /* darker than the section's terracotta: this sits on the foil, which is a
+     mid-tone rose-gold, and terra-deep muddies against it */
+  color: #4a2410;
+  text-shadow: 0 1px 6px rgba(255,248,240,.75);
+  animation: scrHintBreathe 2.4s ease-in-out infinite;
+}
+@keyframes scrHintBreathe {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: .86; transform: scale(1.05); }
+}
+
+.scratch-glint {
+  position: absolute;
+  top: 26.7%; left: 23.5%;
+  width: 53%; height: 50%;
+  z-index: 3;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+.scratch-glint::before {
+  content: "";
+  position: absolute;
+  top: -40%; left: -60%;
+  width: 60%; height: 180%;
+  background: linear-gradient(105deg,
+    transparent 0%, rgba(255,252,245,0) 30%, rgba(255,252,245,.55) 50%,
+    rgba(255,252,245,0) 70%, transparent 100%);
+  transform: rotate(8deg);
+  animation: scrGlintSweep 2.8s ease-in-out infinite;
+}
+.scratch-glint.hidden { opacity: 0; }
+@keyframes scrGlintSweep { 0% { left: -60%; } 55%, 100% { left: 130%; } }
+
+.scratch-frame-wrap.attention { animation: scrAttention 1.4s ease-in-out 2; }
+@keyframes scrAttention {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.035); }
+}
+
+.scratch-hashtag {
+  margin: 0;
+  font-size: clamp(1.15rem, 5vw, 1.55rem);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-align: center;
+  color: var(--bougain-dp);
+  text-shadow: 0 1px 12px rgba(253,246,236,.85);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 1.1s ease, transform 1.1s ease;
+}
+.scratch-hashtag.visible { opacity: 1; transform: translateY(0); }
+
+/* grains while scratching, petals after — two canvases so the petals can
+   fade out while grains are still flying */
+.sand-canvas, .petal-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.sand-canvas  { z-index: 21; }
+.petal-canvas { z-index: 20; opacity: 0; transition: opacity 600ms ease; }
+.petal-canvas.active { opacity: 1; }
+
+
+/* ============================================================
+   INVITATION
+   ============================================================ */
+.invite {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--sky);
+}
+.inv-art { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.inv-layer { user-select: none; -webkit-user-drag: none; }
+
+/* Corner art, so it is pinned to the corner rather than stretched across
+   the frame. The bough is rooted where it meets the edge and turns about
+   that point — a branch bends, it does not slide. */
+.inv-bough {
+  position: absolute;
+  top: -3%; left: -7%;
+  z-index: 1;
+  width: 56%;
+  aspect-ratio: 1;
+  color: rgba(226, 132, 166, .82);
+  pointer-events: none;
+  transform: translate3d(0, var(--drift-y, 0px), 0);
+  transform-origin: 12% 6%;
+  will-change: transform;
+  filter: drop-shadow(0 2px 6px rgba(160, 90, 110, .16));
+}
+.invite.is-visible .inv-bough { animation: invBoughSway 9.5s ease-in-out infinite; }
+/* --drift-y is restated inside the keyframe on purpose: an animation owns
+   `transform` outright, so a drift written on the base rule alone would be
+   thrown away every frame. Named here, it is re-read whenever the scroll
+   loop changes it and the sway rides on top. */
+@keyframes invBoughSway {
+  0%, 100% { transform: translate3d(0, var(--drift-y, 0px), 0) rotate(-.9deg); }
+  50%      { transform: translate3d(0, calc(var(--drift-y, 0px) + 3px), 0) rotate(.9deg); }
+}
+
+.invite::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /* only the hand-offs — legibility is the card's own plate below */
+  background:
+    linear-gradient(180deg, rgba(253,246,236,.5) 0%, rgba(253,246,236,.16) 10%, transparent 24%),
+    linear-gradient(0deg,   rgba(253,246,236,.30) 0%, transparent 10%);
+}
+
+/* ── drifting petals, shaken loose from the bough ── */
+.inv-petals { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
+.inv-petals span {
+  position: absolute;
+  top: -6%;
+  width: var(--petal-size, 11px);
+  height: calc(var(--petal-size, 11px) * .72);
+  border-radius: 62% 38% 58% 42% / 62% 58% 42% 38%;
+  background: radial-gradient(ellipse at 30% 30%,
+    rgba(255,232,238,.96), rgba(240,160,186,.82) 58%, rgba(214,118,152,.5) 100%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.invite.is-visible .inv-petals span {
+  animation: petalFall var(--petal-duration, 13s) linear var(--petal-delay, 0s) infinite;
+}
+.inv-petals span:nth-child(1) { left:  4%; --petal-size: 12px; --petal-duration: 13s;   --petal-delay: -1s;  --petal-drift:  46px; --petal-spin:  340deg; }
+.inv-petals span:nth-child(2) { left: 12%; --petal-size:  9px; --petal-duration: 16s;   --petal-delay: -6s;  --petal-drift:  74px; --petal-spin: -280deg; }
+.inv-petals span:nth-child(3) { left: 21%; --petal-size: 13px; --petal-duration: 14.5s; --petal-delay: -3s;  --petal-drift:  58px; --petal-spin:  400deg; }
+.inv-petals span:nth-child(4) { left:  8%; --petal-size:  8px; --petal-duration: 18s;   --petal-delay: -10s; --petal-drift: 102px; --petal-spin: -320deg; }
+.inv-petals span:nth-child(5) { left: 30%; --petal-size: 11px; --petal-duration: 15.5s; --petal-delay: -8s;  --petal-drift:  66px; --petal-spin:  300deg; }
+.inv-petals span:nth-child(6) { left: 17%; --petal-size: 10px; --petal-duration: 17s;   --petal-delay: -13s; --petal-drift:  88px; --petal-spin: -360deg; }
+.inv-petals span:nth-child(7) { left: 38%; --petal-size:  9px; --petal-duration: 19s;   --petal-delay: -16s; --petal-drift:  54px; --petal-spin:  260deg; }
+/* a petal slides sideways and turns over as it goes — the sway is a second,
+   slower rhythm laid over the fall */
+@keyframes petalFall {
+  0%   { opacity: 0;   transform: translate3d(0,0,0) rotate(0deg); }
+  8%   { opacity: .85; }
+  50%  { opacity: .85; transform: translate3d(var(--petal-drift,60px), 52svh, 0) rotate(calc(var(--petal-spin,320deg) * .5)); }
+  88%  { opacity: 0; }
+  100% { opacity: 0;   transform: translate3d(calc(var(--petal-drift,60px) * .4), 106svh, 0) rotate(var(--petal-spin,320deg)); }
+}
+
+.inv-content {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  width: min(93vw, 440px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(0px, .8dvh, 16px) 14px clamp(28px, 6dvh, 60px);
+  text-align: center;
+}
+.inv-card { position: relative; display: grid; justify-items: center; width: 100%; }
+/* The palace sits at a fixed place in the artwork while the type's height
+   depends on the handset. Sizing the two to clear each other is a bet that
+   is eventually lost, so the wash is hung off the TEXT: it is as tall as
+   whatever the type turns out to be and feathers out below the last line.
+   Measured from the bottom in rem, not in percentages — a percentage fade is
+   a fraction of the plate, so on a tall screen it climbs into the last
+   lineage lines and drains them. */
+.inv-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -1.5rem;
+  bottom: -3.2rem;
+  width: 132%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(to top,
+    rgba(253,246,236,0)   0,
+    rgba(253,246,236,.22) .9rem,
+    rgba(253,246,236,.62) 2.2rem,
+    rgba(253,246,236,.76) 3.2rem,
+    rgba(253,246,236,.76) calc(100% - .9rem),
+    rgba(253,246,236,.5)  100%);
+}
+
+.inv-mantra {
+  margin: clamp(6px, 1.6vh, 18px) 0 clamp(8px, 1.8vh, 18px);
+  color: var(--gold-deep);
+  font-size: clamp(1.02rem, 4.5vw, 1.28rem);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: .04em;
+  line-height: 1.4;
+  text-shadow: 0 1px 12px rgba(253,246,236,.9);
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(9px);
+}
+.invite.is-visible .inv-mantra { animation: invMantraReveal 1500ms cubic-bezier(.16,1,.3,1) forwards 120ms; }
+@keyframes invMantraReveal {
+  0%   { opacity: 0; filter: blur(9px); transform: translateY(14px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0);   transform: translateY(0); }
+}
+
+.inv-request {
+  margin: 0 0 clamp(6px, 1.4vh, 14px);
+  color: var(--terra);
+  font-family: var(--font-caps);
+  font-size: clamp(.78rem, 3.35vw, .95rem);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  line-height: 1.62;
+  text-transform: uppercase;
+  text-shadow: 0 1px 12px rgba(253,246,236,.9);
+}
+.inv-request span {
+  display: block;
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(4px);
+  transition:
+    opacity 800ms ease var(--inv-delay, 0ms),
+    transform 900ms cubic-bezier(.16,1,.3,1) var(--inv-delay, 0ms),
+    filter 800ms ease var(--inv-delay, 0ms);
+}
+.invite.is-visible .inv-request span { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+/* the names are written rather than faded in: a clip travels across the
+   glyphs so the script appears to be drawn */
+.inv-name {
+  margin: 0;
+  padding: 0 .12em;
+  color: var(--crimson);
+  font-family: var(--font-script);
+  font-size: clamp(3rem, 13.5vw, 4.1rem);
+  font-weight: 400;
+  line-height: 1.16;
+  text-shadow: 0 2px 18px rgba(255,250,242,.85);
+  clip-path: inset(0 100% 0 0);
+}
+.invite.is-visible .inv-name {
+  animation: invNameWrite 1500ms cubic-bezier(.22,1,.32,1) forwards var(--inv-delay, 0ms);
+}
+@keyframes invNameWrite { to { clip-path: inset(0 -6% 0 0); } }
+
+.inv-lineage {
+  margin: clamp(3px, .7vh, 8px) 0 0;
+  color: var(--terra-deep);
+  /* the floor matters more than the ceiling: this is the smallest type on
+     the page and the only small type sitting on a painting */
+  font-size: clamp(.78rem, 3.2vw, .92rem);
+  font-weight: 600;
+  letter-spacing: .045em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(253,246,236,.95), 0 1px 12px rgba(253,246,236,.9);
+}
+.inv-lineage span {
+  display: block;
+  opacity: 0;
+  transform: translateY(9px);
+  transition:
+    opacity 780ms ease var(--inv-delay, 0ms),
+    transform 900ms cubic-bezier(.16,1,.3,1) var(--inv-delay, 0ms);
+}
+.invite.is-visible .inv-lineage span { opacity: 1; transform: translateY(0); }
+
+.inv-amp {
+  margin: clamp(5px, 1.1vh, 11px) 0 clamp(1px, .4vh, 5px);
+  color: var(--crimson);
+  font-family: var(--font-script);
+  font-size: clamp(1.7rem, 7vw, 2.3rem);
+  line-height: 1;
+  opacity: 0;
+  transform: scale(.5) rotate(-14deg);
+  text-shadow: 0 2px 14px rgba(255,250,242,.8);
+}
+.invite.is-visible .inv-amp {
+  animation: invAmpSettle 1150ms cubic-bezier(.34,1.3,.4,1) forwards var(--inv-delay, 0ms);
+}
+@keyframes invAmpSettle {
+  0%   { opacity: 0; transform: scale(.5) rotate(-14deg); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* Short screens. A 9:16 handset crops the artwork by nothing, while a tall
+   one crops the sides and pushes the palace lower — so it is the SHORT
+   viewport, not the narrow one, where the lineage runs into the domes. */
+@media (max-height: 740px) {
+  .inv-content { padding-top: 0; }
+  .inv-mantra  { font-size: clamp(.94rem, 4.1vw, 1.14rem); margin-bottom: clamp(5px, 1.1vh, 11px); }
+  .inv-request { font-size: clamp(.72rem, 3.1vw, .86rem); line-height: 1.5; margin-bottom: clamp(6px, 1.2vh, 12px); }
+  .inv-name    { font-size: clamp(2.5rem, 11.5vw, 3.4rem); line-height: 1.08; }
+  .inv-lineage { font-size: clamp(.74rem, 3vw, .86rem); line-height: 1.48; }
+  .inv-amp     { margin: clamp(4px, .9vh, 10px) 0 0; font-size: clamp(1.45rem, 6vw, 1.95rem); }
+}
+
+
+/* ============================================================
+   EVENTS
+   One panel per function, driven by the --ev-* properties the
+   card carries.
+   ============================================================ */
+.events { position: relative; width: 100%; }
+
+.ev-card {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ev-ground, var(--sky));
+}
+/* a hairline gold seam, so two panels meeting edge to edge reads as a
+   deliberate cut rather than a join that failed */
+.ev-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  z-index: 5;
+  width: min(74%, 300px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.5), transparent);
+  pointer-events: none;
+}
+.ev-art { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+
+/* a very slow push into the painting, so the card breathes while it is read */
+.ev-still {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--ev-paint, none);
+  transform: scale(1.04);
+}
+/* the painted ground and a photographic plate both take the push — the
+   scale is also the bleed that keeps an edge off screen as it travels */
+.ev-still, .ev-card .plate { transform: scale(1.04); }
+.ev-card.is-visible .ev-still,
+.ev-card.is-visible .plate { animation: evSlowPush 26s ease-in-out infinite alternate; }
+@keyframes evSlowPush {
+  from { transform: scale(1.04) translate3d(0,0,0); }
+  to   { transform: scale(1.11) translate3d(0,-1.2%,0); }
+}
+
+/* foreground ornament, pinned to the top of the frame */
+.ev-fg {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* The palace standing along the foot of a painted panel. Only the cards
+   without a photographic plate carry one — it is what keeps a painted card
+   from reading as a bare gradient. Set low and faint, so the type at the
+   head of the frame stays the subject. */
+.ev-skyline {
+  position: absolute;
+  left: -2%; right: -2%; bottom: 0;
+  z-index: 1;
+  width: 104%;
+  height: auto;
+  color: var(--ev-line, rgba(150, 90, 40, .5));
+  opacity: .5;
+  pointer-events: none;
+}
+.ev-card.is-visible .ev-skyline { animation: evSkylineHaze 24s ease-in-out infinite alternate; }
+@keyframes evSkylineHaze {
+  from { opacity: .42; transform: translateY(0); }
+  to   { opacity: .58; transform: translateY(-1.1%); }
+}
+/* the bough is rooted in the top-right corner, so it turns about that
+   corner: a branch bends, it does not slide. The mirror that points it into
+   the corner is applied inside the viewBox, not here — see renderEvents. */
+.ev-fg--bough {
+  /* held tight into the corner: the branch reaches ~70% down its own box,
+     and any wider than this its last blossoms come down onto the title */
+  top: -9%; right: -11%;
+  width: 44%;
+  aspect-ratio: 1;
+  color: var(--ev-orn, rgba(226, 148, 70, .85));
+  transform: translate3d(0, var(--drift-y, 0px), 0);
+  transform-origin: 88% 4%;
+}
+.ev-card.is-visible .ev-fg--bough { animation: evBoughSway 9.5s ease-in-out infinite; }
+@keyframes evBoughSway {
+  0%, 100% { transform: translate3d(0, var(--drift-y, 0px), 0) rotate(-.95deg); }
+  50%      { transform: translate3d(0, calc(var(--drift-y, 0px) + 3px), 0) rotate(.95deg); }
+}
+
+/* painted ground — chandeliers hanging from the head of the frame, so they
+   swing from there; the glow is a second, slower rhythm so the two never
+   lock into an obviously mechanical loop */
+.ev-fg--jhoomer {
+  /* the far chandelier sits ~66% across its own box, so the box is held
+     narrow enough to keep it off the title's first letters */
+  top: 0; left: -2%;
+  width: 44%;
+  aspect-ratio: 1;
+  color: var(--ev-orn, rgba(214, 178, 110, .95));
+  transform: translate3d(0, var(--drift-y, 0px), 0);
+  transform-origin: 22% 0%;
+  filter: drop-shadow(0 0 16px rgba(255, 238, 198, .45));
+}
+.ev-card.is-visible .ev-fg--jhoomer {
+  animation: evJhoomerSway 7.5s ease-in-out infinite, evJhoomerGlow 4.3s ease-in-out infinite;
+}
+@keyframes evJhoomerSway {
+  0%, 100% { transform: translate3d(0, var(--drift-y, 0px), 0) rotate(-1.15deg); }
+  50%      { transform: translate3d(0, var(--drift-y, 0px), 0) rotate(1.15deg); }
+}
+@keyframes evJhoomerGlow {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(255,238,198,.44)); }
+  50%      { filter: drop-shadow(0 0 30px rgba(255,240,205,.85)); }
+}
+
+/* a vine rooted where it meets the frame, hinged on its top-left corner */
+.ev-fg--vine {
+  top: -2%; left: -5%;
+  width: 40%;
+  aspect-ratio: 1;
+  color: var(--ev-orn, rgba(224, 122, 158, .85));
+  transform: translate3d(0, var(--drift-y, 0px), 0);
+  transform-origin: 6% 3%;
+}
+.ev-card.is-visible .ev-fg--vine { animation: evVineBreeze 10.5s ease-in-out infinite; }
+@keyframes evVineBreeze {
+  0%, 100% { transform: translate3d(0, var(--drift-y, 0px), 0) rotate(-.5deg) scale(1); }
+  50%      { transform: translate3d(0, calc(var(--drift-y, 0px) + 3px), 0) rotate(.55deg) scale(1.014); }
+}
+
+/* soft wash so the type holds over whichever sky is behind it. How far it
+   reaches is per-card: the Mayra's sky is already pale and needs almost
+   nothing, the Sangeet's deepens exactly where the time and venue sit. */
+.ev-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    var(--ev-wash, rgba(253,246,236,.42)) 0%, transparent var(--ev-wash-end, 42%));
+}
+
+.ev-motes, .ev-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ev-motes span {
+  position: absolute;
+  width: var(--mote-size, 5px);
+  height: var(--mote-size, 5px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,226,160,.95), rgba(228,148,52,.55) 56%, transparent 76%);
+  opacity: 0;
+}
+.ev-card.is-visible .ev-motes span {
+  animation: evMoteRise var(--mote-duration, 11s) ease-in-out var(--mote-delay, 0s) infinite;
+}
+.ev-motes span:nth-child(1) { left: 14%; top: 62%; --mote-size: 6px; --mote-duration: 11s;   --mote-delay: -2s; }
+.ev-motes span:nth-child(2) { left: 32%; top: 74%; --mote-size: 4px; --mote-duration: 13.5s; --mote-delay: -7s; }
+.ev-motes span:nth-child(3) { left: 58%; top: 68%; --mote-size: 5px; --mote-duration: 12s;   --mote-delay: -4s; }
+.ev-motes span:nth-child(4) { left: 78%; top: 79%; --mote-size: 4px; --mote-duration: 14.5s; --mote-delay: -9s; }
+.ev-motes span:nth-child(5) { left: 45%; top: 84%; --mote-size: 6px; --mote-duration: 10.5s; --mote-delay: -6s; }
+.ev-motes span:nth-child(6) { left: 88%; top: 58%; --mote-size: 3px; --mote-duration: 15s;   --mote-delay: -11s; }
+@keyframes evMoteRise {
+  0%, 100% { opacity: 0;   transform: translate3d(0,0,0) scale(.7); }
+  22%      { opacity: .75; }
+  60%      { opacity: .5;  transform: translate3d(14px,-14svh,0) scale(1); }
+  85%      { opacity: .16; transform: translate3d(-6px,-23svh,0) scale(.84); }
+}
+
+.ev-stars span {
+  position: absolute;
+  width: var(--star-size, 3px);
+  height: var(--star-size, 3px);
+  border-radius: 50%;
+  background: #fffdf6;
+  box-shadow: 0 0 8px rgba(255,252,240,.9);
+  opacity: 0;
+}
+.ev-card.is-visible .ev-stars span {
+  animation: evStarTwinkle var(--star-duration, 4s) ease-in-out var(--star-delay, 0s) infinite;
+}
+.ev-stars span:nth-child(1) { left: 18%; top: 10%; --star-size: 3px; --star-duration: 4.2s; --star-delay: -.5s; }
+.ev-stars span:nth-child(2) { left: 63%; top:  7%; --star-size: 4px; --star-duration: 5.1s; --star-delay: -2.4s; }
+.ev-stars span:nth-child(3) { left: 82%; top: 16%; --star-size: 3px; --star-duration: 3.8s; --star-delay: -1.2s; }
+.ev-stars span:nth-child(4) { left: 41%; top: 21%; --star-size: 2px; --star-duration: 5.6s; --star-delay: -3.6s; }
+.ev-stars span:nth-child(5) { left: 91%; top: 31%; --star-size: 3px; --star-duration: 4.6s; --star-delay: -.9s; }
+.ev-stars span:nth-child(6) { left:  7%; top: 27%; --star-size: 3px; --star-duration: 6s;   --star-delay: -4.3s; }
+.ev-stars span:nth-child(7) { left: 72%; top: 38%; --star-size: 2px; --star-duration: 4.9s; --star-delay: -2.9s; }
+.ev-stars span:nth-child(8) { left: 29%; top: 34%; --star-size: 3px; --star-duration: 5.4s; --star-delay: -1.8s; }
+@keyframes evStarTwinkle {
+  0%, 100% { opacity: .12; transform: scale(.7); }
+  50%      { opacity: 1;   transform: scale(1.25); }
+}
+
+/* ── card type ──
+   Every panel puts its architecture in the lower two-thirds, so the only
+   safe place for type is the open sky at the head of the frame.
+   svh, NOT dvh: dvh tracks the browser's chrome, so scrolling down would
+   grow this padding and push the block onto the painting, then lift it back
+   as the bar returned. svh is measured with the chrome showing and holds
+   still, so the card is laid out once and stays put. */
+.ev-content {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  width: min(93vw, 430px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(18px, 4svh, 40px) 14px clamp(28px, 6svh, 60px);
+  text-align: center;
+}
+/* Each line is capped at a fraction of svh rather than switched at a height
+   breakpoint: hiding the URL bar grows a phone's viewport by ~90px, which
+   would walk straight across such a line and jump the whole card between two
+   sets of sizes as the guest scrolled. A cap shrinks continuously instead,
+   with no step to cross. */
+.ev-day {
+  margin: 0;
+  color: var(--ev-day);
+  font-size: min(clamp(2.5rem, 11vw, 3.4rem), 5.3svh);
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 2px 16px var(--ev-halo);
+}
+.ev-day sup { font-size: .46em; vertical-align: super; letter-spacing: 0; }
+.ev-month {
+  margin: clamp(1px, .35vh, 5px) 0 0;
+  color: var(--ev-day);
+  font-size: min(clamp(1.02rem, 4.4vw, 1.28rem), 2.35svh);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: .03em;
+  text-shadow: 0 1px 12px var(--ev-halo);
+}
+.ev-title {
+  margin: clamp(1px, .5vh, 7px) 0 0;
+  padding: 0 .1em;
+  color: var(--ev-title);
+  font-family: var(--font-script);
+  /* sized off the longest title so it keeps its air at the margins rather
+     than running edge to edge */
+  font-size: min(clamp(2rem, 9vw, 2.95rem), 4.4svh);
+  font-weight: 400;
+  line-height: 1.2;
+  text-shadow: 0 2px 18px var(--ev-halo);
+  opacity: 0;
+  transform: translateY(16px);
+}
+.ev-card.is-visible .ev-title {
+  animation:
+    evTitleLand 1750ms cubic-bezier(.16,1,.3,1) forwards 420ms,
+    evTitleGlow 2600ms ease-out 1900ms;
+}
+@keyframes evTitleLand {
+  0%   { opacity: 0; filter: blur(9px); transform: translateY(16px); letter-spacing: .22em; }
+  62%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0);   transform: translateY(0);    letter-spacing: .01em; }
+}
+@keyframes evTitleGlow {
+  0%, 100% { text-shadow: 0 2px 18px var(--ev-halo); }
+  45%      { text-shadow: 0 2px 18px var(--ev-halo), 0 0 26px rgba(226,175,100,.72); }
+}
+.ev-sub {
+  margin: clamp(2px, .6vh, 8px) 0 0;
+  color: var(--ev-sub);
+  font-size: min(clamp(1.06rem, 4.6vw, 1.34rem), 2.36svh);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.42;
+  text-shadow: 0 1px 12px var(--ev-halo);
+}
+.ev-time, .ev-venue {
+  margin: 0;
+  color: var(--ev-body);
+  font-size: min(clamp(1.02rem, 4.4vw, 1.24rem), 2.35svh);
+  font-style: italic;
+  /* the hour and the place both carry weight — they are the two lines a
+     guest comes back to check */
+  font-weight: 600;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px var(--ev-halo), 0 1px 14px var(--ev-halo);
+}
+/* both lines are bold, so the hour is set apart by size alone */
+.ev-time { margin-top: clamp(4px, .9vh, 10px); font-size: min(clamp(1.14rem, 4.9vw, 1.4rem), 2.53svh); }
+
+.ev-schedule { margin: clamp(3px, .7vh, 7px) 0 0; padding: 0; list-style: none; }
+.ev-sch-row {
+  margin: 0 0 clamp(1px, .25vh, 3px);
+  color: var(--ev-body);
+  font-size: min(clamp(1.02rem, 4.4vw, 1.24rem), 2.3svh);
+  font-style: italic;
+  /* these ARE the wedding's venue lines — the card has no .ev-venue of its
+     own — so they carry the same weight as a venue on every other card */
+  font-weight: 600;
+  line-height: 1.42;
+  text-shadow: 0 1px 3px var(--ev-halo), 0 1px 14px var(--ev-halo);
+}
+.ev-sch-row:last-child { margin-bottom: 0; }
+
+/* everything under the title comes up in sequence behind it */
+.ev-sub, .ev-time, .ev-venue, .ev-sch-row {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 900ms ease var(--ev-delay, 0ms),
+    transform 1000ms cubic-bezier(.16,1,.3,1) var(--ev-delay, 0ms);
+}
+.ev-card.is-visible .ev-sub,
+.ev-card.is-visible .ev-time,
+.ev-card.is-visible .ev-venue,
+.ev-card.is-visible .ev-sch-row { opacity: 1; transform: translateY(0); }
+
+/* the day / month pair drops in ahead of everything */
+.ev-day, .ev-month {
+  opacity: 0;
+  transform: translateY(-14px);
+  transition:
+    opacity 900ms ease var(--ev-delay, 0ms),
+    transform 1000ms cubic-bezier(.16,1,.3,1) var(--ev-delay, 0ms);
+}
+.ev-card.is-visible .ev-day,
+.ev-card.is-visible .ev-month { opacity: 1; transform: translateY(0); }
+
+/* ── per-card palettes and painted grounds ── */
+.ev-card--mayra {
+  --ev-day: #a4213c; --ev-title: #b06a25; --ev-sub: #b02f4a; --ev-body: #a83a4e;
+  --ev-halo: rgba(255,250,242,.9);
+  --ev-wash: rgba(253,246,236,.34);
+  --ev-ground: #fbf0dd;
+  --ev-orn:  rgba(226, 148, 62, .88);
+  --ev-line: rgba(176, 96, 40, .62);
+  /* painted ground — a saffron courtyard at noon */
+  --ev-paint:
+    radial-gradient(ellipse 60% 26% at 50% 96%, rgba(214,142,54,.42), transparent 76%),
+    radial-gradient(ellipse 40% 22% at 14% 88%, rgba(226,120,72,.30), transparent 74%),
+    radial-gradient(ellipse 44% 24% at 88% 90%, rgba(230,150,70,.32), transparent 74%),
+    linear-gradient(180deg, #f7f1e6 0%, #fbeed6 34%, #f6dcae 66%, #eec98c 100%);
+}
+.ev-card--sangeet {
+  --ev-day: #37226f; --ev-title: #b8722a; --ev-sub: #3b2778;
+  /* deeper than the heading ink: the time and venue sit lower on the card,
+     where the sky has already gone to mid-lilac */
+  --ev-body: #3a2578;
+  --ev-halo: rgba(255,253,250,.9);
+  --ev-wash: rgba(253,249,253,.5);
+  --ev-wash-end: 54%;
+  --ev-ground: #efe8f6;
+  --ev-orn:  rgba(222, 186, 118, .95);
+  --ev-line: rgba(86, 62, 140, .55);
+  /* painted ground — a lilac night over a lit ballroom */
+  --ev-paint:
+    radial-gradient(ellipse 54% 24% at 50% 98%, rgba(255,214,150,.5), transparent 74%),
+    radial-gradient(ellipse 36% 20% at 16% 92%, rgba(198,150,220,.34), transparent 74%),
+    radial-gradient(ellipse 38% 20% at 86% 94%, rgba(180,140,214,.32), transparent 74%),
+    linear-gradient(180deg, #f6f1fa 0%, #eae1f5 30%, #ddd0ee 58%, #cdbde4 82%, #e6cfd6 100%);
+}
+/* both wedding panels share one palette — they are the same day, and a
+   second set of inks would read as a second event */
+.ev-card--wedding {
+  --ev-day: #a4213c; --ev-title: #a9691f; --ev-sub: #b02f4a; --ev-body: #b23a4e;
+  --ev-halo: rgba(255,250,240,.92);
+  --ev-wash: rgba(253,246,236,.30);
+  --ev-ground: #fbeee6;
+  --ev-orn:  rgba(214, 96, 118, .82);
+}
+.ev-card--reception {
+  --ev-day: #a4213c; --ev-title: #a9601c; --ev-sub: #a82f48; --ev-body: #a83348;
+  --ev-halo: rgba(255,250,244,.9);
+  --ev-wash: rgba(255,248,240,.40);
+  --ev-wash-end: 48%;
+  --ev-ground: #fbeae4;
+  --ev-orn:  rgba(214, 104, 132, .85);
+  --ev-line: rgba(168, 62, 92, .55);
+  /* painted ground — a rose dusk over the lawn */
+  --ev-paint:
+    radial-gradient(ellipse 58% 26% at 50% 97%, rgba(196,84,120,.36), transparent 76%),
+    radial-gradient(ellipse 40% 22% at 12% 90%, rgba(226,140,120,.30), transparent 74%),
+    radial-gradient(ellipse 42% 22% at 90% 92%, rgba(214,110,132,.30), transparent 74%),
+    linear-gradient(180deg, #fdf4ec 0%, #fbe8dd 32%, #f6d5cf 64%, #eebfc4 100%);
+}
+
+
+/* ============================================================
+   WARDROBE PLANNER
+   The panel carries the niche's 9:16 ratio so the whole arch is in
+   frame, and min-height:fit-content is the release valve: where the
+   rail and the rack need more room than the ratio gives, the panel
+   grows rather than clipping them.
+   ============================================================ */
+.wardrobe {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 941 / 1672;
+  min-height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Every inset is a percentage of the WIDTH, block ones included — that is
+     how percentage padding resolves, and at this panel's ratio 16% of the
+     width is 9% of the height, which clears the arch's crown. */
+  padding: 16% 14% 12%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f9e7e0 0%, #fdf6ec 16%, #fdf6ec 58%, #f7edf1 84%, #f3ecf6 100%);
+}
+.wd-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.wd-niche {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: rgba(192,138,62,.5);
+  opacity: .9;
+}
+.wardrobe::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  z-index: 3;
+  width: min(74%, 300px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.5), transparent);
+  pointer-events: none;
+}
+/* the plinth is the floor of the niche, and the blessings page opens on
+   lilac — a short fade is all that is needed to seam the two */
+.wardrobe::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  height: clamp(26px, 4vw, 40px);
+  pointer-events: none;
+  background: linear-gradient(0deg, #f3ecf6 0%, transparent 100%);
+}
+
+.wd-header {
+  position: relative;
+  z-index: 2;
+  /* a shade wider than the type column: "Wardrobe Planner" must hold one
+     line — broken in two it stops being a masthead */
+  width: min(112%, 400px);
+  margin-top: 7%;
+  text-align: center;
+}
+.wd-rule, .bl-rule, .rsvp-rule {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 56px;
+  margin: 0 auto 1.3rem;
+}
+.wd-rule-line, .bl-rule-line, .rsvp-rule-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.55), transparent);
+}
+.wd-rule-diamond, .bl-rule-diamond, .rsvp-rule-diamond {
+  font-size: .26rem;
+  color: var(--gold);
+  opacity: .7;
+  line-height: 1;
+}
+.wd-title {
+  margin: 0 0 .6rem;
+  font-family: var(--font-caps);
+  font-size: clamp(1.08rem, 4.35vw, 1.48rem);
+  font-weight: 400;
+  /* tracked well under "Blessings": that is one word on an open page, this
+     is two inside an arch */
+  letter-spacing: .13em;
+  text-indent: .13em;
+  white-space: nowrap;
+  line-height: 1.3;
+  color: var(--terra-deep);
+}
+.wd-note {
+  margin: 0 0 clamp(14px, 2.6vh, 26px);
+  color: var(--ink-soft);
+  font-size: clamp(.9rem, 3.7vw, 1.02rem);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.wd-rail {
+  position: relative;
+  z-index: 2;
+  width: min(114%, 400px);
+  margin-bottom: clamp(10px, 2vh, 18px);
+}
+/* the rod */
+.wd-rail::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right,
+    transparent 0%, rgba(180,140,70,.25) 6%, rgba(196,164,107,.9) 18%,
+    rgba(226,196,146,1) 38%, rgba(240,212,160,1) 50%, rgba(226,196,146,1) 62%,
+    rgba(196,164,107,.9) 82%, rgba(180,140,70,.25) 94%, transparent 100%);
+  box-shadow:
+    0 -1px 0 rgba(255,240,190,.55),
+    0 1px 2px rgba(100,70,20,.26),
+    0 2px 6px rgba(140,100,30,.14);
+}
+.wd-rail-items { display: flex; flex-wrap: nowrap; align-items: flex-start; width: 100%; padding-top: 3px; }
+.wd-btn {
+  appearance: none;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 0 2px 6px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity 450ms cubic-bezier(.16,1,.3,1);
+}
+.wd-btn.is-active { opacity: 1; }
+@media (hover: hover) { .wd-btn:not(.is-active):hover { opacity: .75; } }
+/* alternating drops, so the row hangs rather than sits in a line */
+.wd-btn:nth-child(odd)  .wd-btn-string { height: clamp(10px, 2.6vw, 15px); }
+.wd-btn:nth-child(even) .wd-btn-string { height: clamp(30px, 8vw, 44px); }
+.wd-btn-string {
+  position: relative;
+  display: block;
+  width: 1px;
+  flex-shrink: 0;
+  background: linear-gradient(to bottom, rgba(196,164,107,.9), rgba(160,120,70,.55));
+}
+/* the ring where the string meets the rod */
+.wd-btn-string::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: 50%;
+  width: 5px; height: 5px;
+  border: 1px solid rgba(196,164,107,.85);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(240,212,160,.9), rgba(196,164,107,.4));
+  transform: translateX(-50%);
+}
+.wd-btn.is-active .wd-btn-string::before {
+  background: radial-gradient(circle at 35% 35%, #edd9b2, #c4a46b);
+  border-color: #c4a46b;
+  box-shadow: 0 0 5px rgba(196,164,107,.55);
+}
+.wd-btn-label {
+  position: relative;
+  display: block;
+  padding-top: 5px;
+  color: var(--ink-soft);
+  font-size: clamp(.92rem, 3.9vw, 1.1rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+  transition: color 450ms ease;
+}
+.wd-btn.is-active .wd-btn-label { color: var(--terra-deep); }
+.wd-btn-label::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 2px;
+  margin: 4px auto 0;
+  background: linear-gradient(to right, transparent,
+    rgba(192,138,62,.55) 20%, rgba(192,138,62,.85) 50%, rgba(192,138,62,.55) 80%, transparent);
+  transition: width 500ms cubic-bezier(.16,1,.3,1);
+}
+.wd-btn.is-active .wd-btn-label::after { width: 88%; }
+
+.wd-stage { position: relative; z-index: 2; width: 100%; margin-top: clamp(8px, 1.6vh, 18px); text-align: center; }
+/* the racks are sized by HEIGHT and stood on a common floor: equal height
+   means equal rack on every function, whatever the skirt does at the sides,
+   which is what lets one wheel in as the last wheels out */
+.wd-trolley-vp { position: relative; height: clamp(216px, 33vh, 340px); overflow: hidden; }
+.wd-trolley {
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: auto;
+  height: 100%;
+  max-width: none;
+  opacity: 0;
+  transform: translateX(calc(-50% + 165%));
+  transform-origin: 50% 100%;      /* it turns on its wheels, not its middle */
+  pointer-events: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 14px 18px rgba(124,56,15,.16));
+}
+.wd-trolley.is-active {
+  opacity: 1;
+  transform: translateX(-50%);
+  transition: transform 900ms cubic-bezier(.22,1.02,.36,1), opacity 520ms ease;
+}
+/* the little roll-back as it comes to rest */
+.wd-trolley.is-active.is-arriving { animation: wdTrolleySettle 1100ms cubic-bezier(.22,1,.36,1); }
+@keyframes wdTrolleySettle {
+  0%   { transform: translateX(-50%) rotate(0deg); }
+  38%  { transform: translateX(calc(-50% + 1.4%)) rotate(.5deg); }
+  70%  { transform: translateX(calc(-50% - .7%)) rotate(-.25deg); }
+  100% { transform: translateX(-50%) rotate(0deg); }
+}
+.wd-trolley.is-exiting-fwd, .wd-trolley.is-exiting-bwd {
+  opacity: 0;
+  transition: transform 620ms cubic-bezier(.4,0,.75,1), opacity 420ms ease;
+}
+.wd-trolley.is-exiting-fwd { transform: translateX(calc(-50% - 165%)) rotate(-1deg); }
+.wd-trolley.is-exiting-bwd { transform: translateX(calc(-50% + 165%)) rotate(1deg); }
+/* parked off screen, ready — no transition, so the snap is not animated */
+.wd-trolley.is-entering-fwd, .wd-trolley.is-entering-bwd { opacity: 0; transition: none; }
+.wd-trolley.is-entering-fwd { transform: translateX(calc(-50% + 165%)) rotate(1deg); }
+.wd-trolley.is-entering-bwd { transform: translateX(calc(-50% - 165%)) rotate(-1deg); }
+
+.wd-caption {
+  margin: clamp(6px, 1.4vh, 14px) 0 0;
+  color: var(--terra);
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 7vw, 2.1rem);
+  line-height: 1.2;
+  text-shadow: 0 1px 12px rgba(253,246,236,.85);
+  transition: opacity 420ms ease;
+}
+.wd-caption.is-swapping { opacity: 0; }
+/* the height is held for two lines: the longest code wraps on a phone, and
+   without this the rack above would jump every time the guest moved between
+   a long code and a short one */
+.wd-dress {
+  min-height: 2.9em;
+  margin: clamp(5px, 1vh, 9px) 0 0;
+  color: var(--terra-deep);
+  font-family: var(--font-caps);
+  font-size: clamp(.7rem, 3vw, .8rem);
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-indent: .16em;
+  text-transform: uppercase;
+  line-height: 1.65;
+  text-wrap: balance;
+  transition: opacity 420ms ease;
+}
+.wd-dress.is-swapping { opacity: 0; }
+
+.wd-header, .wd-rail, .wd-stage {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(5px);
+  transition:
+    opacity 1s ease var(--wd-delay, 0ms),
+    transform 1.1s cubic-bezier(.16,1,.3,1) var(--wd-delay, 0ms),
+    filter 1s ease var(--wd-delay, 0ms);
+}
+.wardrobe.is-visible .wd-header,
+.wardrobe.is-visible .wd-rail,
+.wardrobe.is-visible .wd-stage { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+
+/* ============================================================
+   BLESSINGS
+   The lists are far too long to sit inside one 9:16 panel, so the
+   art is the FLOOR of the page rather than its background: the
+   names scroll over a blush sky the garden grows out of.
+   ============================================================ */
+.blessings { --plum: #3f2a7d; --rust: #9a4a20; position: relative; width: 100%; }
+
+.bl-page {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* carries the sangeet card's lilac down into the garden's blush */
+  background: linear-gradient(180deg, #f3ecf6 0%, #faeae2 16%, #fbe6de 46%, #f9ddd6 100%);
+  /* room for the garden to stand in without the names landing in it —
+     percentage padding resolves against the WIDTH, so this tracks the
+     garden's own scale on every screen */
+  padding-bottom: 64%;
+}
+.bl-page--bride::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  z-index: 3;
+  width: min(74%, 300px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.5), transparent);
+  pointer-events: none;
+}
+/* painted ground — the garden the page stands on. Its sky is dissolved into
+   the page's gradient, so there is no visible edge where the art starts. */
+.bl-art {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 62%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 30% at 12% 88%, rgba(226,138,168,.5), transparent 72%),
+    radial-gradient(ellipse 26% 26% at 34% 96%, rgba(240,170,192,.45), transparent 72%),
+    radial-gradient(ellipse 32% 30% at 68% 92%, rgba(228,146,174,.45), transparent 72%),
+    radial-gradient(ellipse 28% 28% at 90% 86%, rgba(238,164,188,.42), transparent 72%),
+    radial-gradient(ellipse 40% 22% at 50% 100%, rgba(120,140,96,.34), transparent 74%),
+    linear-gradient(180deg, transparent 0%, rgba(246,206,196,.5) 46%, rgba(238,180,176,.7) 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 34%);
+          mask-image: linear-gradient(180deg, transparent 0%, #000 34%);
+}
+/* each page hands off to whatever follows it — page one to page two's sky,
+   page two to the RSVP's sand. A FIXED band, never a percentage: a page here
+   is ~1600px tall, so even 14% would drain the colour out of the whole
+   garden instead of just seaming it to what comes next. */
+.bl-page::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  height: clamp(70px, 16vw, 120px);
+  pointer-events: none;
+  background: linear-gradient(0deg, var(--bl-handoff) 0%, transparent 100%);
+}
+.bl-page--groom { --bl-handoff: #f3ecf6; }
+.bl-page--bride { --bl-handoff: #f6e7d2; }
+
+.bl-inner {
+  position: relative;
+  z-index: 2;
+  width: min(90vw, 400px);
+  margin: 0 auto;
+  padding: clamp(56px, 9vh, 88px) 0 clamp(20px, 4vh, 40px);
+  text-align: center;
+}
+.bl-heading {
+  margin: 0 0 .6rem;
+  font-family: var(--font-caps);
+  font-size: clamp(1.55rem, 6vw, 2rem);
+  font-weight: 400;
+  letter-spacing: .34em;
+  text-indent: .34em;
+  color: var(--terra-deep);
+}
+.bl-note {
+  margin: 0 0 clamp(26px, 4.5vh, 44px);
+  color: var(--ink-soft);
+  font-size: clamp(.9rem, 3.7vw, 1.02rem);
+  font-style: italic;
+  line-height: 1.5;
+}
+.bl-side {
+  margin: 0 0 clamp(16px, 2.6vh, 26px);
+  color: var(--peacock);
+  font-family: var(--font-caps);
+  font-size: clamp(.68rem, 2.9vw, .78rem);
+  font-weight: 600;
+  letter-spacing: .26em;
+  text-indent: .26em;
+  text-transform: uppercase;
+}
+/* page two carries no note under its masthead, so the side label needs the
+   air the note would have given it */
+.bl-heading + .bl-side { margin-top: clamp(22px, 3.6vh, 36px); }
+
+.bl-block { margin: 0 0 clamp(24px, 4vh, 38px); }
+.bl-block-title {
+  position: relative;
+  margin: 0 0 .62rem;
+  padding-bottom: .42rem;
+  color: var(--plum);
+  font-size: clamp(.74rem, 3.05vw, .86rem);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: .19em;
+  text-indent: .19em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+/* a short rule draws itself out from the centre under each heading */
+.bl-block-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(63,42,125,.42), transparent);
+  transform: translateX(-50%);
+  transition: width 900ms cubic-bezier(.16,1,.3,1) var(--bl-delay, 0ms);
+}
+.bl-page.is-visible .bl-block.is-shown .bl-block-title::after { width: 62px; }
+
+.bl-names { margin: 0; }
+.bl-names span {
+  display: block;
+  color: var(--rust);
+  font-size: clamp(.94rem, 3.85vw, 1.06rem);
+  font-weight: 600;
+  letter-spacing: .042em;
+  line-height: 1.66;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 720ms ease var(--bl-name-delay, 0ms),
+    transform 820ms cubic-bezier(.16,1,.3,1) var(--bl-name-delay, 0ms);
+}
+.bl-block.is-shown .bl-names span { opacity: 1; transform: translateY(0); }
+
+.bl-rule, .bl-heading, .bl-note, .bl-side {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 850ms ease var(--bl-delay, 0ms),
+    transform 950ms cubic-bezier(.16,1,.3,1) var(--bl-delay, 0ms);
+}
+.bl-page.is-visible .bl-rule,
+.bl-page.is-visible .bl-heading,
+.bl-page.is-visible .bl-note,
+.bl-page.is-visible .bl-side { opacity: 1; transform: translateY(0); }
+
+.bl-block-title {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 800ms ease var(--bl-delay, 0ms),
+    transform 900ms cubic-bezier(.16,1,.3,1) var(--bl-delay, 0ms);
+}
+.bl-block.is-shown .bl-block-title { opacity: 1; transform: translateY(0); }
+
+
+/* ============================================================
+   RSVP
+   ============================================================ */
+.rsvp {
+  position: relative;
+  width: 100%;
+  padding: clamp(58px, 9vh, 90px) 30px clamp(52px, 8vh, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 40%, rgba(192,138,62,.10) 0%, transparent 62%),
+    linear-gradient(180deg, #f6e7d2 0%, #fdf6ec 22%, #fdf6ec 70%, #f6e7d2 100%);
+}
+.rsvp::before, .rsvp::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: min(72%, 260px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.30), transparent);
+  pointer-events: none;
+}
+.rsvp::before { top: 0; }
+.rsvp::after  { bottom: 0; }
+
+.rsvp-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 390px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.rsvp-heading {
+  margin: 0 0 .55rem;
+  font-family: var(--font-caps);
+  font-size: clamp(1.8rem, 6.8vw, 2.3rem);
+  font-weight: 400;
+  letter-spacing: .42em;
+  text-indent: .42em;
+  color: var(--terra-deep);
+}
+.rsvp-sub-rule {
+  width: 28px;
+  height: 1px;
+  margin-bottom: 1.1rem;
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.6), transparent);
+}
+.rsvp-note {
+  margin: 0 0 1.9rem;
+  max-width: 300px;
+  color: var(--ink-soft);
+  font-size: clamp(.9rem, 3.7vw, 1.02rem);
+  font-style: italic;
+  line-height: 1.5;
+}
+#rsvpLists { width: 100%; }
+.rsvp-side {
+  width: 100%;
+  margin: 0 0 .5rem;
+  color: var(--peacock);
+  font-family: var(--font-caps);
+  font-size: clamp(.68rem, 2.9vw, .78rem);
+  font-weight: 600;
+  letter-spacing: .26em;
+  text-indent: .26em;
+  text-transform: uppercase;
+  text-align: left;
+}
+.rsvp-contacts + .rsvp-side { margin-top: 1.9rem; }
+.rsvp-contacts { list-style: none; padding: 0; margin: 0; width: 100%; }
+.rsvp-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .82rem 0;
+  border-top: 1px solid rgba(192,138,62,.22);
+}
+.rsvp-contacts .rsvp-row:last-child { border-bottom: 1px solid rgba(192,138,62,.22); }
+.rsvp-identity { flex: 1; text-align: left; display: flex; flex-direction: column; gap: .18rem; }
+.rsvp-name {
+  font-size: clamp(.94rem, 3.9vw, 1.06rem);
+  font-weight: 600;
+  color: var(--ink);
+}
+.rsvp-num {
+  font-family: var(--font-caps);
+  font-size: clamp(.74rem, 3vw, .82rem);
+  letter-spacing: .16em;
+  color: var(--ink-soft);
+}
+.rsvp-actions { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+.rsvp-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: background .22s ease, border-color .22s ease, transform .22s cubic-bezier(.16,1,.3,1);
+}
+.rsvp-action svg { width: 15px; height: 15px; flex-shrink: 0; }
+.rsvp-action--phone {
+  background: rgba(192,138,62,.13);
+  border: 1px solid rgba(192,138,62,.32);
+  color: var(--terra);
+}
+.rsvp-action--wa {
+  background: rgba(31,111,107,.11);
+  border: 1px solid rgba(31,111,107,.30);
+  color: var(--peacock);
+}
+.rsvp-action:active { transform: scale(.91); }
+@media (hover: hover) {
+  .rsvp-action--phone:hover { background: rgba(192,138,62,.26); border-color: rgba(192,138,62,.55); transform: translateY(-1px); }
+  .rsvp-action--wa:hover    { background: rgba(31,111,107,.22);  border-color: rgba(31,111,107,.52);  transform: translateY(-1px); }
+}
+
+.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity .85s ease var(--rsvp-delay, 0ms),
+    transform .95s cubic-bezier(.16,1,.3,1) var(--rsvp-delay, 0ms);
+}
+.rsvp.is-visible .rsvp-rule,
+.rsvp.is-visible .rsvp-heading,
+.rsvp.is-visible .rsvp-sub-rule,
+.rsvp.is-visible .rsvp-note,
+.rsvp.is-visible .rsvp-side,
+.rsvp.is-visible .rsvp-row { opacity: 1; transform: translateY(0); }
+
+
+/* ============================================================
+   COUNTDOWN + FOOTER
+   ============================================================ */
+.countdown-section {
+  --cd-rose: #c2547c;
+  --cd-ink:  #7c380f;
+  --cd-deep: #6a2f0c;
+  --cd-soft: #a06c46;
+  --cd-gold: #c08a3e;
+
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f6e7d2 0%, #f7e3d6 46%, #f3dfe4 100%);
+  color: var(--cd-ink);
+}
+.countdown-section::before, .countdown-bg, .countdown-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.countdown-section::before {
+  content: '';
+  z-index: 0;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(192,138,62,.09) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 30%, rgba(156,74,28,.07) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 46% 76%, rgba(194,84,124,.07) 0 1px, transparent 1.5px);
+  background-size: 24px 24px, 31px 31px, 36px 36px;
+  opacity: .55;
+}
+.countdown-bg {
+  z-index: 1;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.20), transparent 28%, rgba(192,138,62,.05) 54%, transparent 78%),
+    repeating-linear-gradient(86deg, rgba(150,120,80,.02) 0 1px, transparent 1px 7px);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.countdown-section.is-visible .countdown-bg { opacity: 1; }
+
+.countdown-particles { z-index: 2; overflow: hidden; }
+.countdown-particles span {
+  position: absolute;
+  width: var(--dust-size, 5px);
+  height: var(--dust-size, 5px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,240,205,.96), rgba(192,138,62,.5) 55%, transparent 74%);
+  box-shadow: 0 0 10px rgba(192,138,62,.4);
+  opacity: 0;
+  animation: countdownDust var(--dust-duration, 9s) ease-in-out var(--dust-delay, 0s) infinite;
+}
+.countdown-particles span:nth-child(1) { --dust-size: 5px; --dust-duration: 8.5s; --dust-delay: -1s; left: 13%; top: 24%; }
+.countdown-particles span:nth-child(2) { --dust-size: 4px; --dust-duration: 10s;  --dust-delay: -5s; left: 78%; top: 18%; }
+.countdown-particles span:nth-child(3) { --dust-size: 6px; --dust-duration: 11s;  --dust-delay: -3s; left: 86%; top: 55%; }
+.countdown-particles span:nth-child(4) { --dust-size: 4px; --dust-duration: 9.5s; --dust-delay: -7s; left: 20%; top: 66%; }
+.countdown-particles span:nth-child(5) { --dust-size: 5px; --dust-duration: 12s;  --dust-delay: -2s; left: 62%; top: 78%; }
+.countdown-particles span:nth-child(6) { --dust-size: 3px; --dust-duration: 8s;   --dust-delay: -4s; left: 42%; top: 13%; }
+@keyframes countdownDust {
+  0%, 100% { opacity: 0;   transform: translate3d(0,0,0) scale(.74); }
+  24%      { opacity: .72; }
+  55%      { opacity: .46; transform: translate3d(12px,-18px,0) scale(1); }
+  78%      { opacity: .3;  transform: translate3d(-8px,-30px,0) scale(.88); }
+}
+
+.countdown-content {
+  position: relative;
+  z-index: 4;
+  min-height: 100svh;
+  width: min(90vw, 380px);
+  margin: 0 auto;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + clamp(52px, 7.2vh, 80px)) 0
+    calc(env(safe-area-inset-bottom, 0px) + clamp(20px, 3.4vh, 34px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.countdown-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(5px);
+  transition:
+    opacity .95s ease var(--countdown-delay, 0ms),
+    transform 1.05s cubic-bezier(.16,1,.3,1) var(--countdown-delay, 0ms),
+    filter .95s ease var(--countdown-delay, 0ms);
+}
+.countdown-section.is-visible .countdown-reveal { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+.countdown-eyebrow {
+  margin: 0 0 clamp(6px, 1.1vh, 10px);
+  color: var(--cd-gold);
+  font-size: clamp(14px, 3.8vw, 18px);
+  font-weight: 600;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+.countdown-eyebrow span.cd-space { width: .6em; }
+.countdown-eyebrow span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(3px);
+  transition:
+    opacity .62s ease calc(var(--countdown-delay, 0ms) + var(--letter-delay, 0ms)),
+    transform .72s cubic-bezier(.16,1,.3,1) calc(var(--countdown-delay, 0ms) + var(--letter-delay, 0ms)),
+    filter .62s ease calc(var(--countdown-delay, 0ms) + var(--letter-delay, 0ms));
+}
+.countdown-section.is-visible .countdown-eyebrow span { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+.countdown-names {
+  position: relative;
+  margin: 0;
+  color: var(--cd-rose);
+  font-family: var(--font-script);
+  font-size: clamp(54px, 15vw, 78px);
+  line-height: .92;
+  text-shadow: 0 2px 16px rgba(255,255,255,.7);
+  clip-path: inset(0 100% 0 0);
+}
+.countdown-names::before {
+  content: '';
+  position: absolute;
+  inset: -28% -18%;
+  z-index: -1;
+  background: radial-gradient(ellipse, rgba(224,122,158,.22), transparent 70%);
+  animation: countdownNameGlow 4.8s ease-in-out infinite;
+}
+.countdown-section.is-visible .countdown-names {
+  animation: countdownInkReveal 1.55s cubic-bezier(.16,1,.3,1) 460ms forwards;
+}
+@keyframes countdownInkReveal { to { clip-path: inset(0 0 0 0); } }
+@keyframes countdownNameGlow {
+  0%, 100% { opacity: .56; transform: scale(.96); }
+  48%      { opacity: .88; transform: scale(1.04); }
+}
+
+.countdown-divider {
+  position: relative;
+  width: clamp(86px, 24vw, 126px);
+  height: clamp(18px, 3vh, 24px);
+  margin: clamp(12px, 2vh, 18px) auto clamp(14px, 2.4vh, 22px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(192,138,62,.66) 0 2.4px, transparent 2.9px),
+    radial-gradient(circle at 43% 50%, rgba(192,138,62,.38) 0 1.5px, transparent 1.9px),
+    radial-gradient(circle at 57% 50%, rgba(192,138,62,.38) 0 1.5px, transparent 1.9px);
+}
+.countdown-divider::before, .countdown-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(192,138,62,.68));
+  transition: width .95s cubic-bezier(.16,1,.3,1) var(--countdown-delay, 0ms);
+}
+.countdown-divider::before { right: 50%; }
+.countdown-divider::after  { left: 50%; transform: scaleX(-1); }
+.countdown-section.is-visible .countdown-divider::before,
+.countdown-section.is-visible .countdown-divider::after { width: 44%; }
+
+.countdown-grid {
+  width: min(78vw, 320px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 2.4vw, 14px);
+  margin-bottom: clamp(18px, 3vh, 26px);
+}
+.countdown-card {
+  position: relative;
+  aspect-ratio: .75;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  filter: drop-shadow(0 12px 18px rgba(150,90,40,.14));
+}
+.countdown-card-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(192,138,62,.75);
+  pointer-events: none;
+}
+.countdown-card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 72%;
+  min-height: 58%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(1px);
+  text-shadow: 0 1px 10px rgba(255,255,255,.62);
+}
+.countdown-number {
+  color: var(--cd-deep);
+  font-size: clamp(31px, 9.5vw, 48px);
+  line-height: .92;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: transform .35s ease, color .35s ease, text-shadow .35s ease;
+}
+.countdown-label {
+  margin-top: clamp(6px, 1.3vh, 10px);
+  color: var(--cd-gold);
+  font-size: clamp(10px, 2.7vw, 13px);
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.countdown-card.is-changing { animation: countdownCardPulse .52s ease; }
+.countdown-card.is-changing .countdown-number {
+  color: var(--cd-gold);
+  transform: translateY(-3px) scale(1.04);
+  text-shadow: 0 0 16px rgba(226,175,100,.5);
+}
+@keyframes countdownCardPulse {
+  0%, 100% { transform: scale(1);     filter: drop-shadow(0 12px 18px rgba(150,90,40,.14)); }
+  44%      { transform: scale(1.025); filter: drop-shadow(0 13px 20px rgba(150,90,40,.16)) drop-shadow(0 0 14px rgba(192,138,62,.2)); }
+}
+
+.wedding-footer {
+  margin-top: auto;
+  padding-top: clamp(4px, 1vh, 10px);
+  width: 100%;
+  color: var(--cd-soft);
+}
+.wedding-footer p { margin: 0; }
+.footer-names {
+  color: var(--cd-rose);
+  font-family: var(--font-script);
+  font-size: clamp(32px, 9vw, 48px);
+  line-height: 1.1;
+}
+.footer-date, .footer-venue { font-size: clamp(12px, 3.25vw, 15px); line-height: 1.34; letter-spacing: .12em; }
+.footer-date {
+  margin-top: clamp(7px, 1.2vh, 10px) !important;
+  color: var(--cd-ink);
+  font-family: var(--font-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.footer-date sup { font-size: .6em; vertical-align: super; letter-spacing: 0; }
+.footer-venue { color: var(--cd-soft); }
+.footer-hashtag {
+  margin-top: clamp(9px, 1.5vh, 13px) !important;
+  color: var(--cd-rose);
+  /* NOT Cinzel — it is caps-only and would flatten a mixed-case hashtag */
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 600;
+  letter-spacing: .1em;
+}
+
+
+/* ============================================================
+   MUSIC TOGGLE
+   The score is played on the bow: while it sounds the bow is drawn
+   back and forth, and muted it lifts clear and the disc dims.
+   ============================================================ */
+.music-btn {
+  position: fixed;
+  right: clamp(10px, 3.4vw, 24px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(10px, 3.4vw, 24px));
+  z-index: 60;
+  width: clamp(56px, 15vw, 72px);
+  height: clamp(56px, 15vw, 72px);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* held back until the hero brings it in, so it is never seen over the
+     opening card — see showMusicControl() */
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+.music-btn.is-ready { opacity: 1; }
+.music-btn[hidden] { display: none; }
+.mb-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(192,138,62,.45);
+  background:
+    radial-gradient(circle at 36% 32%, rgba(255,250,240,.95), rgba(248,236,217,.85) 55%, rgba(232,208,168,.85) 100%);
+  box-shadow: 0 6px 16px rgba(124,56,15,.18), inset 0 1px 0 rgba(255,255,255,.7);
+  transition: opacity 500ms ease, filter 500ms ease;
+}
+.mb-bow {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 118%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 2px 5px rgba(124,56,15,.3));
+  transition: transform 600ms cubic-bezier(.16,1,.3,1);
+}
+/* playing — the bow is drawn across the strings */
+.music-btn:not(.is-muted) .mb-bow { animation: mbBow 2.6s ease-in-out infinite; }
+@keyframes mbBow {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) translateX(-7%); }
+  50%      { transform: translate(-50%, -50%) rotate(0deg) translateX(7%); }
+}
+/* muted — the bow lifts clear and the disc goes quiet */
+.music-btn.is-muted .mb-bow { transform: translate(-50%, -50%) rotate(-16deg) translateY(-12%); }
+.music-btn.is-muted .mb-disc { filter: grayscale(.55) brightness(1.04); opacity: .72; }
+
+
+/* ============================================================
+   DESKTOP FRAME
+   The invitation is written for a phone; on a wide screen it is
+   held in a column of that width rather than stretched across.
+   ============================================================ */
+#device-frame { width: 100%; }
+
+@media (min-width: 600px) {
+  html, body { background: #2a1b12; }
+
+  #device-frame {
+    width: 480px;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+  }
+  /* fixed overlays re-centre onto the column */
+  .intro-screen, .ivory-dissolve {
+    left: 50%;
+    right: auto;
+    width: 480px;
+    margin-left: -240px;
+  }
+  /* the floating control sits inside the column's right edge, keeping the
+     same inset the phone layout uses */
+  .music-btn { right: calc(50vw - 240px + clamp(10px, 3.4vw, 24px)); }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   Every reveal above is written so the end state is the resting
+   state, so nothing is lost by skipping the journey.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-fg, .hero-crest, .hero-venue, .scroll-cue { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .scroll-cue { transform: translateX(-50%) !important; }
+  .inv-petals, .ev-motes, .ev-stars, .countdown-particles { display: none; }
+}

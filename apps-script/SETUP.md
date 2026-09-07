@@ -20,6 +20,29 @@ the page but cannot send.
 
 ---
 
+## What lands in the sheet
+
+One row per guest, twelve columns:
+
+| | |
+| --- | --- |
+| Received at | when they replied |
+| Name · Members attending · Contact number | who is coming |
+| Arrival date · Arriving by · Arrival ticket | in |
+| Departure date · Departing by · Departure ticket | out |
+| Function attending | Ring Ceremony, Wedding, or both |
+| Aadhaar card | for hotel check-in |
+
+The three attachment columns hold a clickable link named after the file.
+`HYPERLINK` survives a download as `.xlsx`, so it stays clickable in the copy
+the planner is sent.
+
+> **Already have a sheet from before travel details were added?** Nothing to
+> do. The columns changed, so the first submission after you redeploy renames
+> your existing tab to `RSVP (before <date>)` and starts a clean `RSVP`
+> alongside it. Nothing is deleted, and no row is ever written under headings
+> that do not match it.
+
 ## 1. Make the Sheet
 
 New sheet at <https://sheets.new>. Name it something like
@@ -104,9 +127,16 @@ and the links in it will not open for them.
 **Viewer**. Use **Commenter** if you want them to be able to flag rows, or
 **Editor** if they will manage arrivals in it.
 
-**The uploads folder** — in Drive, find **`Radhika & Raghav — Aadhaar
-uploads`** (the script creates it on the first submission). Share it with
-the same address, **Viewer**.
+**The uploads folder** — in Drive, find **`Radhika & Raghav — RSVP uploads`**
+(the script creates it on the first submission). Share it with the same
+address, **Viewer**.
+
+Every file is named `Guest name — what it is — date`, so the folder is
+usable on its own without going through the sheet.
+
+> If your folder is still called **`Aadhaar uploads`**, that is the one from
+> before tickets were added. The script keeps using it — it remembers the
+> folder by id, not by name — so just rename it in Drive to match.
 
 ### Sending an actual Excel file
 
@@ -149,10 +179,16 @@ Everything on the site side is in `CONFIG.attendance` at the top of
 | --- | --- |
 | `endpoint` | the `/exec` URL. Blank = the form still renders, but says it is not connected yet |
 | `mapUrl` | where the map button goes |
-| `functions` | the dropdown options |
+| `functions` | the Function attending options |
+| `travelModes` | the Arriving/Departing by options |
+| `ticketlessModes` | modes with no ticket to attach — picking one hides that upload. Must match the spelling in `travelModes` |
 | `dateMin` / `dateMax` | the window the date pickers allow |
-| `maxFileMB` | upload cap. Raise `MAX_FILE_MB` in `Code.gs` to match, or the browser will let through what the script then rejects |
-| `aadhaarRequired` | `false` removes the upload field entirely |
+| `maxFileMB` | per-file cap. Raise `MAX_FILE_MB` in `Code.gs` to match, or the browser will let through what the script then rejects |
+| `maxTotalMB` | cap on the three attachments together. Pair with `MAX_TOTAL_MB` in `Code.gs` |
+| `aadhaarRequired` | `false` removes the upload field entirely. Set `AADHAAR_REQUIRED` in `Code.gs` to match |
+
+Tickets are always optional — a guest driving in has none, and plenty reply
+before they have booked. Only the Aadhaar card is insisted on.
 
 **After editing `Code.gs` you must redeploy**, or the change never goes
 live: **Deploy → Manage deployments → pencil icon → Version: New version →

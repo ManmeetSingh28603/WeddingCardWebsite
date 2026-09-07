@@ -455,7 +455,7 @@
 
           <div class="af-row">
             <div class="af-field">
-              <label class="af-label" for="afMembers">Members joining</label>
+              <label class="af-label" for="afMembers">Members attending</label>
               <input class="af-input" id="afMembers" name="members" type="number"
                      inputmode="numeric" min="1" max="30" step="1" placeholder="e.g. 4" required />
               <p class="af-error" data-error-for="afMembers"></p>
@@ -469,18 +469,86 @@
             </div>
           </div>
 
+          <!-- ── Arrival ─────────────────────────────────────── -->
+          <p class="af-group">Arrival</p>
+
           <div class="af-row">
             <div class="af-field">
-              <label class="af-label" for="afArrive">Date of joining</label>
+              <label class="af-label" for="afArrive">Arrival date</label>
               <input class="af-input af-date" id="afArrive" name="arrive" type="date" required />
               <p class="af-error" data-error-for="afArrive"></p>
             </div>
             <div class="af-field">
-              <label class="af-label" for="afDepart">Date of leaving</label>
+              <label class="af-label" for="afArriveBy">Arriving by</label>
+              <div class="af-select-wrap">
+                <!-- options come from CONFIG.attendance.travelModes -->
+                <select class="af-input af-select" id="afArriveBy" name="arriveBy" required>
+                  <option value="" selected disabled>Choose</option>
+                </select>
+                <svg class="af-caret" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9.5 12 15.5 18 9.5" fill="none" stroke="currentColor"
+                        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p class="af-error" data-error-for="afArriveBy"></p>
+            </div>
+          </div>
+
+          <!-- Hidden until a mode that HAS a ticket is picked — see
+               CONFIG.attendance.ticketlessModes. Optional throughout: plenty
+               of guests reply before they have booked. -->
+          <div class="af-field" id="afArriveTicketField" hidden>
+            <label class="af-label" for="afArriveTicket">
+              Arrival ticket <span class="af-optional">optional</span>
+            </label>
+            <input class="af-file-input" id="afArriveTicket" name="arriveTicket" type="file"
+                   accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            <label class="af-file" for="afArriveTicket">
+              <svg class="af-file-icon" aria-hidden="true"><use href="#ic-upload"/></svg>
+              <span class="af-file-text">Attach ticket</span>
+            </label>
+            <p class="af-error" data-error-for="afArriveTicket"></p>
+          </div>
+
+          <!-- ── Departure ───────────────────────────────────── -->
+          <p class="af-group">Departure</p>
+
+          <div class="af-row">
+            <div class="af-field">
+              <label class="af-label" for="afDepart">Departure date</label>
               <input class="af-input af-date" id="afDepart" name="depart" type="date" required />
               <p class="af-error" data-error-for="afDepart"></p>
             </div>
+            <div class="af-field">
+              <label class="af-label" for="afDepartBy">Departing by</label>
+              <div class="af-select-wrap">
+                <select class="af-input af-select" id="afDepartBy" name="departBy" required>
+                  <option value="" selected disabled>Choose</option>
+                </select>
+                <svg class="af-caret" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9.5 12 15.5 18 9.5" fill="none" stroke="currentColor"
+                        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p class="af-error" data-error-for="afDepartBy"></p>
+            </div>
           </div>
+
+          <div class="af-field" id="afDepartTicketField" hidden>
+            <label class="af-label" for="afDepartTicket">
+              Departure ticket <span class="af-optional">optional</span>
+            </label>
+            <input class="af-file-input" id="afDepartTicket" name="departTicket" type="file"
+                   accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            <label class="af-file" for="afDepartTicket">
+              <svg class="af-file-icon" aria-hidden="true"><use href="#ic-upload"/></svg>
+              <span class="af-file-text">Attach ticket</span>
+            </label>
+            <p class="af-error" data-error-for="afDepartTicket"></p>
+          </div>
+
+          <!-- ── At the wedding ──────────────────────────────── -->
+          <p class="af-group">At the wedding</p>
 
           <div class="af-field">
             <label class="af-label" for="afFunction">Function attending</label>
@@ -504,7 +572,7 @@
                    aria-describedby="afAadhaarHint" required />
             <label class="af-file" for="afAadhaar">
               <svg class="af-file-icon" aria-hidden="true"><use href="#ic-upload"/></svg>
-              <span class="af-file-text" id="afFileText">Choose a file</span>
+              <span class="af-file-text">Choose a file</span>
             </label>
             <p class="af-hint" id="afAadhaarHint">
               Image, PDF or Word document. The hotel asks for it at check-in; it

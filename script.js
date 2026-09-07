@@ -172,6 +172,13 @@ const CONFIG = {
       'Both Ring Ceremony & Wedding',
     ],
 
+    /* How guests travel in and out. */
+    travelModes: ['Flight', 'Train', 'Car'],
+
+    /* Modes with no ticket to attach: picking one hides that upload rather
+       than leaving a field nobody can fill. Match the spelling above. */
+    ticketlessModes: ['Car'],
+
     /* Bounds on the date pickers. Wide enough for guests who travel in
        early or stay on, tight enough to catch a mistyped year. */
     dateMin: '2026-11-01',
@@ -181,6 +188,12 @@ const CONFIG = {
        browser lets through what the script then rejects. Photographs
        are shrunk before upload, so this only really binds on PDFs. */
     maxFileMB: 10,
+
+    /* A guest can now attach three files. base64 inflates each by a third,
+       so three at the per-file cap would be ~40 MB on the wire — past what
+       Apps Script accepts, and hopeless on mobile data long before that.
+       This caps the three together. Keep MAX_TOTAL_MB in Code.gs in step. */
+    maxTotalMB: 20,
 
     /* false drops the upload field entirely — use it if the hotel turns
        out not to need ID copies in advance. */
@@ -792,25 +805,25 @@ function initAttendance() {
   const A  = CONFIG.attendance || {};
   const id = (x) => document.getElementById(x);
 
-  const fName    = id('afName');
-  const fMembers = id('afMembers');
-  const fPhone   = id('afPhone');
-  const fArrive  = id('afArrive');
-  const fDepart  = id('afDepart');
-  const fFunc    = id('afFunction');
-  const fFile    = id('afAadhaar');
-  const fTrap    = id('afWebsite');
-  const fileBox  = form.querySelector('.af-file');
-  const fileTxt  = id('afFileText');
-  const submit   = id('afSubmit');
-  const status   = id('afStatus');
-  const done     = id('attendDone');
-  const again    = id('attendAgain');
+  const fName     = id('afName');
+  const fMembers  = id('afMembers');
+  const fPhone    = id('afPhone');
+  const fArrive   = id('afArrive');
+  const fArriveBy = id('afArriveBy');
+  const fDepart   = id('afDepart');
+  const fDepartBy = id('afDepartBy');
+  const fFunc     = id('afFunction');
+  const fTrap     = id('afWebsite');
+  const submit    = id('afSubmit');
+  const status    = id('afStatus');
+  const done      = id('attendDone');
+  const again     = id('attendAgain');
 
-  const MAX_MB = Number(A.maxFileMB) || 10;
+  const MAX_MB       = Number(A.maxFileMB) || 10;
+  const MAX_TOTAL_MB = Number(A.maxTotalMB) || 20;
   const EXT_OK = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif', 'bmp', 'pdf', 'doc', 'docx'];
 
-  /* The upload can be switched off wholesale from CONFIG. */
+  /* The Aadhaar upload can be switched off wholesale from CONFIG. */
   const wantsFile = A.aadhaarRequired !== false;
   if (!wantsFile) {
     const field = id('afAadhaarField');
@@ -829,13 +842,18 @@ function initAttendance() {
     else map.remove();          /* no button beats one that goes nowhere */
   }
 
-  /* ---- the dropdown ------------------------------------------ */
-  (A.functions || []).forEach((label) => {
-    const opt = document.createElement('option');
-    opt.value = label;
-    opt.textContent = label;
-    fFunc.appendChild(opt);
-  });
+  /* ---- the dropdowns ----------------------------------------- */
+  const fillSelect = (sel, values) => {
+    (values || []).forEach((label) => {
+      const opt = document.createElement('option');
+      opt.value = label;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+  };
+  fillSelect(fFunc, A.functions);
+  fillSelect(fArriveBy, A.travelModes);
+  fillSelect(fDepartBy, A.travelModes);
 
   /* ---- the date pickers -------------------------------------- */
   [fArrive, fDepart].forEach((d) => {
@@ -873,40 +891,79 @@ function initAttendance() {
   });
 
 
-  /* ---- the upload --------------------------------------------- */
-  let picked = null;   /* { name, type, data } — base64, ready to post */
+  /* ---- the uploads -------------------------------------------- */
+  /* Three of these now — the Aadhaar card and a ticket at each end — so
+     each field gets its own small controller rather than three copies of
+     the same handler. `picked` on a controller holds the base64 payload
+     once a guest has chosen something, and is the ONLY record that a file
+     is attached: it must never disagree with what the input holds. */
+  function makeUpload(inputId, emptyLabel) {
+    const input = id(inputId);
+    if (!input) return null;
+    const field = input.closest('.af-field');
+    const box   = field && field.querySelector('.af-file');
+    const text  = box && box.querySelector('.af-file-text');
 
-  const setFileText = (s) => { if (fileTxt) fileTxt.textContent = s; };
+    const ctl = {
+      input, field, box, picked: null,
+      clear() {
+        ctl.picked = null;
+        input.value = '';
+        if (box) box.classList.remove('is-filled');
+        if (text) text.textContent = emptyLabel;
+        clearErr(input, box);
+      },
+    };
 
-  if (wantsFile && fFile) {
-    fFile.addEventListener('change', async () => {
-      clearErr(fFile, fileBox);
-      picked = null;
-      fileBox.classList.remove('is-filled');
+    input.addEventListener('change', async () => {
+      clearErr(input, box);
+      ctl.picked = null;
+      if (box) box.classList.remove('is-filled');
 
-      const file = fFile.files && fFile.files[0];
-      if (!file) { setFileText('Choose a file'); return; }
+      const file = input.files && input.files[0];
+      if (!file) { if (text) text.textContent = emptyLabel; return; }
 
       const ext = (file.name.split('.').pop() || '').toLowerCase();
       if (EXT_OK.indexOf(ext) === -1) {
-        fFile.value = '';
-        setFileText('Choose a file');
-        err(fFile, 'Please attach an image, a PDF or a Word document.', fileBox);
+        input.value = '';
+        if (text) text.textContent = emptyLabel;
+        err(input, 'Please attach an image, a PDF or a Word document.', box);
         return;
       }
 
-      setFileText('Reading…');
+      if (text) text.textContent = 'Reading…';
       try {
-        picked = await prepareUpload(file);
-        setFileText(picked.name);
-        fileBox.classList.add('is-filled');
+        ctl.picked = await prepareUpload(file);
+        if (text) text.textContent = ctl.picked.name;
+        if (box) box.classList.add('is-filled');
       } catch (e) {
-        fFile.value = '';
-        setFileText('Choose a file');
-        err(fFile, (e && e.message) || 'That file could not be read.', fileBox);
+        input.value = '';
+        if (text) text.textContent = emptyLabel;
+        err(input, (e && e.message) || 'That file could not be read.', box);
       }
     });
+
+    return ctl;
   }
+
+  const upAadhaar = wantsFile ? makeUpload('afAadhaar', 'Choose a file') : null;
+  const upArrive  = makeUpload('afArriveTicket', 'Attach ticket');
+  const upDepart  = makeUpload('afDepartTicket', 'Attach ticket');
+  const uploads   = [upAadhaar, upArrive, upDepart].filter(Boolean);
+
+  /* A car has no ticket, so that upload appears and disappears with the
+     travel mode. Anything already attached is dropped as the field goes
+     away: a file the guest can no longer see or remove must not be sent
+     on their behalf. */
+  const ticketless = (A.ticketlessModes || []).map((s) => String(s).toLowerCase());
+  const syncTicket = (sel, up) => {
+    if (!up || !up.field) return;
+    const show = !!sel.value && ticketless.indexOf(sel.value.toLowerCase()) === -1;
+    if (!show) up.clear();
+    up.field.hidden = !show;
+  };
+  fArriveBy.addEventListener('change', () => syncTicket(fArriveBy, upArrive));
+  fDepartBy.addEventListener('change', () => syncTicket(fDepartBy, upDepart));
 
   async function prepareUpload(file) {
     const small = await shrinkImage(file);
@@ -1005,14 +1062,23 @@ function initAttendance() {
       fail(fDepart, 'This is before you arrive.');
     }
 
+    if (!fArriveBy.value) fail(fArriveBy, 'Please choose one.');
+    if (!fDepartBy.value) fail(fDepartBy, 'Please choose one.');
+
     if (!fFunc.value) fail(fFunc, 'Please choose a function.');
 
-    if (wantsFile && fFile && !picked) {
-      fail(fFile, 'Please attach the Aadhaar card.', fileBox);
+    /* Tickets stay optional throughout — plenty of guests reply before
+       they have booked anything. Only the Aadhaar card is insisted on. */
+    if (upAadhaar && !upAadhaar.picked) {
+      fail(upAadhaar.input, 'Please attach the Aadhaar card.', upAadhaar.box);
     }
 
     return first;
   }
+
+  /* base64 carries three bytes in every four characters. */
+  const attachedBytes = () => uploads.reduce(
+    (n, u) => n + (u.picked ? Math.ceil(u.picked.data.length * 3 / 4) : 0), 0);
 
 
   /* ---- sending ------------------------------------------------- */
@@ -1040,15 +1106,26 @@ function initAttendance() {
     const bad = validate();
     if (bad) {
       bad.focus({ preventScroll: true });
-      /* The file input is off-screen by design, so scroll to the box
-         standing in for it instead. */
-      const target = (bad === fFile ? fileBox : bad) || bad;
+      /* File inputs are off-screen by design, so scroll to the box
+         standing in for one instead of to the input itself. */
+      const up = uploads.find((u) => u.input === bad);
+      const target = (up && up.box) || bad;
       target.scrollIntoView({ block: 'center', behavior: CFG.reducedMotion ? 'auto' : 'smooth' });
       return;
     }
 
     if (!A.endpoint) {
       say('The form is not connected yet. Please call us on the numbers above and we will note you down.', true);
+      return;
+    }
+
+    /* Belongs to no single field — three files can each be legal and still
+       be too much together, and Apps Script would simply refuse the post. */
+    const total = attachedBytes();
+    if (total > MAX_TOTAL_MB * 1024 * 1024) {
+      say(`Those attachments come to ${(total / 1048576).toFixed(1)} MB together, ` +
+          `over the ${MAX_TOTAL_MB} MB limit. Please attach smaller files, or send ` +
+          `the tickets on WhatsApp instead.`, true);
       return;
     }
 
@@ -1066,10 +1143,16 @@ function initAttendance() {
           name:      fName.value.trim(),
           members:   Number(fMembers.value),
           arrive:    fArrive.value,
+          arriveBy:  fArriveBy.value,
           depart:    fDepart.value,
+          departBy:  fDepartBy.value,
           phone:     tidyPhone(fPhone.value),
           attending: fFunc.value,
-          file:      picked,
+          files: {
+            aadhaar:      upAadhaar ? upAadhaar.picked : null,
+            arriveTicket: upArrive  ? upArrive.picked  : null,
+            departTicket: upDepart  ? upDepart.picked  : null,
+          },
           website:   fTrap ? fTrap.value : '',
         }),
         redirect: 'follow',
@@ -1102,15 +1185,20 @@ function initAttendance() {
     }
   });
 
-  /* `picked` has to describe whatever is in the file input and nothing
-     else. A reset empties the input but cannot reach a closure variable,
-     which would leave the form willing to send the previous guest's ID
-     with no file on screen. Hanging the cleanup on the event keeps the
-     two in step however the reset was triggered. */
+  /* Each controller's `picked` has to describe whatever is in its input
+     and nothing else. A reset empties the inputs but cannot reach a
+     closure variable, which would leave the form willing to send the
+     previous guest's ID with no file on screen. Hanging the cleanup on
+     the event keeps the two in step however the reset was triggered. */
   form.addEventListener('reset', () => {
-    picked = null;
-    if (fileBox) fileBox.classList.remove('is-filled');
-    setFileText('Choose a file');
+    /* Deferred: a reset empties the inputs AFTER this event, so clearing
+       the controllers first would leave each one's input.value = '' undone
+       by the reset that follows. One tick later the DOM has settled. */
+    setTimeout(() => {
+      uploads.forEach((u) => u.clear());
+      if (upArrive && upArrive.field)  upArrive.field.hidden = true;
+      if (upDepart && upDepart.field) upDepart.field.hidden = true;
+    }, 0);
     fDepart.min = A.dateMin || '';
     form.querySelectorAll('.af-error.is-shown').forEach((p) => {
       p.textContent = '';

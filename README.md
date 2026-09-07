@@ -56,8 +56,28 @@ Two conventions worth knowing:
 ## The RSVP form
 
 Under the phone numbers there is a **map button** and a **"Confirm Your
-Presence"** form: name, members joining, dates in and out, contact number,
+Presence"** form: name, members attending, contact number, then arrival and
+departure (date, how they are travelling, and an optional ticket for each),
 which function they are coming to, and an Aadhaar upload for hotel check-in.
+
+Ten questions is enough to read as a wall, so the fields are grouped under
+**Arrival / Departure / At the wedding** rules.
+
+Three details in that form that are easy to undo by accident:
+
+- **Tickets are optional and conditional.** They are hidden until a travel
+  mode that *has* a ticket is chosen (`CONFIG.attendance.ticketlessModes`
+  lists the ones that do not — Car). Switching to Car after attaching one
+  **discards** it: a file the guest can no longer see or remove must not be
+  sent on their behalf.
+- **Three attachments now, so there is a combined cap.** base64 inflates each
+  by a third, so three at the per-file limit would be ~40 MB on the wire —
+  past what Apps Script accepts and hopeless on mobile data long before that.
+  `maxTotalMB` catches the case where every file is individually legal.
+- **The sheet re-heads itself.** The columns changed when travel was added,
+  so `Code.gs` compares row 1 against `HEADERS` and, on a mismatch, renames
+  the old tab and starts a clean one. Without that, new rows would land under
+  old headings and nobody would notice until the planner tried to use it.
 
 Pages only serves files, so the form posts to a **Google Apps Script web
 app**, which saves the upload to a Drive folder and appends a row to a Google

@@ -2245,7 +2245,43 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
   .af-row { grid-template-columns: 1fr; gap: 1.05rem; }
 }
 
+/* The form asks for ten things now. Without these the travel questions run
+   into the wedding ones and it reads as one long wall. */
+.af-group {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin: .5rem 0 -.2rem;
+  font-family: var(--font-caps);
+  font-size: clamp(.6rem, 2.5vw, .68rem);
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra);
+  white-space: nowrap;
+}
+.af-group::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(192,138,62,.42), transparent);
+}
+.attend-form > .af-group:first-child { margin-top: 0; }
+
+.af-optional {
+  margin-left: .45em;
+  font-size: .88em;
+  font-weight: 400;
+  letter-spacing: .1em;
+  text-transform: none;
+  font-style: italic;
+  color: rgba(134,102,74,.78);
+}
+
 .af-field { display: flex; flex-direction: column; min-width: 0; }
+/* display:flex on the class beats the browser's [hidden], and the ticket
+   fields are shown or hidden by that attribute as the travel mode changes. */
+.af-field[hidden] { display: none; }
 .af-label {
   margin-bottom: .38rem;
   font-family: var(--font-caps);

@@ -166,11 +166,11 @@ const CONFIG = {
 
     mapUrl: 'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
 
-    functions: [
-      'Ring Ceremony',
-      'Wedding',
-      'Both Ring Ceremony & Wedding',
-    ],
+    /* There is deliberately no `functions` list here any more. The form
+       used to ask which function a guest was coming to; it was dropped on
+       request. Adding it back means the select in index.html, the
+       validation, the payload field, and the column in apps-script/Code.gs
+       — the sheet re-heads itself when that column list changes. */
 
     /* How guests travel in and out. */
     travelModes: ['Flight', 'Train', 'Car'],
@@ -812,7 +812,6 @@ function initAttendance() {
   const fArriveBy = id('afArriveBy');
   const fDepart   = id('afDepart');
   const fDepartBy = id('afDepartBy');
-  const fFunc     = id('afFunction');
   const fTrap     = id('afWebsite');
   const submit    = id('afSubmit');
   const status    = id('afStatus');
@@ -851,7 +850,6 @@ function initAttendance() {
       sel.appendChild(opt);
     });
   };
-  fillSelect(fFunc, A.functions);
   fillSelect(fArriveBy, A.travelModes);
   fillSelect(fDepartBy, A.travelModes);
 
@@ -885,7 +883,7 @@ function initAttendance() {
     input.removeAttribute('aria-invalid');
   }
 
-  [fName, fMembers, fPhone, fArrive, fDepart, fFunc].forEach((i) => {
+  [fName, fMembers, fPhone, fArrive, fDepart].forEach((i) => {
     i.addEventListener('input',  () => clearErr(i));
     i.addEventListener('change', () => clearErr(i));
   });
@@ -1065,8 +1063,6 @@ function initAttendance() {
     if (!fArriveBy.value) fail(fArriveBy, 'Please choose one.');
     if (!fDepartBy.value) fail(fDepartBy, 'Please choose one.');
 
-    if (!fFunc.value) fail(fFunc, 'Please choose a function.');
-
     /* Tickets stay optional throughout — plenty of guests reply before
        they have booked anything. Only the Aadhaar card is insisted on. */
     if (upAadhaar && !upAadhaar.picked) {
@@ -1147,7 +1143,6 @@ function initAttendance() {
           depart:    fDepart.value,
           departBy:  fDepartBy.value,
           phone:     tidyPhone(fPhone.value),
-          attending: fFunc.value,
           files: {
             aadhaar:      upAadhaar ? upAadhaar.picked : null,
             arriveTicket: upArrive  ? upArrive.picked  : null,

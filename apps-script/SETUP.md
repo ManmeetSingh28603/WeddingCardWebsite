@@ -22,7 +22,7 @@ the page but cannot send.
 
 ## What lands in the sheet
 
-One row per guest, twelve columns:
+One row per guest, eleven columns:
 
 | | |
 | --- | --- |
@@ -30,7 +30,6 @@ One row per guest, twelve columns:
 | Name · Members attending · Contact number | who is coming |
 | Arrival date · Arriving by · Arrival ticket | in |
 | Departure date · Departing by · Departure ticket | out |
-| Function attending | Ring Ceremony, Wedding, or both |
 | Aadhaar card | for hotel check-in |
 
 The three attachment columns hold a clickable link named after the file.
@@ -179,7 +178,6 @@ Everything on the site side is in `CONFIG.attendance` at the top of
 | --- | --- |
 | `endpoint` | the `/exec` URL. Blank = the form still renders, but says it is not connected yet |
 | `mapUrl` | where the map button goes |
-| `functions` | the Function attending options |
 | `travelModes` | the Arriving/Departing by options |
 | `ticketlessModes` | modes with no ticket to attach — picking one hides that upload. Must match the spelling in `travelModes` |
 | `dateMin` / `dateMax` | the window the date pickers allow |

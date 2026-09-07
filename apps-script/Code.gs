@@ -54,7 +54,7 @@ const HEADERS = [
   'Received at', 'Name', 'Members attending',
   'Arrival date', 'Arriving by', 'Arrival ticket',
   'Departure date', 'Departing by', 'Departure ticket',
-  'Contact number', 'Function attending', 'Aadhaar card',
+  'Contact number', 'Aadhaar card',
 ];
 
 /* The three uploads, in the order their columns appear. */
@@ -113,7 +113,6 @@ function doPost(e) {
       clean.departBy,
       linkCell_(saved.departTicket),
       "'" + clean.phone,      // leading quote keeps Sheets from eating a 0
-      clean.attending,
       linkCell_(saved.aadhaar),
     ]);
 
@@ -159,9 +158,6 @@ function validate_(d) {
   const departBy = String(d.departBy || '').trim();
   if (!arriveBy) return { error: 'Please choose how you are arriving.' };
   if (!departBy) return { error: 'Please choose how you are leaving.' };
-
-  const attending = String(d.attending || '').trim();
-  if (!attending) return { error: 'Please choose a function.' };
 
   /* The tickets are optional — a guest driving in has none, and many reply
      before they have booked. Only the Aadhaar card is insisted on, and
@@ -212,7 +208,6 @@ function validate_(d) {
     depart: depart,
     departBy: departBy,
     phone: phone,
-    attending: attending,
     files: files,
   };
 }
@@ -309,7 +304,8 @@ function sheet_() {
     sh.getRange('D:D').setNumberFormat('dd-mmm-yyyy');   // arrival
     sh.getRange('G:G').setNumberFormat('dd-mmm-yyyy');   // departure
     sh.getRange('J:J').setNumberFormat('@');             // keep the number a string
-    const widths = [150, 190, 140, 130, 120, 240, 130, 120, 240, 140, 230, 240];
+    /* One per column of HEADERS, in order. */
+    const widths = [150, 190, 140, 130, 120, 240, 130, 120, 240, 140, 240];
     for (var i = 0; i < widths.length; i++) sh.setColumnWidth(i + 1, widths[i]);
   }
   return sh;
@@ -340,7 +336,6 @@ function notify_(clean, saved) {
       'Arriving ............ ' + day(clean.arrive) + ' by ' + clean.arriveBy,
       'Departing ........... ' + day(clean.depart) + ' by ' + clean.departBy,
       'Contact ............. ' + clean.phone,
-      'Function ............ ' + clean.attending,
       '',
     ];
     for (var i = 0; i < ATTACHMENTS.length; i++) {

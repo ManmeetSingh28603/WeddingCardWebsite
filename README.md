@@ -58,10 +58,15 @@ Two conventions worth knowing:
 Under the phone numbers there is a **map button** and a **"Confirm Your
 Presence"** form: name, members attending, contact number, then arrival and
 departure (date, how they are travelling, and an optional ticket for each),
-which function they are coming to, and an Aadhaar upload for hotel check-in.
+and an Aadhaar upload for hotel check-in.
 
-Ten questions is enough to read as a wall, so the fields are grouped under
-**Arrival / Departure / At the wedding** rules.
+Enough questions to read as a wall, so the fields are grouped under
+**Arrival / Departure / For hotel check-in** rules.
+
+There is no "Function attending" question. There was one; it was dropped on
+request. Bringing it back means four edits that have to land together — the
+select in `index.html`, a `functions` list in `CONFIG.attendance`, the
+validation and payload field in `script.js`, and the column in `Code.gs`.
 
 Three details in that form that are easy to undo by accident:
 

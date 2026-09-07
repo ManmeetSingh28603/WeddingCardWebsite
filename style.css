@@ -94,6 +94,13 @@ html, body {
   background: #efe3d0;
   cursor: pointer;
   opacity: 1;
+  /* The film is sized to overflow this box on purpose — that is how a
+     landscape frame covers a portrait screen. On a phone the viewport
+     clips the spill; on desktop the gate is re-centred onto the 480px
+     column (see the min-width: 600px block) which is NARROWER than the
+     window, so without this the film runs out across the whole page
+     while the scrim and prompt stay in the column. */
+  overflow: hidden;
   transition: opacity 1400ms ease, filter 1400ms ease, transform 1800ms ease;
 }
 /* painted ground — laid paper the card opens on */
@@ -113,33 +120,101 @@ html, body {
   opacity: .5;
   background: repeating-linear-gradient(92deg, rgba(150,120,80,.035) 0 1px, transparent 1px 6px);
 }
-/* The envelope film IS the gate. It is a designed card — the wax seal
-   centred, its own prompt along the foot — so it is shown WHOLE rather than
-   cover-cropped, letterboxed against the paper behind it. That paper is the
-   same cream, so the join does not read.
-   Its foot carries a recorder watermark, cut with clip-path: those
-   percentages resolve against the ELEMENT's own box, so the crop is exact at
-   any size. For clip-path to reach the film's bottom edge the element is laid
-   out at the film's own aspect ratio, and the width is capped so what
-   survives the cut still fits the screen — visible height is
-   width / (336/896) * 0.945 = width * 2.52, so width may not pass
-   height / 2.52 = height * 0.397. */
+/* The Rumi Darwaza film IS the gate — 1280x720, landscape, with the arch
+   dead centre. The envelope card this replaced was portrait and was shown
+   whole; this one is a cinematic frame and is shown FULL-BLEED instead, so
+   the gate opens across the whole screen rather than inside a letterbox.
+
+   It carries the generator's sparkle watermark at x 1137-1182, y 577-622 of
+   the source frame — 7.6% in from the right edge. That is cut with
+   clip-path, whose percentages resolve against the ELEMENT's own box, so the
+   crop is exact at every viewport; the element is laid out at the film's own
+   aspect ratio for that to hold. The cut is taken off BOTH sides even though
+   the mark is only on one: the arch is centred, and shaving one edge alone
+   would swing it off axis. 12% clears the mark's 11.17% with room to spare.
+
+   Sizing, so what survives the cut still covers the screen:
+     visible width  = W * (1 - 2*0.12) = W * 0.76   ->  W >= 100% / 0.76 = 131.6%
+     element height = W * 720/1280                  ->  W >= 100svh * 1.7778
+   Swap in a film of another shape and both numbers move with its ratio. */
 .intro-film {
-  --crop: 5.5%;
+  --side: 12%;
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 2;
-  width: min(100%, calc(100svh * 0.397));
-  aspect-ratio: 336 / 896;
-  /* -50% centres the element; half the crop back re-centres what survives it */
-  transform: translate(-50%, calc(-50% + var(--crop) / 2));
-  clip-path: inset(0 0 var(--crop) 0);
+  width: max(131.6%, calc(100svh * 1.7778));
+  aspect-ratio: 1280 / 720;
+  /* the cut is symmetric, so the surviving centre is the element's centre */
+  transform: translate(-50%, -50%);
+  clip-path: inset(0 var(--side) 0 var(--side));
   object-fit: cover;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
 }
+
+/* Warm dusk stone behind the prompt — cream text alone was washing out
+   against the lit sandstone. Sits over the film, under the wording. */
+.intro-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(38,20,8,.62) 0%, rgba(38,20,8,.28) 22%, transparent 46%),
+    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(38,20,8,.35), transparent 70%);
+}
+
+/* The film says nothing on its own, so this is the whole instruction. */
+.intro-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: max(7vh, calc(env(safe-area-inset-bottom, 0px) + 42px));
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  width: min(86%, 400px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: introPromptIn 1100ms cubic-bezier(.16,1,.3,1) 420ms both;
+}
+.intro-prompt-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(253,246,236,.65), transparent);
+}
+.intro-prompt-text {
+  flex-shrink: 0;
+  font-family: var(--font-caps);
+  font-size: clamp(.68rem, 2.9vw, .8rem);
+  font-weight: 500;
+  letter-spacing: .24em;
+  text-indent: .24em;
+  text-transform: uppercase;
+  color: #fdf6ec;
+  text-shadow: 0 1px 12px rgba(38,20,8,.85), 0 0 3px rgba(38,20,8,.6);
+  animation: introPromptBreathe 2600ms ease-in-out 1500ms infinite;
+}
+@keyframes introPromptIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes introPromptBreathe {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .58; }
+}
+/* Once the film is running the wording changes to the skip hint and steps
+   back, so it stops competing with the gate for attention. */
+.intro-prompt.is-playing { animation: none; opacity: 1; }
+.intro-prompt.is-playing .intro-prompt-text {
+  animation: none;
+  opacity: .62;
+  font-size: clamp(.6rem, 2.5vw, .7rem);
+  transition: opacity .5s ease;
+}
+.intro-prompt.is-gone { opacity: 0; transition: opacity .45s ease; }
 video.intro-film::-webkit-media-controls,
 video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
 .intro-screen.is-fading {

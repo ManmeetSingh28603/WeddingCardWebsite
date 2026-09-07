@@ -1309,13 +1309,16 @@ function initIntro() {
 
   const film = document.getElementById('introVideo');
   const dissolve = document.getElementById('ivoryDissolve');
+  const prompt = document.getElementById('introPrompt');
+  const promptText = document.getElementById('introPromptText');
 
-  let begun = false, finished = false, touchHandled = false;
+  let begun = false, finished = false, touchHandled = false, begunAt = 0;
   lockScroll(true);
 
   const finish = () => {
     if (finished) return;
     finished = true;
+    if (prompt) prompt.classList.add('is-gone');
     startBgMusic();
     screen.classList.add('is-fading');
 
@@ -1363,6 +1366,7 @@ function initIntro() {
   const begin = () => {
     if (begun) return;
     begun = true;
+    begunAt = Date.now();
 
     /* The score starts on THIS tap and plays under the film. Called
        synchronously inside the gesture handler so the activation token
@@ -1372,18 +1376,32 @@ function initIntro() {
     if (!film) { finish(); return; }
     try { film.currentTime = 0; } catch (_) {}
     /* the film is silent throughout — a muted play is always permitted, so
-       the envelope starts opening instantly even on the pointerdown path */
+       the gate starts opening instantly even on the pointerdown path */
     film.muted = true;
     film.playsInline = true;
     const p = film.play();
     /* refused outright: hand over rather than strand the guest on a still */
     if (p && p.catch) p.catch(() => finish());
 
-    /* the film closes on "Let the celebration begin" — that last frame is
-       the hand-off */
+    /* Ten seconds is a long time to hold someone at the door, so once the
+       gate is plainly moving the prompt turns into the way out. Delayed so
+       it does not swap under the finger that just tapped it. */
+    if (prompt && promptText) {
+      setTimeout(() => {
+        if (finished) return;
+        promptText.textContent = 'Tap to skip';
+        prompt.classList.add('is-playing');
+      }, 1400);
+    }
+
+    /* the film closes on the hotel revealed through the open gate — that
+       last frame is the hand-off */
     film.addEventListener('ended', finish, { once: true });
-    /* safety: if 'ended' never fires, go anyway on a generous cap */
-    setTimeout(finish, 15000);
+    /* Safety, for when 'ended' never arrives: a stalled buffer, a tab sent
+       to the background mid-play. Sized off the film's own length so
+       swapping in a longer one does not silently start cutting it short. */
+    const len = Number.isFinite(film.duration) && film.duration > 0 ? film.duration : 10;
+    setTimeout(finish, Math.round(len * 1000) + 6000);
   };
 
   /* No film to open — take the gate away entirely rather than leave a tap
@@ -1404,16 +1422,29 @@ function initIntro() {
 
   /* pointerdown is the earliest possible start; touchend / click / keydown
      cover the activation-carrying paths. touchHandled stops the synthetic
-     click from firing begin() a second time. */
-  const gestureStart = () => { touchHandled = true; begin(); };
+     click from firing a second time.
+     A tap once the film is running skips to the invitation — but ONE
+     physical tap fires pointerdown, then touchend, then click, so a bare
+     "already begun means skip" would open the gate and slam it in the same
+     gesture. The grace window is what separates that cascade from a guest
+     genuinely tapping again. */
+  const SKIP_AFTER_MS = 700;
+  const onGesture = () => {
+    if (begun) {
+      if (Date.now() - begunAt > SKIP_AFTER_MS) finish();
+      return;
+    }
+    begin();
+  };
+  const gestureStart = () => { touchHandled = true; onGesture(); };
   screen.addEventListener('pointerdown', gestureStart, { passive: true });
   screen.addEventListener('touchend', gestureStart, { passive: true });
   screen.addEventListener('click', () => {
     if (touchHandled) { touchHandled = false; return; }
-    begin();
+    onGesture();
   });
   screen.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); begin(); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onGesture(); }
   });
 }
 

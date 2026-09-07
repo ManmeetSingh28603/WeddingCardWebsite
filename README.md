@@ -11,13 +11,16 @@ assets/       everything the site actually loads
 apps-script/  the RSVP form's backend — not served, deployed to Google
 ```
 
-Everything the site loads lives in `assets/` — all 20 files, all referenced.
-The source media those were cut from (`Radhika.png`, `background.mp4`,
-`envelope.mp4`, `video1–4.mp4`, `bg song.mp3` and the WhatsApp originals) has
-been deleted: it was 42 MB the site never loaded, and every asset derived from
-it is already here. Three of those were byte-identical copies of files in
-`assets/` anyway. If an asset ever needs re-cutting at a different size or
-crop, the original has to come back from the client first.
+Everything the site loads lives in `assets/`, all of it referenced. The source
+media those were cut from (`Radhika.png`, `background.mp4`, `envelope.mp4`,
+`video1–4.mp4`, `bg song.mp3` and the WhatsApp originals) has been deleted: it
+was 42 MB the site never loaded, and every asset derived from it is already
+here. If an asset ever needs re-cutting at a different size or crop, the
+original has to come back from the client first.
+
+Root-level `*.mp4` is gitignored, so working files dropped in the folder —
+`herofinal.mp4`, `rumi gate wedding.mp4` — stay out of the repo. Only the copy
+under `assets/` is served.
 
 `wedding-details.txt` is a working document for the client — what is on record
 and what is still missing. It is gitignored: it carries the families' mobile
@@ -137,7 +140,7 @@ Two things were inferred rather than given, and are worth confirming:
 | `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
 | `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
 | `video/hero.mp4`, `hero/hero_poster.webp` | `background.mp4` — the hero plays as video, the poster holds the frame while it buffers |
-| `video/envelope.mp4`, `hero/envelope_poster.webp` | `envelope.mp4` — the opening gate |
+| `video/opening.mp4`, `hero/opening_poster.webp` | `herofinal.mp4` — the opening gate, copied byte-for-byte; the poster is its first frame, uncropped so it lines up with the film |
 | `music/music.mp3` | `bg song.mp3` |
 | `events/sangeet.webp` + `events/jhoomer.webp` | project originals |
 | `video/wedding.mp4` + `events/wedding_fg.webp` | project originals |
@@ -153,24 +156,48 @@ own transparent overlay — a blossom bough or the pair of chandeliers — that
 drifts against the scroll. Wedding and Reception are films, Sangeet and the
 Invitation are stills, which is how the source project renders them.
 
-Two assets are still cropped, both phone screen-recordings with something
-burned along the foot of the frame: `background.mp4` (a floating music
-control) and `envelope.mp4` (a recorder watermark). See the note below on how
-those strips are removed.
+Two films are cropped in CSS because something is burned into the frame:
+`hero.mp4` (a floating music control along the foot) and `opening.mp4` (the
+generator's sparkle watermark). See the note below on how those are removed.
 
 ## The opening gate
 
-The envelope film is the gate. It carries its own "Tap to begin celebration"
-in its first frame and closes on "Let the celebration begin", so there is no
-button over it — the tap plays it through, starts the score under it, and the
-film's **last frame** is the hand-off to the hero (the `ended` event, not a
-timer). If the film ever fails to load, the gate removes itself rather than
-leaving a tap that does nothing.
+The Rumi Darwaza film is the gate: it opens on the closed doors and ends on
+Hotel Damson Plum revealed through them, which is the hand-off to the hero
+(the `ended` event, not a timer). The tap plays it through and starts the
+score under it. If the film ever fails to load, the gate removes itself
+rather than leaving a tap that does nothing.
 
-Unlike every other panel the envelope is shown **whole**, letterboxed against
-the paper behind it rather than cover-cropped: it is a designed card with its
-prompt along the foot, and a cover crop would cut that off. The paper is the
-same cream, so the join does not read.
+**The film carries no wording of its own**, unlike the envelope card it
+replaced, so `.intro-prompt` is the only thing telling a guest to tap. It is
+not decoration. It sits over a dusk-stone scrim because cream text alone
+washed out against the lit sandstone.
+
+It runs **ten seconds**, against the envelope's six. That is a long time to
+hold someone at the door, so once the gate is plainly moving the prompt turns
+into "Tap to skip" and any further tap hands straight over. The catch: one
+physical tap fires `pointerdown`, then `touchend`, then `click`, so a bare
+"already begun means skip" would open the gate and slam it in the same
+gesture — `SKIP_AFTER_MS` is the grace window that separates the cascade from
+a guest genuinely tapping again. Both paths are verified.
+
+The film is **landscape 1280x720** shown **full-bleed**, where the envelope
+was portrait and letterboxed. Two things follow from that:
+
+- The watermark sits 7.6% in from the right edge, so `clip-path` takes 12%
+  off **both** sides. Symmetric because the arch is centred and shaving one
+  edge alone would swing it off axis. Those percentages resolve against the
+  element's own box, so the crop is exact at every viewport — the element is
+  laid out at the film's own aspect ratio for that to hold.
+- The element is deliberately **wider than its container**, which is how a
+  landscape frame covers a portrait screen. `.intro-screen` therefore needs
+  `overflow: hidden`: on desktop the gate is re-centred onto the 480px column,
+  and without it the film runs out across the whole page while the scrim and
+  prompt stay in the column.
+
+Swap in a film of another shape and three numbers move together: the
+`aspect-ratio`, and both terms of the `width: max(131.6%, 100svh * 1.7778)`
+that keep what survives the cut covering the screen.
 
 The hero is the one film that stays a film — it has the hotel, the fort and
 the couple in a single shot, so there is no separate cut-out layer over it.

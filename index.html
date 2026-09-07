@@ -36,8 +36,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="preload" as="image" href="assets/hero/crest.webp" fetchpriority="high" />
-  <link rel="preload" as="image" href="assets/hero/envelope_poster.webp" fetchpriority="high" />
+  <!-- assets/hero/crest.webp is deliberately NOT preloaded. Nothing renders
+       it today: CONFIG.couple.heroCrest is false, so the hero crest is
+       removed at boot, and the intro card that used to carry it is now the
+       gate film. It was costing 226 KB at high priority on every load,
+       against the poster and film on the one screen where speed shows.
+       Put this back if you ever set heroCrest to true. -->
+  <link rel="preload" as="image" href="assets/hero/opening_poster.webp" fetchpriority="high" />
   <link rel="preload" as="image" href="assets/hero/hero_poster.webp" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -222,19 +227,28 @@
 
   <!-- ============================================================
        Intro — tap-to-begin gate.
-       The envelope film is the gate. It carries its own prompt in the
-       opening frame and closes on "Let the celebration begin", so there
-       is no separate button over it: the tap plays the film through,
-       starts the score, and hands to the hero on the last frame.
+       The Rumi Darwaza film is the gate: it opens on the closed doors
+       and ends on Hotel Damson Plum revealed through them, which is the
+       hand-off to the hero. The tap plays it through and starts the
+       score under it.
+       Unlike the envelope card this replaced, the film carries NO
+       wording of its own, so the prompt below is the only thing telling
+       a guest to tap — it is not decoration, do not drop it.
        ============================================================ -->
   <div class="intro-screen is-active" id="introScreen" role="button" tabindex="0"
        aria-label="Tap to begin celebration">
     <div class="intro-paper" aria-hidden="true"></div>
     <video class="intro-film" id="introVideo"
-           src="assets/video/envelope.mp4"
-           poster="assets/hero/envelope_poster.webp"
+           src="assets/video/opening.mp4"
+           poster="assets/hero/opening_poster.webp"
            muted playsinline webkit-playsinline preload="auto"
            disablepictureinpicture aria-hidden="true"></video>
+    <div class="intro-scrim" aria-hidden="true"></div>
+    <div class="intro-prompt" id="introPrompt" aria-hidden="true">
+      <span class="intro-prompt-rule"></span>
+      <span class="intro-prompt-text" id="introPromptText">Tap to begin celebration</span>
+      <span class="intro-prompt-rule"></span>
+    </div>
   </div>
   <div class="ivory-dissolve" id="ivoryDissolve" aria-hidden="true"></div>
 

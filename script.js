@@ -146,6 +146,41 @@ const CONFIG = {
       { name: 'Meetu', shown: '99199 96769', tel: '919919996769' },
     ],
   },
+
+  /* The attendance form under the RSVP contacts.
+     GitHub Pages only serves files, so the form posts to a Google
+     Apps Script web app, which files the upload in Drive and appends
+     a row to the Google Sheet the hosts share with their planner.
+     apps-script/SETUP.md is the ten-minute walkthrough. */
+  attendance: {
+    /* ⚠ PASTE THE DEPLOYED /exec URL HERE — the form cannot send
+       until you do. Empty renders the form as normal but tells anyone
+       who submits that it is not connected yet, which is better than
+       hiding it and better than swallowing a guest's details. */
+    endpoint: '',
+
+    mapUrl: 'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
+
+    functions: [
+      'Ring Ceremony',
+      'Wedding',
+      'Both Ring Ceremony & Wedding',
+    ],
+
+    /* Bounds on the date pickers. Wide enough for guests who travel in
+       early or stay on, tight enough to catch a mistyped year. */
+    dateMin: '2026-11-01',
+    dateMax: '2026-12-15',
+
+    /* Raise MAX_FILE_MB in apps-script/Code.gs alongside this, or the
+       browser lets through what the script then rejects. Photographs
+       are shrunk before upload, so this only really binds on PDFs. */
+    maxFileMB: 10,
+
+    /* false drops the upload field entirely — use it if the hotel turns
+       out not to need ID copies in advance. */
+    aadhaarRequired: true,
+  },
 };
 /* ════════════════════════════════════════════════════════════
    Nothing below here needs editing for ordinary changes.
@@ -176,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWardrobe();
   initBlessings();
   initRsvp();
+  initAttendance();
   initCountdownSection();
   initLayerDrift();
   initScratch();
@@ -717,7 +753,7 @@ function initRsvp() {
   const section = document.getElementById('rsvp');
   if (!section) return;
 
-  section.querySelectorAll('.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row')
+  section.querySelectorAll('.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row, .rsvp-map, .attend')
     .forEach((n, i) => n.style.setProperty('--rsvp-delay', `${i * 90}ms`));
 
   if (CFG.reducedMotion) { section.classList.add('is-visible'); return; }
@@ -727,6 +763,370 @@ function initRsvp() {
     section.classList.add('is-visible');
     obs.disconnect();
   }, { threshold: 0.18, rootMargin: '0px 0px -12% 0px' }).observe(section);
+}
+
+
+/* ============================================================
+   ATTENDANCE FORM
+
+   The site is static, so there is nothing here to receive a form.
+   Instead it posts JSON to the Google Apps Script web app named in
+   CONFIG.attendance.endpoint, which files the upload in Drive and
+   appends a row to the hosts' Google Sheet. apps-script/SETUP.md
+   has the deployment steps.
+
+   The upload is read and shrunk when the guest picks it, not when
+   they submit: the wait then happens while they are still filling
+   in the rest of the form rather than after they press Send.
+   ============================================================ */
+function initAttendance() {
+  const wrap = document.getElementById('attend');
+  const form = document.getElementById('attendForm');
+  if (!wrap || !form) return;
+
+  const A  = CONFIG.attendance || {};
+  const id = (x) => document.getElementById(x);
+
+  const fName    = id('afName');
+  const fMembers = id('afMembers');
+  const fPhone   = id('afPhone');
+  const fArrive  = id('afArrive');
+  const fDepart  = id('afDepart');
+  const fFunc    = id('afFunction');
+  const fFile    = id('afAadhaar');
+  const fTrap    = id('afWebsite');
+  const fileBox  = form.querySelector('.af-file');
+  const fileTxt  = id('afFileText');
+  const submit   = id('afSubmit');
+  const status   = id('afStatus');
+  const done     = id('attendDone');
+  const again    = id('attendAgain');
+
+  const MAX_MB = Number(A.maxFileMB) || 10;
+  const EXT_OK = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif', 'bmp', 'pdf', 'doc', 'docx'];
+
+  /* The upload can be switched off wholesale from CONFIG. */
+  const wantsFile = A.aadhaarRequired !== false;
+  if (!wantsFile) {
+    const field = id('afAadhaarField');
+    if (field) field.remove();
+  }
+
+  if (!A.endpoint) {
+    console.warn('[RSVP] CONFIG.attendance.endpoint is empty — the attendance ' +
+                 'form will render but cannot send. See apps-script/SETUP.md.');
+  }
+
+  /* ---- the map button ---------------------------------------- */
+  const map = id('rsvpMap');
+  if (map) {
+    if (A.mapUrl) map.href = A.mapUrl;
+    else map.remove();          /* no button beats one that goes nowhere */
+  }
+
+  /* ---- the dropdown ------------------------------------------ */
+  (A.functions || []).forEach((label) => {
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = label;
+    fFunc.appendChild(opt);
+  });
+
+  /* ---- the date pickers -------------------------------------- */
+  [fArrive, fDepart].forEach((d) => {
+    if (A.dateMin) d.min = A.dateMin;
+    if (A.dateMax) d.max = A.dateMax;
+  });
+  /* Picking the arrival narrows the departure picker, so leaving
+     before you arrive stops being reachable rather than being caught
+     afterwards by an error message. */
+  fArrive.addEventListener('change', () => {
+    fDepart.min = fArrive.value || A.dateMin || '';
+    if (fDepart.value && fArrive.value && fDepart.value < fArrive.value) fDepart.value = '';
+  });
+
+
+  /* ---- errors ------------------------------------------------- */
+  const errNode = (input) => form.querySelector(`[data-error-for="${input.id}"]`);
+
+  function err(input, msg, box) {
+    const p = errNode(input);
+    if (p) { p.textContent = msg; p.classList.add('is-shown'); }
+    (box || input).classList.add('is-bad');
+    input.setAttribute('aria-invalid', 'true');
+  }
+  function clearErr(input, box) {
+    const p = errNode(input);
+    if (p) { p.textContent = ''; p.classList.remove('is-shown'); }
+    (box || input).classList.remove('is-bad');
+    input.removeAttribute('aria-invalid');
+  }
+
+  [fName, fMembers, fPhone, fArrive, fDepart, fFunc].forEach((i) => {
+    i.addEventListener('input',  () => clearErr(i));
+    i.addEventListener('change', () => clearErr(i));
+  });
+
+
+  /* ---- the upload --------------------------------------------- */
+  let picked = null;   /* { name, type, data } — base64, ready to post */
+
+  const setFileText = (s) => { if (fileTxt) fileTxt.textContent = s; };
+
+  if (wantsFile && fFile) {
+    fFile.addEventListener('change', async () => {
+      clearErr(fFile, fileBox);
+      picked = null;
+      fileBox.classList.remove('is-filled');
+
+      const file = fFile.files && fFile.files[0];
+      if (!file) { setFileText('Choose a file'); return; }
+
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (EXT_OK.indexOf(ext) === -1) {
+        fFile.value = '';
+        setFileText('Choose a file');
+        err(fFile, 'Please attach an image, a PDF or a Word document.', fileBox);
+        return;
+      }
+
+      setFileText('Reading…');
+      try {
+        picked = await prepareUpload(file);
+        setFileText(picked.name);
+        fileBox.classList.add('is-filled');
+      } catch (e) {
+        fFile.value = '';
+        setFileText('Choose a file');
+        err(fFile, (e && e.message) || 'That file could not be read.', fileBox);
+      }
+    });
+  }
+
+  async function prepareUpload(file) {
+    const small = await shrinkImage(file);
+    if (small.size > MAX_MB * 1024 * 1024) {
+      const mb = (small.size / 1024 / 1024).toFixed(1);
+      throw new Error(`That file is ${mb} MB. Please attach one under ${MAX_MB} MB.`);
+    }
+    return {
+      name: small.name,
+      type: small.type || 'application/octet-stream',
+      data: await readBase64(small),
+    };
+  }
+
+  /* A photograph off a phone runs 3–6 MB, nearly all of it resolution
+     nobody needs to read an ID card — and on hotel wifi that is the
+     difference between a form that sends and one that times out. So
+     anything longer than 1800px on its long edge comes down to 1800px
+     of JPEG, which stays legible and usually lands under 500 KB.
+     Left untouched: PDFs, Word files, images already small, and HEIC,
+     which a browser canvas cannot decode. */
+  async function shrinkImage(file) {
+    if (!/^image\//i.test(file.type)) return file;
+    if (/heic|heif/i.test(file.type)) return file;
+    if (file.size <= 900 * 1024) return file;
+    if (typeof createImageBitmap !== 'function' || typeof File !== 'function') return file;
+
+    let bmp;
+    try { bmp = await createImageBitmap(file); } catch (e) { return file; }
+
+    const scale = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width  * scale));
+    const h = Math.max(1, Math.round(bmp.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { if (bmp.close) bmp.close(); return file; }
+    ctx.drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82));
+    /* Re-encoding a flat PNG can make it bigger. Keep whichever won. */
+    if (!blob || blob.size >= file.size) return file;
+
+    const base = file.name.replace(/\.[^.]+$/, '') || 'aadhaar';
+    return new File([blob], `${base}.jpg`, { type: 'image/jpeg' });
+  }
+
+  function readBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onerror = () => reject(new Error('That file could not be read.'));
+      r.onload  = () => {
+        const s = String(r.result);
+        const comma = s.indexOf(',');       /* drop the data: prefix */
+        resolve(comma === -1 ? s : s.slice(comma + 1));
+      };
+      r.readAsDataURL(blob);
+    });
+  }
+
+
+  /* ---- validation --------------------------------------------- */
+
+  /* Strips the country code so the sheet holds one shape. Ten digits
+     must open 6–9, which is every Indian mobile; anything longer is
+     read as an overseas number and left as dialled, because guests
+     fly in. */
+  function tidyPhone(raw) {
+    let d = String(raw || '').replace(/\D/g, '');
+    if (d.length === 12 && d.slice(0, 2) === '91') d = d.slice(2);
+    else if (d.length === 11 && d[0] === '0')      d = d.slice(1);
+    return d;
+  }
+
+  function validate() {
+    let first = null;
+    const fail = (input, msg, box) => { err(input, msg, box); if (!first) first = input; };
+
+    if (fName.value.trim().length < 2) fail(fName, 'Please give your name.');
+
+    const members = Number(fMembers.value);
+    if (!Number.isFinite(members) || members < 1 || members > 30 || members % 1 !== 0) {
+      fail(fMembers, 'A whole number from 1 to 30.');
+    }
+
+    const phone = tidyPhone(fPhone.value);
+    const phoneOk = phone.length === 10 ? /^[6-9]/.test(phone) : (phone.length > 10 && phone.length <= 15);
+    if (!phoneOk) fail(fPhone, 'Please give a valid mobile number.');
+
+    if (!fArrive.value) fail(fArrive, 'Please pick a date.');
+    if (!fDepart.value) fail(fDepart, 'Please pick a date.');
+    /* ISO dates compare correctly as plain strings. */
+    if (fArrive.value && fDepart.value && fDepart.value < fArrive.value) {
+      fail(fDepart, 'This is before you arrive.');
+    }
+
+    if (!fFunc.value) fail(fFunc, 'Please choose a function.');
+
+    if (wantsFile && fFile && !picked) {
+      fail(fFile, 'Please attach the Aadhaar card.', fileBox);
+    }
+
+    return first;
+  }
+
+
+  /* ---- sending ------------------------------------------------- */
+  const say = (msg, bad) => {
+    status.textContent = msg;
+    status.classList.toggle('is-bad', !!bad);
+    status.classList.add('is-shown');
+  };
+  const hush = () => {
+    status.textContent = '';
+    status.classList.remove('is-shown', 'is-bad');
+  };
+  function setSending(on) {
+    submit.disabled = on;
+    submit.classList.toggle('is-sending', on);
+    const label = submit.querySelector('.af-submit-label');
+    if (label) label.textContent = on ? 'Sending' : 'Send confirmation';
+  }
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    if (submit.disabled) return;
+    hush();
+
+    const bad = validate();
+    if (bad) {
+      bad.focus({ preventScroll: true });
+      /* The file input is off-screen by design, so scroll to the box
+         standing in for it instead. */
+      const target = (bad === fFile ? fileBox : bad) || bad;
+      target.scrollIntoView({ block: 'center', behavior: CFG.reducedMotion ? 'auto' : 'smooth' });
+      return;
+    }
+
+    if (!A.endpoint) {
+      say('The form is not connected yet. Please call us on the numbers above and we will note you down.', true);
+      return;
+    }
+
+    setSending(true);
+    say('Sending your details…', false);
+
+    try {
+      const res = await fetch(A.endpoint, {
+        method: 'POST',
+        /* text/plain keeps this a "simple" request, so the browser
+           skips the CORS preflight — an Apps Script web app cannot
+           answer an OPTIONS call and the whole post would fail. */
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          name:      fName.value.trim(),
+          members:   Number(fMembers.value),
+          arrive:    fArrive.value,
+          depart:    fDepart.value,
+          phone:     tidyPhone(fPhone.value),
+          attending: fFunc.value,
+          file:      picked,
+          website:   fTrap ? fTrap.value : '',
+        }),
+        redirect: 'follow',
+      });
+
+      const out = await res.json().catch(() => null);
+      if (!out || out.ok !== true) {
+        /* Tagged, so the catch below knows this text was written for a
+           guest to read. An untagged throw is the browser's own — a
+           dropped connection surfaces as "Failed to fetch", which is
+           not something to show someone replying to a wedding card. */
+        const refusal = new Error((out && out.error) || 'We could not save your details. Please try again.');
+        refusal.forGuest = true;
+        throw refusal;
+      }
+
+      /* Wind the form back down before hiding it: "Send another" brings
+         this same element back, and it should not return mid-send. */
+      setSending(false);
+      hush();
+      form.hidden = true;
+      done.hidden = false;
+      done.scrollIntoView({ block: 'center', behavior: CFG.reducedMotion ? 'auto' : 'smooth' });
+
+    } catch (e) {
+      setSending(false);
+      say(e && e.forGuest
+        ? e.message
+        : 'We could not reach the server. Please check your connection and try again — or call us on the numbers above.', true);
+    }
+  });
+
+  /* `picked` has to describe whatever is in the file input and nothing
+     else. A reset empties the input but cannot reach a closure variable,
+     which would leave the form willing to send the previous guest's ID
+     with no file on screen. Hanging the cleanup on the event keeps the
+     two in step however the reset was triggered. */
+  form.addEventListener('reset', () => {
+    picked = null;
+    if (fileBox) fileBox.classList.remove('is-filled');
+    setFileText('Choose a file');
+    fDepart.min = A.dateMin || '';
+    form.querySelectorAll('.af-error.is-shown').forEach((p) => {
+      p.textContent = '';
+      p.classList.remove('is-shown');
+    });
+    form.querySelectorAll('.is-bad').forEach((n) => n.classList.remove('is-bad'));
+    form.querySelectorAll('[aria-invalid]').forEach((n) => n.removeAttribute('aria-invalid'));
+    hush();
+    setSending(false);
+  });
+
+  /* Several households often reply from one phone. */
+  if (again) {
+    again.addEventListener('click', () => {
+      form.reset();
+      done.hidden = true;
+      form.hidden = false;
+      fName.focus({ preventScroll: true });
+      form.scrollIntoView({ block: 'center', behavior: CFG.reducedMotion ? 'auto' : 'smooth' });
+    });
+  }
 }
 
 

@@ -2028,7 +2028,8 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
   .rsvp-action--wa:hover    { background: rgba(31,111,107,.22);  border-color: rgba(31,111,107,.52);  transform: translateY(-1px); }
 }
 
-.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row {
+.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row,
+.rsvp-map, .attend {
   opacity: 0;
   transform: translateY(16px);
   transition:
@@ -2040,7 +2041,382 @@ video.hero-film::-webkit-media-controls-enclosure { display: none !important; }
 .rsvp.is-visible .rsvp-sub-rule,
 .rsvp.is-visible .rsvp-note,
 .rsvp.is-visible .rsvp-side,
-.rsvp.is-visible .rsvp-row { opacity: 1; transform: translateY(0); }
+.rsvp.is-visible .rsvp-row,
+.rsvp.is-visible .rsvp-map,
+.rsvp.is-visible .attend { opacity: 1; transform: translateY(0); }
+
+
+/* ============================================================
+   RSVP — the venue on a map
+   ============================================================ */
+.rsvp-map {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  width: 100%;
+  margin-top: 1.7rem;
+  padding: .82rem 1rem;
+  border: 1px solid rgba(192,138,62,.34);
+  border-radius: 13px;
+  background: linear-gradient(180deg, rgba(255,252,246,.92), rgba(248,236,217,.86));
+  box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 4px 14px -10px rgba(124,56,15,.45);
+  text-decoration: none;
+  text-align: left;
+  transition: background .24s ease, border-color .24s ease,
+              transform .24s cubic-bezier(.16,1,.3,1), box-shadow .24s ease;
+}
+.rsvp-map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(164,33,60,.10);
+  border: 1px solid rgba(164,33,60,.26);
+  color: var(--crimson);
+}
+.rsvp-map-pin svg { width: 19px; height: 19px; }
+.rsvp-map-text { display: flex; flex-direction: column; gap: .16rem; min-width: 0; }
+.rsvp-map-label {
+  font-family: var(--font-caps);
+  font-size: clamp(.68rem, 2.8vw, .76rem);
+  font-weight: 600;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--terra-deep);
+}
+.rsvp-map-venue {
+  font-size: clamp(.82rem, 3.3vw, .92rem);
+  font-style: italic;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rsvp-map:active { transform: scale(.985); }
+@media (hover: hover) {
+  .rsvp-map:hover {
+    border-color: rgba(192,138,62,.62);
+    background: linear-gradient(180deg, #fffdf9, rgba(246,231,210,.95));
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 8px 20px -12px rgba(124,56,15,.5);
+  }
+}
+
+
+/* ============================================================
+   RSVP — attendance form
+
+   Posts to the Apps Script web app in CONFIG.attendance.endpoint.
+   Inputs are held at 16px or above: below that, iOS Safari zooms
+   the page in the moment a field takes focus and never zooms back
+   out, which strands the guest halfway through the form.
+   ============================================================ */
+.attend {
+  width: 100%;
+  margin-top: 2.3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.attend-rule {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: min(100%, 210px);
+  margin-bottom: .95rem;
+  color: rgba(192,138,62,.75);
+}
+.attend-title {
+  margin: 0 0 .4rem;
+  font-family: var(--font-caps);
+  font-size: clamp(1rem, 4.1vw, 1.18rem);
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  color: var(--terra-deep);
+  text-align: center;
+}
+.attend-note {
+  margin: 0 0 1.5rem;
+  max-width: 300px;
+  font-size: clamp(.86rem, 3.5vw, .96rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.attend-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  text-align: left;
+}
+/* `display:flex` on a class beats the browser's own [hidden] rule, so
+   without this the form stays on screen underneath the thank-you. */
+.attend-form[hidden] { display: none; }
+.af-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+}
+/* Two fields side by side stop fitting somewhere under 340px: the
+   labels wrap to three lines and the date pickers clip. */
+@media (max-width: 359px) {
+  .af-row { grid-template-columns: 1fr; gap: 1.05rem; }
+}
+
+.af-field { display: flex; flex-direction: column; min-width: 0; }
+.af-label {
+  margin-bottom: .38rem;
+  font-family: var(--font-caps);
+  font-size: clamp(.62rem, 2.6vw, .7rem);
+  font-weight: 600;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--peacock);
+}
+
+.af-input {
+  width: 100%;
+  min-height: 46px;
+  padding: .6rem .8rem;
+  border: 1px solid rgba(192,138,62,.34);
+  border-radius: 11px;
+  background: rgba(255,252,246,.9);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: max(16px, .96rem);
+  line-height: 1.35;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.af-input::placeholder { color: rgba(134,102,74,.6); font-style: italic; }
+.af-input:focus {
+  outline: none;
+  border-color: rgba(192,138,62,.75);
+  background: #fffdf9;
+  box-shadow: 0 0 0 3px rgba(192,138,62,.16);
+}
+/* The number spinners are 20px of clutter in a 1-to-30 field. */
+.af-input[type="number"] { -moz-appearance: textfield; }
+.af-input[type="number"]::-webkit-outer-spin-button,
+.af-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* iOS renders an empty date field as grey placeholder text that sits
+   off the baseline the other inputs share. */
+.af-date { min-height: 46px; font-variant-numeric: tabular-nums; }
+.af-date::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.af-date::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }
+
+.af-select-wrap { position: relative; display: flex; }
+.af-select { padding-right: 2.3rem; cursor: pointer; }
+.af-select:invalid { color: rgba(134,102,74,.6); font-style: italic; }
+.af-caret {
+  position: absolute;
+  right: .7rem; top: 50%;
+  width: 17px; height: 17px;
+  transform: translateY(-50%);
+  color: var(--gold-deep);
+  pointer-events: none;
+}
+
+/* The real input keeps its place in the tab order and its focus ring
+   is forwarded to the label standing in for it. */
+.af-file-input {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.af-file {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-height: 46px;
+  padding: .6rem .8rem;
+  border: 1px dashed rgba(192,138,62,.5);
+  border-radius: 11px;
+  background: rgba(248,236,217,.5);
+  color: var(--ink-soft);
+  font-size: max(16px, .94rem);
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+.af-file-icon { width: 18px; height: 18px; flex-shrink: 0; color: var(--gold-deep); }
+.af-file-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.af-file-input:focus-visible + .af-file {
+  border-color: rgba(192,138,62,.85);
+  box-shadow: 0 0 0 3px rgba(192,138,62,.16);
+}
+@media (hover: hover) {
+  .af-file:hover { border-color: rgba(192,138,62,.8); background: rgba(248,236,217,.85); }
+}
+/* Solid border once a file is attached — a dashed box reads as empty. */
+.af-file.is-filled {
+  border-style: solid;
+  border-color: rgba(31,111,107,.45);
+  background: rgba(31,111,107,.08);
+  color: var(--peacock);
+}
+.af-file.is-filled .af-file-icon { color: var(--peacock); }
+
+.af-hint {
+  margin: .42rem 0 0;
+  font-size: clamp(.72rem, 2.9vw, .8rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: rgba(134,102,74,.85);
+}
+
+.af-error {
+  margin: .34rem 0 0;
+  font-size: clamp(.74rem, 3vw, .81rem);
+  line-height: 1.4;
+  color: var(--crimson);
+  display: none;
+}
+.af-error.is-shown { display: block; }
+.af-input.is-bad, .af-file.is-bad {
+  border-color: rgba(164,33,60,.62);
+  background: rgba(164,33,60,.045);
+}
+.af-input.is-bad:focus { box-shadow: 0 0 0 3px rgba(164,33,60,.14); }
+
+/* Off-screen rather than display:none — a bot reading the DOM cannot
+   tell the difference, and a screen reader is kept out by aria-hidden. */
+.af-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+
+.af-submit {
+  position: relative;
+  width: 100%;
+  min-height: 50px;
+  margin-top: .35rem;
+  padding: .85rem 1.2rem;
+  border: 1px solid rgba(124,56,15,.4);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #b8632c 0%, #9c4a1c 55%, #863d14 100%);
+  color: #fdf6ec;
+  font-family: var(--font-caps);
+  font-size: clamp(.76rem, 3.1vw, .86rem);
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255,236,214,.28) inset, 0 6px 18px -10px rgba(124,56,15,.75);
+  transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease, filter .22s ease;
+}
+.af-submit:active { transform: scale(.985); }
+@media (hover: hover) {
+  .af-submit:hover { filter: brightness(1.07); box-shadow: 0 1px 0 rgba(255,236,214,.34) inset, 0 10px 24px -11px rgba(124,56,15,.8); }
+}
+.af-submit:disabled { cursor: progress; filter: saturate(.6) brightness(.95); }
+
+.af-spinner {
+  display: none;
+  position: absolute;
+  right: 1.1rem; top: 50%;
+  width: 15px; height: 15px;
+  margin-top: -7.5px;
+  border: 2px solid rgba(253,246,236,.35);
+  border-top-color: #fdf6ec;
+  border-radius: 50%;
+  animation: af-spin .7s linear infinite;
+}
+.af-submit.is-sending .af-spinner { display: block; }
+@keyframes af-spin { to { transform: rotate(360deg); } }
+
+.af-status {
+  margin: 0;
+  font-size: clamp(.8rem, 3.2vw, .88rem);
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ink-soft);
+  display: none;
+}
+.af-status.is-shown { display: block; }
+.af-status.is-bad { color: var(--crimson); }
+
+/* The thank-you, swapped in for the form once a row is written. */
+.attend-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 1.9rem 1.2rem;
+  border: 1px solid rgba(31,111,107,.3);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,252,246,.94), rgba(232,243,241,.7));
+  text-align: center;
+}
+.attend-done[hidden] { display: none; }
+.attend-done-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px; height: 46px;
+  margin-bottom: .85rem;
+  border: 1px solid rgba(31,111,107,.4);
+  border-radius: 50%;
+  background: rgba(31,111,107,.1);
+  color: var(--peacock);
+  animation: af-pop .5s cubic-bezier(.16,1,.3,1) both;
+}
+.attend-done-mark svg { width: 22px; height: 22px; }
+@keyframes af-pop { from { opacity: 0; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
+.attend-done-title {
+  margin: 0 0 .35rem;
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 6.4vw, 2rem);
+  line-height: 1;
+  color: var(--terra-deep);
+}
+.attend-done-text {
+  margin: 0;
+  max-width: 290px;
+  font-size: clamp(.86rem, 3.5vw, .96rem);
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.attend-again {
+  margin-top: 1.1rem;
+  padding: .5rem 1.1rem;
+  border: 1px solid rgba(192,138,62,.4);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--terra);
+  font-family: var(--font-caps);
+  font-size: clamp(.64rem, 2.7vw, .72rem);
+  font-weight: 600;
+  letter-spacing: .17em;
+  text-indent: .17em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+@media (hover: hover) {
+  .attend-again:hover { background: rgba(192,138,62,.12); border-color: rgba(192,138,62,.65); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .af-spinner { animation-duration: 1.6s; }
+  .attend-done-mark { animation: none; }
+}
 
 
 /* ============================================================

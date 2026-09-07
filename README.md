@@ -8,6 +8,7 @@ index.html    structure + the SVG ornament library (arch, skyline, chandeliers, 
 style.css     all styling and animation
 script.js     CONFIG at the top, then behaviour
 assets/       everything the site actually loads
+apps-script/  the RSVP form's backend — not served, deployed to Google
 ```
 
 Everything the site loads lives in `assets/` — all 20 files, all referenced.
@@ -48,6 +49,45 @@ Two conventions worth knowing:
   then stands aside, because the hero film carries the hotel's own sign and
   the crest landed on top of the building. Set it `true` to put the crest
   back in the hero — the flight from the opening card comes back with it.
+
+## The RSVP form
+
+Under the phone numbers there is a **map button** and a **"Confirm Your
+Presence"** form: name, members joining, dates in and out, contact number,
+which function they are coming to, and an Aadhaar upload for hotel check-in.
+
+Pages only serves files, so the form posts to a **Google Apps Script web
+app**, which saves the upload to a Drive folder and appends a row to a Google
+Sheet — the sheet *is* the Excel file the planner gets. Setup takes about ten
+minutes and is written out in **[`apps-script/SETUP.md`](apps-script/SETUP.md)**.
+
+> **The form cannot send until `CONFIG.attendance.endpoint` holds the deployed
+> `/exec` URL.** Until then it renders as normal and tells anyone who submits
+> to call instead — better than hiding it, and much better than swallowing a
+> guest's details. There is a console warning on load as a reminder.
+
+Why not a Google Form: switching on file upload there makes every guest sign
+in to a Google account first, which would lose the older half of the guest
+list. This keeps the site's own design and asks nothing of the guest.
+
+Three things worth not undoing:
+
+- **The post goes out as `text/plain`.** That keeps it a "simple" request so
+  the browser skips the CORS preflight — an Apps Script web app cannot answer
+  an `OPTIONS` call, and the whole submission fails if one is sent. It is
+  still JSON in the body; only the header is a lie.
+- **Photographs are downscaled to 1800px before upload.** A phone camera
+  produces 3–6 MB of resolution nobody needs to read an ID card, and on hotel
+  wifi that is the difference between a form that sends and one that times
+  out. PDFs, Word files and HEIC are passed through untouched.
+- **Inputs are held at 16px or larger.** Below that, iOS Safari zooms the page
+  the moment a field takes focus and never zooms back out.
+
+The Aadhaar copies are other people's government ID. `SETUP.md` covers this,
+but in short: share the Sheet and the Drive folder to **named email
+addresses**, never "anyone with the link", and delete the folder once everyone
+has checked out. Setting `CONFIG.attendance.aadhaarRequired` to `false`
+removes the field altogether if the hotel turns out not to need it.
 
 ## Still missing
 

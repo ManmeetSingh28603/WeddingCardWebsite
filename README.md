@@ -61,10 +61,25 @@ app**, which saves the upload to a Drive folder and appends a row to a Google
 Sheet — the sheet *is* the Excel file the planner gets. Setup takes about ten
 minutes and is written out in **[`apps-script/SETUP.md`](apps-script/SETUP.md)**.
 
-> **The form cannot send until `CONFIG.attendance.endpoint` holds the deployed
-> `/exec` URL.** Until then it renders as normal and tells anyone who submits
-> to call instead — better than hiding it, and much better than swallowing a
-> guest's details. There is a console warning on load as a reminder.
+**This is deployed and working** — `CONFIG.attendance.endpoint` holds the live
+`/exec` URL, and a real submission has been round-tripped through it: the row
+reached the Sheet, the file reached Drive, CORS passed with no preflight, and
+all seven server-side validations were probed and reject correctly.
+
+> Blank that endpoint out and the form still renders, but tells anyone who
+> submits to call instead — better than hiding it, and much better than
+> swallowing a guest's details. A console warning fires on load in that state.
+
+**Editing `apps-script/Code.gs` does nothing on its own.** Redeploy it as a new
+*version of the same deployment* (Deploy → Manage deployments → pencil), which
+keeps the URL. A brand new deployment gets a *new* URL and the site carries on
+talking to the old one.
+
+The `/exec` URL is public — unavoidably, since it sits in the page source of a
+static site. That exposes no guest data: the script has no read path, `doGet`
+returns a fixed string and `doPost` only appends. The realistic risk is junk
+rows, which the honeypot and validation blunt but do not rate-limit; if spam
+ever appears, redeploy for a fresh URL and the old one dies.
 
 Why not a Google Form: switching on file upload there makes every guest sign
 in to a Google account first, which would lose the older half of the guest

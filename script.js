@@ -153,11 +153,16 @@ const CONFIG = {
      a row to the Google Sheet the hosts share with their planner.
      apps-script/SETUP.md is the ten-minute walkthrough. */
   attendance: {
-    /* ⚠ PASTE THE DEPLOYED /exec URL HERE — the form cannot send
-       until you do. Empty renders the form as normal but tells anyone
-       who submits that it is not connected yet, which is better than
-       hiding it and better than swallowing a guest's details. */
-    endpoint: '',
+    /* The deployed Apps Script web app. Blank renders the form as
+       normal but tells anyone who submits that it is not connected
+       yet — better than hiding it, and better than swallowing a
+       guest's details.
+       Editing apps-script/Code.gs does NOT change what this URL
+       serves. Redeploy as a new VERSION of the SAME deployment
+       (Deploy > Manage deployments > pencil), or the code and the
+       URL drift apart; a brand new deployment gets a new URL and
+       this one keeps answering with the old code. */
+    endpoint: 'https://script.google.com/macros/s/AKfycbyVICsmwBZ37vwKcLHxjIbcC6H4SZDRK_pqXH-M63FKzQjz4lG6Q7BZHPXJwM6cf9M/exec',
 
     mapUrl: 'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
 

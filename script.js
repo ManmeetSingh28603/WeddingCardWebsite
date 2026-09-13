@@ -1,7 +1,7 @@
 /* ============================================================
    Wedding invitation — behaviour
-   Intro gate · Hero · Scratch-to-reveal · Invitation · Events ·
-   Wardrobe · Blessings · RSVP · Countdown · Music
+   Intro gate · Hero card · Scratch-to-reveal · Save the dates ·
+   Venue · Blessings · RSVP · Countdown · Music
    ============================================================ */
 
 /* ════════════════════════════════════════════════════════════
@@ -30,78 +30,103 @@ const CONFIG = {
   },
 
   dates: {
-    scratchNumber: '20 – 21',        // revealed under the foil
+    scratchNumber: '19 – 21',        // revealed under the foil
     scratchMonth:  'November 2026',
-    footer:        '20<sup>th</sup> – 21<sup>st</sup> November 2026',
+    footer:        '19<sup>th</sup> – 21<sup>st</sup> November 2026',
     /* Drives the countdown; mo is 0-indexed, so 10 = November. Set to the
        wedding itself. The year is not stated anywhere in the details, but
        20 Nov falls on a Friday and 21 Nov on a Saturday in 2026 and in no
-       neighbouring year, so 2026 is the only fit. */
+       neighbouring year, so 2026 is the only fit — which puts the Hawan on
+       Thursday the 19th. */
     moment: { y: 2026, mo: 10, d: 21, h: 13, min: 0 },
   },
 
-  invitation: {
-    /* MISSING — no invocation supplied. Empty hides the line entirely; the
-       card then opens on the request. */
-    mantra:  '',
-    request: ['We request the honor', 'of your presence for', 'the wedding celebration of'],
-    brideLineage: [
+  /* The invitation card the gate opens onto. */
+  hero: {
+    eyebrow: 'Together with our families',
+    /* The mark inside the gold ring. Empty removes the ring entirely. */
+    mark:    'ॐ',
+    invite:  'With joyous hearts, we invite you to celebrate the beginning of our beautiful new chapter.',
+    dates:   '19 · 21 November',
+  },
+
+  scratch: {
+    heading: 'With immense joy and love',
+    cta:     'Scratch to reveal',
+  },
+
+  venue: {
+    kicker:  'Find your way to us',
+    name:    'Hotel Damson Plum',
+    /* Reverse-geocoded from the Maps link below, NOT supplied by the
+       family — worth having them confirm it before the cards go out. */
+    address: 'Shaheed Path, Ahmamau, Sarojini Nagar,<br />Lucknow, Uttar Pradesh 226030',
+    mapUrl:  'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
+    /* Google's keyless embed form. Coordinates come from the link above,
+       so the pin lands on the hotel itself rather than on a name search. */
+    lat: 26.7794782,
+    lng: 80.9931704,
+    zoom: 16,
+  },
+
+  /* The families' lineage lines. They used to be printed on the formal
+     invitation card, which was removed on request, so NOTHING renders
+     these today — they are kept because deleting them would lose the only
+     record of both sides' names in the project. Say the word and they go
+     under the names in the hero. */
+  lineage: {
+    bride: [
       'GD/O Late Smt Vijay Rastogi &amp; Shri Sharad Chandra Rastogi',
       'D/O Smt Meetu Rastogi &amp; Shri Atul Chandra Rastogi',
     ],
     /* only the parents' line was supplied for the groom */
-    groomLineage: [
+    groom: [
       'S/O Smt. Sonia Khanna &amp; Late Manoj Khanna',
     ],
   },
 
-  /* Each panel is the original painting with its own transparent overlay on
-     top — a bough or a pair of chandeliers that drifts against the scroll.
-       still | film  the painting behind
-       overlay       the artwork laid over it
-       sway          how the overlay moves: bough, jhoomer or vine
-       drift         how far it travels with the scroll, in px
-       particles     motes (warm) or stars (cool) */
+  /* One card per function. Tapping a card expands it in place into the
+     full invitation — see initEventCards().
+       art      the painting behind the card
+       theme    which particle treatment plays: marigold | stars | breeze
+       copy     the line inside the opened card
+       dress    EMPTY HIDES THE LINE, same convention as the hashtag.
+                No dress codes have been supplied yet.
+     Only three paintings exist, so Mehendi borrows the Hawan marigold —
+     they are the two daytime ceremonies, so the palette carries over. */
   events: [
     {
-      id: 'sangeet', palette: 'sangeet',
-      day: '20', suffix: 'th', month: 'November, 2026',
-      title: 'Engagement &amp; Sangeet',
-      sub: 'Friday',
+      id: 'hawan', title: 'Hawan',
+      day: '19', suffix: 'th', weekday: 'Thursday', month: 'November',
+      time: '— time —',
+      note: 'Bride&rsquo;s side',
+      copy: 'The first of the rites, and the quiet beginning of everything that follows.',
+      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+    },
+    {
+      id: 'mehendi', title: 'Mehendi',
+      day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
+      time: 'Afternoon',
+      note: '',
+      copy: 'An afternoon of henna, music and long tables of food, before the evening begins.',
+      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+    },
+    {
+      id: 'sangeet', title: 'Engagement &amp; Sangeet',
+      day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
       time: '6:00 pm onwards',
-      venue: 'Hotel Damson Plum',
-      art: { still: 'assets/events/sangeet.webp', overlay: 'assets/events/jhoomer.webp',
-             sway: 'jhoomer', drift: 10, particles: 'stars' },
+      note: '',
+      copy: 'An evening of dance, music and laughter — come ready to celebrate under the stars.',
+      art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
     },
     {
-      id: 'wedding', palette: 'wedding',
-      day: '21', suffix: 'st', month: 'November, 2026',
-      title: 'Wedding',
-      sub: 'Saturday',
+      id: 'wedding', title: 'Wedding',
+      day: '21', suffix: 'st', weekday: 'Saturday', month: 'November',
       time: '1:00 – 2:00 pm onwards',
-      venue: 'Hotel Damson Plum',
-      art: { film: 'assets/video/wedding.mp4', overlay: 'assets/events/wedding_fg.webp',
-             sway: 'vine', drift: 18, particles: 'motes' },
+      note: '',
+      copy: 'Join us for the vows, and for the evening of celebration that follows them.',
+      art: 'assets/cards/wedding.webp', theme: 'breeze', dress: '',
     },
-    {
-      id: 'reception', palette: 'reception',
-      day: '21', suffix: 'st', month: 'November, 2026',
-      title: 'Reception',
-      sub: 'Dinner',
-      time: '7:00 pm onwards',
-      venue: 'Hotel Damson Plum',
-      art: { film: 'assets/video/reception.mp4', overlay: 'assets/events/reception_fg.webp',
-             sway: 'vine', drift: 18, particles: 'motes' },
-    },
-  ],
-
-  /* MISSING — no dress codes supplied, and only two trolley artworks exist,
-     so the Reception borrows the nearest match. Fill `dress` in, and drop a
-     third artwork into assets/wardrobe/ when there is one. */
-  wardrobe: [
-    { id: 'sangeet',   label: 'Sangeet',   dress: '— dress code —', art: 'assets/wardrobe/dress_sangeet.png' },
-    { id: 'wedding',   label: 'Wedding',   dress: '— dress code —', art: 'assets/wardrobe/dress_mayra.png' },
-    { id: 'reception', label: 'Reception', dress: '— dress code —', art: 'assets/wardrobe/dress_sangeet.png' },
   ],
 
   blessings: {
@@ -164,7 +189,8 @@ const CONFIG = {
        this one keeps answering with the old code. */
     endpoint: 'https://script.google.com/macros/s/AKfycbyVICsmwBZ37vwKcLHxjIbcC6H4SZDRK_pqXH-M63FKzQjz4lG6Q7BZHPXJwM6cf9M/exec',
 
-    mapUrl: 'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
+    /* The map link lives in CONFIG.venue, which the Venue section reads.
+       It is deliberately not repeated here: one place, one link. */
 
     /* There is deliberately no `functions` list here any more. The form
        used to ask which function a guest was coming to; it was dropped on
@@ -215,23 +241,19 @@ document.addEventListener('DOMContentLoaded', () => {
   CFG.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   renderStrings();
-  renderInvitation();
-  renderEvents();
+  renderVenue();
+  renderEventCards();
   renderBlessings();
   renderRsvp();
 
   initMusic();
   initIntro();
   initHero();
-  initInvite();
-  initEvents();
-  initEventFilms();
-  initWardrobe();
+  initEventCards();
   initBlessings();
   initRsvp();
   initAttendance();
   initCountdownSection();
-  initLayerDrift();
   initScratch();
 });
 
@@ -286,33 +308,27 @@ function renderStrings() {
     else n.remove();
   });
 
-  /* With no crest artwork the couple's names stand in, set in script. The
-     hero markup ships in the fallback state, so only the artwork case has
-     anything to switch on. */
-  const crest = CONFIG.couple.crest;
-  let heroCrest = document.querySelector('.hero-crest');
+  /* ── the hero card ──
+     Every line here follows the same convention as the hashtag: an empty
+     string takes the line away rather than printing a gap. */
+  const line = (sel, value, asHtml) => {
+    document.querySelectorAll(sel).forEach((n) => {
+      if (!value) { n.remove(); return; }
+      if (asHtml) n.innerHTML = value; else n.textContent = value;
+    });
+  };
+  const H = CONFIG.hero || {};
+  line('[data-hero-eyebrow]', H.eyebrow);
+  line('[data-hero-mark]',    H.mark);
+  line('[data-hero-invite]',  H.invite);
+  line('[data-hero-dates]',   H.dates);
 
-  /* the crest can open the invitation without also standing in the hero */
-  if (!CONFIG.couple.heroCrest && heroCrest) {
-    heroCrest.remove();
-    heroCrest = null;
-    const content = document.querySelector('.hero-content');
-    if (content) content.classList.add('is-bare');
-  }
+  document.querySelectorAll('[data-bride-name]').forEach(n => { n.textContent = CONFIG.couple.bride; });
+  document.querySelectorAll('[data-groom-name]').forEach(n => { n.textContent = CONFIG.couple.groom; });
 
-  const heroArt = heroCrest && heroCrest.querySelector('img');
-  const introArt = document.querySelector('.intro-crest-art');
-  const introName = document.querySelector('.intro-crest-name');
-  if (crest) {
-    if (heroArt) { heroArt.src = crest; heroArt.hidden = false; heroCrest.classList.remove('is-fallback'); }
-    if (introArt) { introArt.src = crest; introArt.hidden = false; }
-    if (introName) introName.remove();
-    /* the gold shine is clipped to the artwork, so the mask follows it */
-    document.documentElement.style.setProperty('--crest-mask', `url("${crest}")`);
-  } else {
-    if (heroArt) heroArt.remove();
-    if (introArt) introArt.remove();
-  }
+  const S = CONFIG.scratch || {};
+  line('[data-scratch-heading]', S.heading);
+  line('[data-scratch-cta]',     S.cta);
 
   const num = document.querySelector('[data-date-num]');
   const mon = document.querySelector('[data-date-month]');
@@ -323,118 +339,171 @@ function renderStrings() {
   document.title = `${CONFIG.couple.names} — ${CONFIG.couple.venue}`;
 }
 
-function renderInvitation() {
-  const inv = CONFIG.invitation;
-  const mantra = document.querySelector('[data-mantra]');
-  /* no invocation set — take the line out so the card opens on the request */
-  if (mantra) { if (inv.mantra) mantra.innerHTML = inv.mantra; else mantra.remove(); }
+/* ============================================================
+   VENUE — name, address and the map
+   The embed is Google's keyless ?output=embed form and is pinned by
+   coordinate rather than by name search, so it lands on the hotel
+   itself. Nothing here needs an API key.
+   ============================================================ */
+function renderVenue() {
+  const V = CONFIG.venue;
+  const section = document.getElementById('venue');
+  if (!section || !V) return;
 
-  const req = document.querySelector('.inv-request');
-  if (req) req.innerHTML = inv.request.map(l => `<span>${l}</span>`).join('');
+  const put = (sel, value, asHtml) => {
+    const n = section.querySelector(sel);
+    if (!n) return;
+    if (!value) { n.remove(); return; }
+    if (asHtml) n.innerHTML = value; else n.textContent = value;
+  };
+  put('[data-venue-kicker]', V.kicker);
+  put('[data-venue-name]',   V.name);
+  put('[data-venue-address]', V.address, true);
 
-  const bn = document.querySelector('[data-bride-name]');
-  const gn = document.querySelector('[data-groom-name]');
-  if (bn) bn.textContent = CONFIG.couple.bride;
-  if (gn) gn.textContent = CONFIG.couple.groom;
+  const frame = document.getElementById('venueMapFrame');
+  const open  = document.getElementById('venueOpen');
 
-  const bl = document.querySelector('[data-bride-lineage]');
-  const gl = document.querySelector('[data-groom-lineage]');
-  if (bl) bl.innerHTML = inv.brideLineage.map(l => `<span>${l}</span>`).join('');
-  if (gl) gl.innerHTML = inv.groomLineage.map(l => `<span>${l}</span>`).join('');
+  if (open) {
+    if (V.mapUrl) open.href = V.mapUrl;
+    else open.remove();
+  }
+  if (frame) {
+    if (Number.isFinite(V.lat) && Number.isFinite(V.lng)) {
+      frame.src = `https://www.google.com/maps?q=${V.lat},${V.lng}`
+                + `&z=${V.zoom || 16}&hl=en&output=embed`;
+    } else {
+      /* No coordinates means no map worth showing — drop the frame and
+         leave the address and the button, which still work. */
+      frame.remove();
+    }
+  }
 }
 
-function renderEvents() {
-  const host = document.getElementById('events');
+
+/* ============================================================
+   SAVE THE DATES — one card per function
+   ============================================================ */
+function renderEventCards() {
+  const host = document.getElementById('eventsGrid');
   if (!host) return;
 
-  CONFIG.events.forEach((ev) => {
-    const card = el('article', `ev-card ev-card--${ev.palette}`);
-    card.setAttribute('aria-labelledby', `evTitle-${ev.id}`);
+  CONFIG.events.forEach((ev, i) => {
+    const card = document.createElement('article');
+    card.className = `event event--${ev.theme || 'marigold'}`;
+    card.id = `evt-${ev.id}`;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-expanded', 'false');
+    card.style.setProperty('--card-delay', `${i * 90}ms`);
 
-    /* ── the painting ── */
-    const art = el('div', 'ev-art');
-    art.setAttribute('aria-hidden', 'true');
-    const a = ev.art || {};
-    if (a.film) {
-      /* No autoplay attribute: these cards are several screens down, and a
-         film that starts on load is decoded for a guest still reading the
-         opening. initEventFilms() starts it as the card comes near. */
-      const v = el('video', 'plate');
-      v.src = a.film;
-      v.muted = true; v.loop = true; v.playsInline = true;
-      v.preload = 'none';
-      v.setAttribute('webkit-playsinline', '');
-      v.setAttribute('disablepictureinpicture', '');
-      v.setAttribute('aria-hidden', 'true');
-      art.appendChild(v);
-    } else if (a.still) {
-      const plate = new Image();
-      plate.className = 'plate';
-      plate.src = a.still;
-      plate.alt = '';
-      plate.draggable = false;
-      plate.loading = 'lazy';
-      plate.decoding = 'async';
-      /* a card that loses its plate still has its painted ground underneath */
-      plate.addEventListener('error', () => { plate.style.display = 'none'; }, { once: true });
-      art.appendChild(plate);
-    } else {
-      art.appendChild(el('div', 'ev-still'));
-      /* a card with no painting gets a horizon of its own — without one the
-         panel reads as a bare gradient behind the type */
-      art.insertAdjacentHTML('beforeend',
-        '<svg class="ev-skyline" viewBox="0 0 400 210" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
-        '<use href="#orn-skyline"/></svg>');
-    }
+    /* `note` and `dress` are optional: an empty one prints nothing at all
+       rather than an empty row. No dress codes have been supplied yet. */
+    const note  = ev.note  ? `<p class="event-note">${ev.note}</p>` : '';
+    const dress = ev.dress ? `<p class="pop-dress">Dress code<strong>${ev.dress}</strong></p>` : '';
+    const when  = `${ev.day}<sup>${ev.suffix}</sup> ${ev.month}`;
 
-    if (a.overlay) {
-      /* Corner art laid over the painting — a bough or the chandeliers. It is
-         `contain`ed and pinned to the top rather than cover-cropped, which on
-         a tall phone would shave the outermost blossoms and the left
-         chandelier's chain off the frame. */
-      const fg = new Image();
-      fg.className = `ev-fg ev-fg--${a.sway || 'vine'}`;
-      fg.src = a.overlay;
-      fg.alt = '';
-      fg.draggable = false;
-      fg.loading = 'lazy';
-      fg.decoding = 'async';
-      /* the scroll loop runs its progress -1…+1, so this is HALF the travel
-         in each direction */
-      fg.dataset.drift = a.drift || 18;
-      fg.addEventListener('error', () => { fg.style.display = 'none'; }, { once: true });
-      art.appendChild(fg);
-    }
-    card.appendChild(art);
+    card.innerHTML =
+      `<div class="event-art" aria-hidden="true"></div>
+       <div class="event-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+       <div class="event-summary">
+         <h3 class="event-name">${ev.title}</h3>
+         <p class="event-day">${when}</p>
+         <p class="event-time">${ev.time}</p>
+         ${note}
+         <p class="event-open">Tap to open</p>
+       </div>
+       <button class="event-close" type="button" aria-label="Close ${stripTags(ev.title)} invitation">&times;</button>
+       <div class="event-detail">
+         <p class="pop-kicker">We invite you to our</p>
+         <h3 class="pop-name">${ev.title}</h3>
+         <p class="pop-when">${ev.weekday}, ${when} &middot; ${ev.time}</p>
+         <p class="pop-copy">${ev.copy}</p>
+         <p class="pop-venue">${CONFIG.venue.name}<br />Lucknow</p>
+         ${dress}
+       </div>`;
 
-    if (ev.art && ev.art.particles) {
-      const p = el('div', ev.art.particles === 'stars' ? 'ev-stars' : 'ev-motes');
-      p.setAttribute('aria-hidden', 'true');
-      const n = ev.art.particles === 'stars' ? 8 : 6;
-      for (let i = 0; i < n; i++) p.appendChild(el('span'));
-      card.appendChild(p);
-    }
-
-    /* ── the type ── */
-    const c = el('div', 'ev-content');
-    c.appendChild(el('p', 'ev-day', `${ev.day}<sup>${ev.suffix}</sup>`));
-    c.appendChild(el('p', 'ev-month', ev.month));
-    const h = el('h2', 'ev-title', ev.title);
-    h.id = `evTitle-${ev.id}`;
-    c.appendChild(h);
-    if (ev.sub)   c.appendChild(el('p', 'ev-sub', ev.sub));
-    if (ev.time)  c.appendChild(el('p', 'ev-time', ev.time));
-    if (ev.venue) c.appendChild(el('p', 'ev-venue', ev.venue));
-    if (ev.schedule) {
-      const ul = el('ul', 'ev-schedule');
-      ev.schedule.forEach(row => ul.appendChild(el('li', 'ev-sch-row', row)));
-      c.appendChild(ul);
-    }
-    card.appendChild(c);
+    /* The painting is set as a style rather than in the markup so a missing
+       file leaves a tinted card instead of a broken image box. */
+    const art = card.querySelector('.event-art');
+    if (ev.art) art.style.backgroundImage = `url("${ev.art}")`;
 
     host.appendChild(card);
   });
 }
+
+function stripTags(s) { return String(s).replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'); }
+
+
+/* Expanding cards, FLIP-style: let the card jump to its opened geometry,
+   measure both boxes, then animate the inverse transform back to zero. The
+   browser only ever paints the end state, so the growth stays smooth even
+   though the layout change is instant. */
+function initEventCards() {
+  const host = document.getElementById('eventsGrid');
+  const section = document.getElementById('events');
+  if (!host || !section) return;
+
+  const cards = [...host.querySelectorAll('.event')];
+  let openCard = null;
+
+  const animate = (card, opening) => {
+    const first = card.getBoundingClientRect();
+
+    card.classList.toggle('is-open', opening);
+    document.body.classList.toggle('has-open-card', opening);
+    card.setAttribute('aria-expanded', String(opening));
+    openCard = opening ? card : null;
+
+    const last = card.getBoundingClientRect();
+    const dx = first.left - last.left;
+    const dy = first.top - last.top;
+    const sx = first.width / last.width;
+    const sy = first.height / last.height;
+
+    if (CFG.reducedMotion) return;
+
+    /* An opened card is centred by its own translate, so the inverse has to
+       be composed on top of that rather than replacing it. */
+    const base = opening ? 'translate(-50%, -50%)' : 'none';
+    const inverse = opening
+      ? `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`
+      : `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+
+    card.animate([{ transform: inverse }, { transform: base }],
+                 { duration: 620, easing: 'cubic-bezier(.16,.82,.24,1)', fill: 'both' });
+  };
+
+  cards.forEach((card) => {
+    const close = card.querySelector('.event-close');
+
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.event-close')) return;
+      if (!card.classList.contains('is-open')) animate(card, true);
+    });
+    card.addEventListener('keydown', (e) => {
+      const open = card.classList.contains('is-open');
+      if ((e.key === 'Enter' || e.key === ' ') && !open) { e.preventDefault(); animate(card, true); }
+      if (e.key === 'Escape' && open) animate(card, false);
+    });
+    if (close) {
+      close.addEventListener('click', (e) => { e.stopPropagation(); animate(card, false); });
+    }
+  });
+
+  /* Escape and a tap on the dimmed backdrop both close, wherever focus is. */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && openCard) animate(openCard, false);
+  });
+  document.addEventListener('click', (e) => {
+    if (openCard && !e.target.closest('.event')) animate(openCard, false);
+  }, true);
+
+  cards.forEach((card, i) => {
+    revealOnce(card, 'is-shown', { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+  });
+  revealOnce(section, 'is-visible', { threshold: 0.1 });
+}
+
 
 function renderBlessings() {
   const host = document.getElementById('blessings');
@@ -517,227 +586,6 @@ function renderRsvp() {
    ============================================================ */
 const DRIFT_LAYERS = [];
 
-function initLayerDrift() {
-  if (CFG.reducedMotion) return;
-
-  document.querySelectorAll('[data-drift]').forEach((node) => {
-    const section = node.closest('section, article');
-    if (!section) return;
-    DRIFT_LAYERS.push({ el: node, section, amount: parseFloat(node.dataset.drift) || 18 });
-  });
-  if (!DRIFT_LAYERS.length) return;
-
-  let raf = 0;
-  const tick = () => {
-    raf = 0;
-    const vh = window.innerHeight || 1;
-    DRIFT_LAYERS.forEach(({ el: node, section, amount }) => {
-      const r = section.getBoundingClientRect();
-      if (r.bottom < -200 || r.top > vh + 200) return;   /* far off screen */
-      const p = 1 - 2 * ((r.top + r.height / 2) / vh);   /* -1 … 1 */
-      node.style.setProperty('--drift-y', `${(p * amount).toFixed(2)}px`);
-    });
-  };
-  const schedule = () => { if (!raf) raf = window.requestAnimationFrame(tick); };
-
-  window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule, { passive: true });
-  schedule();
-}
-
-
-/* ============================================================
-   INVITATION — the card is revealed as one, the order carried by
-   --inv-delay.
-   ============================================================ */
-function initInvite() {
-  const section = document.getElementById('invite');
-  if (!section) return;
-
-  stagger(section.querySelectorAll('.inv-request span'), '--inv-delay', 130, 520);
-
-  const names = section.querySelectorAll('.inv-name');
-  if (names[0]) names[0].style.setProperty('--inv-delay', '1080ms');
-  if (names[1]) names[1].style.setProperty('--inv-delay', '2320ms');
-
-  const lineageStarts = [1720, 2960];
-  section.querySelectorAll('.inv-lineage').forEach((block, i) => {
-    stagger(block.querySelectorAll('span'), '--inv-delay', 140, lineageStarts[i] || 1720);
-  });
-
-  const amp = section.querySelector('.inv-amp');
-  if (amp) amp.style.setProperty('--inv-delay', '2080ms');
-
-  revealOnce(section, 'is-visible', { threshold: 0.22 });
-}
-
-
-/* ============================================================
-   EVENTS — each card watches itself, so a card scrolled past
-   quickly still plays its own arrival when it is reached.
-   ============================================================ */
-function initEvents() {
-  document.querySelectorAll('.ev-card').forEach((card) => {
-    const day = card.querySelector('.ev-day');
-    const month = card.querySelector('.ev-month');
-    if (day) day.style.setProperty('--ev-delay', '80ms');
-    if (month) month.style.setProperty('--ev-delay', '240ms');
-
-    stagger(card.querySelectorAll('.ev-sub, .ev-time, .ev-venue, .ev-sch-row'), '--ev-delay', 190, 1420);
-
-    revealOnce(card, 'is-visible', { threshold: 0.25 });
-  });
-}
-
-/* Load and play a card's film only while the card is near, pause it when the
-   card leaves, and pause again whenever the tab is away. Nothing decodes for
-   a guest who is still several screens above it, and a refused or broken
-   film simply leaves the card as the painted panel it already is. */
-function initEventFilms() {
-  document.querySelectorAll('.ev-card video.plate').forEach((film) => {
-    if (typeof film.play !== 'function') return;
-
-    let dead = false;
-    film.addEventListener('error', () => { dead = true; }, { once: true });
-    if (CFG.reducedMotion) return;
-
-    let inView = false;
-    const play = () => {
-      if (dead || !film.paused) return;
-      film.muted = true;            /* re-assert — an unmuted play is refused */
-      const p = film.play();
-      if (p && p.catch) p.catch(() => {});
-    };
-    const stop = () => { try { film.pause(); } catch (_) {} };
-
-    if ('IntersectionObserver' in window) {
-      /* a generous margin, so the film is running by the time the card is
-         reached rather than starting under the guest */
-      new IntersectionObserver((entries) => {
-        inView = entries[0].isIntersecting;
-        if (inView) play(); else stop();
-      }, { threshold: 0.01, rootMargin: '30% 0px' }).observe(film.closest('.ev-card'));
-    } else {
-      inView = true;
-      play();
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop(); else if (inView) play();
-    });
-  });
-}
-
-/* ============================================================
-   WARDROBE PLANNER
-   Tapping a name wheels that trolley in from the side the guest is
-   travelling, and the function's name turns over with it.
-   ============================================================ */
-function initWardrobe() {
-  const section = document.getElementById('wardrobe');
-  const rail    = document.getElementById('wdRail');
-  const stage   = document.getElementById('wdTrolleyVp');
-  const caption = document.getElementById('wdCaption');
-  const dress   = document.getElementById('wdDress');
-  if (!section || !rail || !stage || !caption || !dress) return;
-
-  const ITEMS = CONFIG.wardrobe;
-  stagger(section.querySelectorAll('.wd-header, .wd-rail, .wd-stage'), '--wd-delay', 180, 60);
-
-  const items = el('div', 'wd-rail-items');
-  const buttons = ITEMS.map((ev, i) => {
-    const btn = el('button', 'wd-btn' + (i === 0 ? ' is-active' : ''));
-    btn.type = 'button';
-    btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-    btn.setAttribute('aria-label', `${ev.label} — ${ev.dress}`);
-    btn.dataset.event = ev.id;
-    btn.innerHTML = '<span class="wd-btn-string" aria-hidden="true"></span>' +
-                    `<span class="wd-btn-label">${ev.label}</span>`;
-    btn.addEventListener('click', () => show(i));
-    items.appendChild(btn);
-    return btn;
-  });
-  rail.appendChild(items);
-
-  const racks = ITEMS.map((ev, i) => {
-    const img = new Image();
-    img.src = ev.art;
-    img.alt = '';
-    img.draggable = false;
-    img.decoding = 'async';
-    if (i > 0) img.loading = 'lazy';
-    img.className = 'wd-trolley' + (i === 0 ? ' is-active' : '');
-    img.dataset.event = ev.id;
-    img.addEventListener('error', () => { img.style.display = 'none'; }, { once: true });
-    stage.appendChild(img);
-    return img;
-  });
-
-  let current = 0;
-  caption.textContent = ITEMS[0].label;
-  dress.textContent   = ITEMS[0].dress;
-
-  const ENTER_AT = CFG.reducedMotion ? 0 : 380;   /* the old rack is clear by here */
-  const SWAP_AT  = CFG.reducedMotion ? 0 : 300;   /* the name turns over with it */
-  let enterTimer = 0, swapTimer = 0, settleTimer = 0;
-
-  const ALL = ['is-active', 'is-arriving', 'is-exiting-fwd', 'is-exiting-bwd', 'is-entering-fwd', 'is-entering-bwd'];
-
-  /* Every tap is answered at once: a switch already in flight is cancelled
-     rather than queued, so a guest running along the rail never waits out an
-     animation they have already moved past. */
-  function show(next) {
-    if (next === current) return;
-    clearTimeout(enterTimer); clearTimeout(swapTimer); clearTimeout(settleTimer);
-
-    const prev = current;
-    const forward = next > prev;
-    current = next;
-
-    buttons.forEach((btn, i) => {
-      btn.classList.toggle('is-active', i === next);
-      btn.setAttribute('aria-selected', i === next ? 'true' : 'false');
-    });
-
-    caption.classList.add('is-swapping');
-    dress.classList.add('is-swapping');
-    swapTimer = setTimeout(() => {
-      caption.textContent = ITEMS[next].label;
-      dress.textContent   = ITEMS[next].dress;
-      caption.classList.remove('is-swapping');
-      dress.classList.remove('is-swapping');
-    }, SWAP_AT);
-
-    /* anything left over from an interrupted switch is put away */
-    racks.forEach((img, i) => { if (i !== prev && i !== next) img.classList.remove(...ALL); });
-
-    const leaving = racks[prev], arriving = racks[next];
-
-    /* park the new one off screen with no transition, commit it, and only
-       then start it moving — otherwise it slides in from wherever it last was */
-    arriving.classList.remove(...ALL);
-    arriving.classList.add(forward ? 'is-entering-fwd' : 'is-entering-bwd');
-    void arriving.offsetWidth;
-
-    /* the entering classes have to go too: a rack turned round mid-arrival
-       still carries them, and they hold transition:none — it would jump off
-       screen instead of wheeling out */
-    leaving.classList.remove('is-active', 'is-arriving', 'is-entering-fwd', 'is-entering-bwd');
-    leaving.classList.add(forward ? 'is-exiting-fwd' : 'is-exiting-bwd');
-
-    enterTimer = setTimeout(() => {
-      arriving.classList.remove('is-entering-fwd', 'is-entering-bwd');
-      arriving.classList.add('is-active', 'is-arriving');
-      /* the settle is a one-shot: drop it, or it fights the next exit */
-      settleTimer = setTimeout(() => arriving.classList.remove('is-arriving'), 2000);
-    }, ENTER_AT);
-  }
-
-  revealOnce(section, 'is-visible', { threshold: 0.12 });
-}
-
-
 /* ============================================================
    BLESSINGS — every block is watched on its own, so a list this
    long arrives a group at a time, as it is read.
@@ -771,7 +619,7 @@ function initRsvp() {
   const section = document.getElementById('rsvp');
   if (!section) return;
 
-  section.querySelectorAll('.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row, .rsvp-map, .attend')
+  section.querySelectorAll('.rsvp-rule, .rsvp-heading, .rsvp-sub-rule, .rsvp-note, .rsvp-side, .rsvp-row, .attend')
     .forEach((n, i) => n.style.setProperty('--rsvp-delay', `${i * 90}ms`));
 
   if (CFG.reducedMotion) { section.classList.add('is-visible'); return; }
@@ -832,13 +680,6 @@ function initAttendance() {
   if (!A.endpoint) {
     console.warn('[RSVP] CONFIG.attendance.endpoint is empty — the attendance ' +
                  'form will render but cannot send. See apps-script/SETUP.md.');
-  }
-
-  /* ---- the map button ---------------------------------------- */
-  const map = id('rsvpMap');
-  if (map) {
-    if (A.mapUrl) map.href = A.mapUrl;
-    else map.remove();          /* no button beats one that goes nowhere */
   }
 
   /* ---- the dropdowns ----------------------------------------- */
@@ -1567,7 +1408,6 @@ function initHero() {
   const hero = document.getElementById('hero');
   if (!hero) return;
 
-  initHeroFilm();
 
   /* The flight is the hand-off from the opening card, so it is armed only
      when the gate is really there to hand off from. Armed BEFORE the reveal
@@ -1718,42 +1558,6 @@ function runCrestFlight(hero) {
   window.addEventListener('scroll', () => { if (window.scrollY > 4) onResize(); }, { passive: true });
 }
 
-/* A muted film needs no user activation, so it plays on its own; the calls
-   here are a net for browsers that refuse the attribute and honour an
-   explicit play(). It is stopped whenever the hero is off screen or the tab
-   is away — there is nothing to gain from decoding frames nobody is looking
-   at, and this is the heaviest asset on the page.
-   Under reduced motion the poster stands in for the whole hero. */
-function initHeroFilm() {
-  const film = document.getElementById('heroBg');
-  if (!film || typeof film.play !== 'function') return;
-
-  let dead = false;
-  film.addEventListener('error', () => { dead = true; }, { once: true });
-  if (CFG.reducedMotion) { try { film.pause(); } catch (_) {} return; }
-
-  const play = () => {
-    if (dead || !film.paused) return;
-    film.muted = true;             /* re-assert — an unmuted play is refused */
-    const p = film.play();
-    if (p && p.catch) p.catch(() => {});
-  };
-  const stop = () => { try { film.pause(); } catch (_) {} };
-  play();
-
-  let inView = true;
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((entries) => {
-      inView = entries[0].isIntersecting;
-      if (inView) play(); else stop();
-    }, { threshold: 0.01 }).observe(film);
-  }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop(); else if (inView) play();
-  });
-}
-
-
 /* ============================================================
    SCRATCH TO REVEAL + BLOSSOM SHOWER
    The oval is cut by a canvas clip path rather than a CSS mask:
@@ -1767,7 +1571,6 @@ function initScratch() {
   const revealEl = document.getElementById('scratchReveal');
   const hashtag  = document.getElementById('scratchHashtag');
   const section  = document.getElementById('scratchSection');
-  const frameEl  = document.querySelector('.scratch-frame-img');
   const wrap     = document.getElementById('scratchFrameWrap');
   const glint    = document.getElementById('scratchGlint');
   const sandCv   = document.getElementById('sandCanvas');
@@ -1791,19 +1594,20 @@ function initScratch() {
   const GRID = 32;
   const coverage = new Uint8Array(GRID * GRID);
 
-  const foil = new Image();
-
   /* ── sand: warm grains that fly off the surface while scratching ── */
   let sand = [], sandRAF = null, sandAccum = 0;
-  /* rose-gold fallback, replaced at runtime by colours sampled straight from
-     the foil so the grains match the surface exactly */
-  let SAND_COLORS = ['#e6c3bf', '#dcaaa6', '#cf9692', '#e9d2cd', '#d3a09c'];
+  /* Gilt fallback, replaced at runtime by colours read back out of the bar
+     itself so the grains match whatever the foil was painted as. */
+  let SAND_COLORS = ['#f7c05a', '#f0a327', '#e98a12', '#d9770c', '#ffe3a6'];
   let paletteReady = false;
 
   function samplePalette(w, h, dpr) {
-    if (paletteReady || !(foil.complete && foil.naturalWidth > 0)) return;
+    if (paletteReady) return;
     try {
-      const pts = [[.5,.5],[.4,.42],[.6,.45],[.45,.6],[.58,.62],[.5,.35],[.5,.68],[.36,.52],[.64,.52]];
+      /* Sampled along the bar rather than in a disc — it is wide and short
+         now, so points clustered near the middle would all land on the
+         same stripe of the gradient. */
+      const pts = [[.12,.5],[.28,.34],[.4,.62],[.5,.45],[.62,.3],[.74,.6],[.88,.5],[.5,.7],[.2,.68]];
       const cols = [];
       for (const [fx, fy] of pts) {
         const d = ctx.getImageData(Math.round(fx * w * dpr), Math.round(fy * h * dpr), 1, 1).data;
@@ -1894,34 +1698,65 @@ function initScratch() {
   function drawFoil(w, h) {
     ctx.clearRect(0, 0, w, h);
     ctx.save();
-    /* the oval, cut as a clip path rather than a CSS mask */
+    /* A rounded bar now, not an oval — cut as a clip path rather than a CSS
+       mask, because mask-image switches between alpha and luminance
+       behaviour across browsers and the gilt has to end exactly on the
+       rounded edge. */
+    const r = Math.min(h / 2, 26);
     ctx.beginPath();
-    ctx.ellipse(w / 2, h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
+    if (ctx.roundRect) ctx.roundRect(0, 0, w, h, r);
+    else {
+      ctx.moveTo(r, 0); ctx.lineTo(w - r, 0); ctx.quadraticCurveTo(w, 0, w, r);
+      ctx.lineTo(w, h - r); ctx.quadraticCurveTo(w, h, w - r, h);
+      ctx.lineTo(r, h); ctx.quadraticCurveTo(0, h, 0, h - r);
+      ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+    }
     ctx.clip();
 
-    if (foil.complete && foil.naturalWidth > 0) {
-      const sc = Math.max(w / foil.naturalWidth, h / foil.naturalHeight) * 1.02;
-      const dw = foil.naturalWidth * sc, dh = foil.naturalHeight * sc;
-      ctx.drawImage(foil, (w - dw) / 2, (h - dh) / 2, dw, dh);
-    } else {
-      /* rose-gold gradient, so the card is never blank if the file is late */
-      const g = ctx.createRadialGradient(w * 0.42, h * 0.35, 0, w / 2, h / 2, Math.max(w, h) * 0.72);
-      g.addColorStop(0, '#f8dde0'); g.addColorStop(0.35, '#ebb4b9');
-      g.addColorStop(0.75, '#cd8890'); g.addColorStop(1, '#b5727a');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-    }
+    /* Molten gold, lit from the upper left, with a highlight band raked
+       across it so the bar reads as foil rather than as flat paint. */
+    const g = ctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0,    '#f7c05a');
+    g.addColorStop(0.28, '#f0a327');
+    g.addColorStop(0.52, '#e98a12');
+    g.addColorStop(0.78, '#d9770c');
+    g.addColorStop(1,    '#c8630a');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    const sheen = ctx.createLinearGradient(0, h * 0.1, w * 0.55, h);
+    sheen.addColorStop(0,    'rgba(255,255,255,0)');
+    sheen.addColorStop(0.45, 'rgba(255,244,214,.42)');
+    sheen.addColorStop(0.6,  'rgba(255,255,255,0)');
+    ctx.fillStyle = sheen;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = 'rgba(255,246,226,.94)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `500 ${Math.max(12, Math.min(16, h * 0.3))}px "Cormorant Garamond", Georgia, serif`;
+    const label = (CONFIG.scratch && CONFIG.scratch.cta) || 'Scratch to reveal';
+    ctx.letterSpacing = '.18em';
+    ctx.fillText(label, w / 2, h / 2 + 1);
     ctx.restore();
   }
 
-  foil.addEventListener('load', setup);
-  foil.src = 'assets/scratch/foil.png';
-  if (frameEl) requestAnimationFrame(setup);
+  /* The bar sits in normal flow and needs no image, so the first paint is
+     enough to size it; the later triggers are belt and braces for fonts
+     and late layout shifts. */
+  requestAnimationFrame(setup);
   window.addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(setup)));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setup).catch(() => {});
   if ('ResizeObserver' in window) new ResizeObserver(() => { if (!revealed) setup(); }).observe(canvas);
 
-  /* ── erase ── */
-  const brushR = () => Math.max(18, Math.min(28, canvas.getBoundingClientRect().width * 0.10));
+  /* ── erase ──
+     Sized off the bar's HEIGHT, not its width: the bar is wide and short,
+     and a radius taken from the width would clear the whole thing in a
+     single touch. */
+  const brushR = () => {
+    const r = canvas.getBoundingClientRect();
+    return Math.max(14, Math.min(26, r.height * 0.42));
+  };
 
   function erase(x, y) {
     const r = brushR();
@@ -1958,19 +1793,13 @@ function initScratch() {
     for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) coverage[gy * GRID + gx] = 1;
   }
 
-  /* only cells inside the oval can ever be cleared, so the fraction is taken
-     against those rather than against the whole square */
+  /* The bar fills its box, so every cell counts — unlike the oval this
+     replaced, where the corners could never be cleared and had to be left
+     out of the fraction. */
   function getCoverage() {
-    let inside = 0, done = 0;
-    for (let gy = 0; gy < GRID; gy++) {
-      for (let gx = 0; gx < GRID; gx++) {
-        const nx = (gx + 0.5) / GRID * 2 - 1, ny = (gy + 0.5) / GRID * 2 - 1;
-        if (nx * nx + ny * ny > 1) continue;
-        inside++;
-        if (coverage[gy * GRID + gx]) done++;
-      }
-    }
-    return inside ? done / inside : 0;
+    let done = 0;
+    for (let i = 0; i < coverage.length; i++) if (coverage[i]) done++;
+    return done / coverage.length;
   }
 
   const getPos = (e) => {

@@ -9,6 +9,12 @@
 /*.jpeg
 /*.jpg
 /Radhika.png
+# Reference material and source artwork dropped in the root. background.png
+# is the 5 MB landscape floral the hero frame was re-composed from;
+# scratch.png and test1.jpeg are screenshots of the designs being matched.
+# Named one by one rather than /*.png, which would swallow the favicons.
+/background.png
+/scratch.png
 
 # Working document for the client. Carries the families' mobile numbers and
 # is not part of the site — keep it out of a public repo.

@@ -4,7 +4,7 @@ A static site: plain HTML, CSS and JavaScript, no build step and no
 dependencies.
 
 ```
-index.html    structure + the SVG ornament library (arch, skyline, chandeliers, boughs)
+index.html    structure + the SVG ornament library (cartouche, phone, pin, upload)
 style.css     all styling and animation
 script.js     CONFIG at the top, then behaviour
 assets/       everything the site actually loads
@@ -44,18 +44,18 @@ number. Anything not yet supplied is marked `MISSING` in a comment there.
 Two conventions worth knowing:
 
 - An **empty string** removes a line rather than printing a blank. That is how
-  the hashtag and the invocation are currently handled — a gap where a line
-  should be reads as a fault, a shorter card does not.
+  the hashtag, every hero line and each card's dress code are handled — a gap
+  where a line should be reads as a fault, a shorter card does not.
 - A contact with an empty `tel` renders **without** call and WhatsApp buttons,
   since a `tel:+` link with no number leads nowhere.
-- `CONFIG.couple.heroCrest` is `false`: the crest opens the invitation and
-  then stands aside, because the hero film carries the hotel's own sign and
-  the crest landed on top of the building. Set it `true` to put the crest
-  back in the hero — the flight from the opening card comes back with it.
+- `CONFIG.lineage` holds both families' `GD/O` and `S/O` lines and **nothing
+  renders them**. They were printed on the formal invitation card, which was
+  removed on request; the strings are kept because deleting them would lose
+  the only record of both sides' names in the project.
 
 ## The RSVP form
 
-Under the phone numbers there is a **map button** and a **"Confirm Your
+Under the phone numbers there is the **"Confirm Your
 Presence"** form: name, members attending, contact number, then arrival and
 departure (date, how they are travelling, and an optional ticket for each),
 and an Aadhaar upload for hotel check-in.
@@ -140,12 +140,13 @@ on, so they are obvious. These are what is outstanding:
 | | |
 | --- | --- |
 | Hashtag | not supplied — the line is hidden in the scratch section and the footer |
-| Invocation | the line above "We request the honor" is hidden until one is set |
-| Groom's grandparents | only the parents' line (`S/O …`) was supplied |
+| Groom's grandparents | only the parents' line (`S/O …`) was supplied. Kept in `CONFIG.lineage`, which renders nowhere since the invitation card was removed |
 | Groom's side blessings | the whole list |
 | Groom's side RSVP | no names or numbers |
-| Dress codes | all three functions |
-| Third wardrobe artwork | only two trolleys exist, so Reception borrows the Sangeet one |
+| Dress codes | all four functions. The line is hidden on a card until `dress` is filled in |
+| Hawan time | `— time —` on the card until one is given |
+| Mehendi time | shows Afternoon; an exact time would be better |
+| Venue address | reverse-geocoded from the Maps link, not supplied — worth confirming |
 
 Two things were inferred rather than given, and are worth confirming:
 
@@ -160,26 +161,17 @@ Two things were inferred rather than given, and are worth confirming:
 
 | File | Source |
 | --- | --- |
-| `scratch/foil.png` | supplied JPEG, backdrop keyed out to alpha |
-| `music/kamaicha.png`, `music/bow.png` | as above |
-| `wardrobe/dress_mayra.png`, `dress_sangeet.png` | as above |
-| `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px |
-| `video/hero.mp4`, `hero/hero_poster.webp` | `background.mp4` — the hero plays as video, the poster holds the frame while it buffers |
+| `music/kamaicha.png`, `music/bow.png` | supplied JPEGs, backdrop keyed out to alpha |
+| `hero/crest.webp` | `Radhika.png`, backdrop keyed out, trimmed and scaled to 1100px. **Unused** — kept only because `CONFIG.couple.crest` still points at it |
+| `hero/floral_frame.webp` | `background.png`, re-composed — see below |
+| `cards/hawan.webp`, `cards/sangeet.webp`, `cards/wedding.webp` | the reference invitation's card paintings, re-encoded from 5.9 MB of PNG to 864 KB of WebP |
+| `scratch/couple.webp` | the reference scratch illustration, white ground flood-filled to alpha |
 | `video/opening.mp4`, `hero/opening_poster.webp` | `herofinal.mp4` — the opening gate, copied byte-for-byte; the poster is its first frame, uncropped so it lines up with the film |
 | `music/music.mp3` | `bg song.mp3` |
-| `events/sangeet.webp` + `events/jhoomer.webp` | project originals |
-| `video/wedding.mp4` + `events/wedding_fg.webp` | project originals |
-| `video/reception.mp4` + `events/reception_fg.webp` | project originals |
-| `invite/palace.webp` + `invite/bough.webp` | project originals |
 | `og/og.jpg`, `favicon.png`, `apple-touch-icon.png` | composed from the couple's names |
 
 The supplied JPEGs arrived with a flat backdrop where transparency was needed,
 so each was cut back to alpha before use.
-
-Every section panel is now the original artwork at full quality, each with its
-own transparent overlay — a blossom bough or the pair of chandeliers — that
-drifts against the scroll. Wedding and Reception are films, Sangeet and the
-Invitation are stills, which is how the source project renders them.
 
 Two films are cropped in CSS because something is burned into the frame:
 `hero.mp4` (a floating music control along the foot) and `opening.mp4` (the
@@ -224,29 +216,87 @@ Swap in a film of another shape and three numbers move together: the
 `aspect-ratio`, and both terms of the `width: max(131.6%, 100svh * 1.7778)`
 that keep what survives the cut covering the screen.
 
-The hero is the one film that stays a film — it has the hotel, the fort and
-the couple in a single shot, so there is no separate cut-out layer over it.
-Its watermark strip is cut with `clip-path` rather than `object-fit`, because
-clip-path percentages resolve against the element's own box and so crop
-exactly at every viewport ratio; the element is laid out at the film's own
-aspect ratio for that to work. If you swap in a film of a different shape,
-change the `aspect-ratio` on `.hero-film` to match.
+## The hero card
 
-`.hero-film` is anchored by its **floor**. The couple stand at the foot of the
-frame and they are the subject, so they are what must never be cropped. An
-earlier attempt to hold the sky at the top instead pushed them off the bottom
-of a phone and left only their heads showing — don't reintroduce it.
+What the gate opens onto: eyebrow, ॐ in a gold ring, the names in
+**Italiana**, the invitation sentence, and the dates between gold rules. It
+follows the reference invitation, which is **light** — `#f5eee3` ground with
+`#313b29` ink. The screenshot of it looks dark only because of the phone it
+was taken on; its own CSS says otherwise, so nothing here is tinted.
 
-On a phone that still leaves the sky across roughly the top fifth of the
-screen, which is where the venue line sits: about 90px of clearance above the
-hotel's roofline at 390x844. It is only a short desktop window that runs out
-of sky, and the venue line is small enough now to sit high in what remains.
+The palette lives in its own tokens — `--card-ground`, `--deep-ink`,
+`--olive-ink`, `--gold-ink`, `--font-name`, `--font-sans` — kept apart from
+the watercolour tokens above them, which still dress the gate, blessings,
+RSVP and countdown.
 
-## Section artwork
+### The floral ground, and why it is not `background.png`
 
-Every function now has a real painting behind it. If a fourth is ever added
-without one, its panel falls back to a CSS watercolour gradient in that
-function's palette with an SVG palace elevation along the foot — those are
-marked `painted ground` in `style.css`. Give the event an `art.still` in
-`CONFIG.events` to use a painting instead, and drop its `art.ornament` at the
-same time if the painting already contains that ornament.
+The supplied `background.png` is **3811×1902, landscape 2:1**, with artwork
+only on the left **31%** and the right **19%** and an empty middle of
+**49.5%**. Cover-fitted to a 480-wide portrait column it shows the middle
+27% — which is the empty part. **Every flower crops away.**
+
+So the two bands were cut out and rebuilt as a portrait frame,
+`assets/hero/floral_frame.webp` (1200×2100, 83 KB against the original's
+5 MB): left band top-left and turned 180° for bottom-right, right band
+top-right and turned for bottom-left, over a ground sampled from the
+original's own middle (`#f7f2ed`). Each band's two inward edges are erased
+to a gradient — without that the rectangles show as hard seams against the
+ground, which is exactly what the first attempt did.
+
+**Replacing it:** a portrait export of the same artwork can be dropped
+straight in and the re-composition thrown away. Another landscape one needs
+the same treatment, and the band boundaries have to be re-measured — they
+are specific to this file.
+
+## Save the dates
+
+Four cards, built from `CONFIG.events`. Tapping one expands it in place into
+the full invitation using a FLIP: the card jumps to its opened geometry, both
+boxes are measured, and only the inverse transform is animated back to zero,
+so nothing reflows mid-flight.
+
+Only three paintings exist for four cards, so **Mehendi borrows the Hawan
+marigold** — they are the two daytime ceremonies, so the palette carries.
+
+One thing not to undo: **the backdrop hangs off `.schedule`, not off `body`.**
+`.schedule` carries a `z-index` and is therefore its own stacking context, so
+a backdrop painted at body level can never come between the section and one
+of the section's own children — the opened card rendered *underneath* the
+dim. Both now live in the same context and the section is lifted above its
+neighbours while a card is open.
+
+Escape, the × button, and a tap on the backdrop all close; all three are
+tested.
+
+## Where the celebration is
+
+Heading, address, and a Google Maps embed in the keyless `?output=embed`
+form — **no API key anywhere**. It is pinned by coordinate rather than by a
+name search, so it lands on the hotel and not on whatever the search decides.
+The frame is desaturated a little so the bright blue map sits inside the
+invitation rather than on top of it, and the "Open in Maps" button is held
+clear of Google's attribution strip, which their terms require stay legible.
+
+The address is **reverse-geocoded from the Maps link, not supplied by the
+family** — worth confirming before the cards go out.
+
+## What was removed, and what it took with it
+
+Three things came out on request, and it is worth recording what left with
+them so nobody goes hunting:
+
+| Removed | What went with it |
+| --- | --- |
+| The formal invitation card | the invocation line, the "We request the honor" wording, and **both families' lineage lines** — those strings survive in `CONFIG.lineage` but render nowhere |
+| The Wardrobe planner | the per-function dress-code rail. Dress codes now belong on the cards, where the line stays hidden until `dress` is filled in |
+| The Reception | its card, its painting and its film |
+
+The scratch section's arch, the wardrobe niche, the palace skyline and the
+blossom boughs went with them — six SVG symbols and 8.4 MB of artwork,
+deleted once nothing referenced them.
+
+The crest-flight code in `script.js` is now unreachable: it arms only when
+`.hero-crest img` exists, and the hero no longer has a crest. It is left in
+place, inert and self-guarding, rather than unpicked from the intro's veil
+timing.

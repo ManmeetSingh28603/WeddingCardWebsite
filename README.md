@@ -347,9 +347,11 @@ content-height rather than `100svh` so the two read as one panel — heading,
 bar, couple, then the boxes. Put `min-height: 100svh` back on
 `.scratch-section` and the countdown is pushed onto a screen of its own again.
 
-The footer closes on the **same floral ground as the hero**, taken right down
-with a dark overlay: the invitation opens on that artwork in daylight and ends
-on it at night. Only the overlay differs, so there is no second image to load.
+The footer closes on the **same floral ground as the hero**, untreated — same
+artwork, same daylight, both ends of the invitation. The only thing over it is
+the hero's own veil: a soft cream lift through the middle so the type holds,
+and a seam at the top so the panel above runs into it. Nothing darkens it, and
+because it is the same file there is no second image to load.
 
 It shows the flourish, "With love, <names>", the celebrate line and the
 hashtag. **The date and venue lines came out** — they were in the old footer

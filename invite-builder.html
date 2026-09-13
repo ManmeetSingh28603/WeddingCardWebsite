@@ -165,6 +165,15 @@
     <button type="button" id="none">Clear</button>
   </div>
 
+  <h2>Sections</h2>
+  <div class="events">
+    <label class="evt">
+      <input type="checkbox" id="blessings" checked />
+      <span class="evt-name">Blessings</span>
+      <span class="evt-when">Shown by default</span>
+    </label>
+  </div>
+
   <h2>Their link</h2>
   <div class="out">
     <textarea class="link" id="link" readonly rows="3"></textarea>
@@ -224,26 +233,37 @@ const chosen = () => boxes().filter(b => b.checked).map(b => b.value);
 
 function build() {
   const picked = chosen();
-  let url, msg;
+  const blessings = document.getElementById('blessings').checked;
+  const params = [];
+  let msg;
 
+  /* Everything ticked is the same link as nothing ticked — the plain
+     invitation — so neither adds a list. Only a real subset does. */
   if (!picked.length) {
-    url = SITE;
-    msg = 'Nothing ticked — this is the general invitation and shows every function.';
+    msg = 'No functions ticked — this shows every function.';
   } else if (picked.length === EVENTS.length) {
-    url = SITE;
-    msg = 'Everything ticked, so no list is needed: this is the plain invitation.';
+    msg = 'Every function ticked, so no list is needed.';
   } else {
-    url = SITE + '?e=' + picked.join(',');
+    params.push('e=' + picked.join(','));
     msg = picked.length + ' of ' + EVENTS.length + ' functions. This guest sees only those cards.';
   }
 
+  /* Blessings show unless the link says otherwise, so only the OFF case
+     needs a parameter. */
+  if (!blessings) {
+    params.push('b=0');
+    msg += ' Blessings hidden.';
+  }
+
+  const url = SITE + (params.length ? '?' + params.join('&') : '');
   out.value = url;
-  note.textContent = msg;
+  note.textContent = params.length ? msg : msg + ' This is the plain invitation.';
   note.className = 'note';
   return url;
 }
 
 host.addEventListener('change', build);
+document.getElementById('blessings').addEventListener('change', build);
 document.getElementById('all').addEventListener('click', () => { boxes().forEach(b => b.checked = true); build(); });
 document.getElementById('none').addEventListener('click', () => { boxes().forEach(b => b.checked = false); build(); });
 

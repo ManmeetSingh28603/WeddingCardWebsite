@@ -287,8 +287,8 @@ https://…/WeddingCardWebsite/?e=wedding,reception
 and only those cards render. The plain URL, with no `?e` at all, is the
 general invitation and shows everything.
 
-**Open `invite-builder.html` to make a link** — tick the functions, copy, or
-hand it straight to WhatsApp. Nothing is stored anywhere and no per-guest
+**Open `invite-builder.html` to make a link** — tick the functions, choose
+whether Blessings are included, copy, or hand it straight to WhatsApp. Nothing is stored anywhere and no per-guest
 data lives in the repo, so inviting someone never needs a code change or a
 redeploy: the link *is* the configuration.
 
@@ -304,6 +304,9 @@ Three things follow from that:
 - **An unknown or empty list falls back to the whole programme**, on purpose:
   a guest following a mistyped or truncated link should land on the
   invitation, not on an empty page.
+- **`?b=0` drops the Blessings section.** Blessings show by default, so only
+  a link that says otherwise hides them and the plain URL is unaffected.
+  The section is removed outright rather than emptied.
 
 ## Where the celebration is
 
@@ -335,3 +338,20 @@ deleted once nothing referenced them.
 The crest flight is **gone** — 125 lines of JS, its config, and the 224 KB
 `crest.webp` it flew. It could never arm once the hero stopped having a
 crest; the intro now simply cross-dissolves, which is what it already did.
+
+## The countdown and the close
+
+The countdown is **four small boxes, not a screen**. It sits between the
+scratch card and the cards, and the scratch section is deliberately
+content-height rather than `100svh` so the two read as one panel — heading,
+bar, couple, then the boxes. Put `min-height: 100svh` back on
+`.scratch-section` and the countdown is pushed onto a screen of its own again.
+
+The footer closes on the **same floral ground as the hero**, taken right down
+with a dark overlay: the invitation opens on that artwork in daylight and ends
+on it at night. Only the overlay differs, so there is no second image to load.
+
+It shows the flourish, "With love, <names>", the celebrate line and the
+hashtag. **The date and venue lines came out** — they were in the old footer
+but are not in the design this follows, and both still appear in the hero, in
+the scratch reveal and on every card.

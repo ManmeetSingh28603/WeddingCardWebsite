@@ -194,46 +194,25 @@
 
 
   <!-- ============================================================
-       Countdown + footer.
+       Countdown. A compact strip of four boxes rather than the
+       full-height panel it used to be — it sits between the scratch
+       card and the cards now, so it has to read as part of that flow
+       and not as a screen of its own.
        ============================================================ -->
-  <section class="countdown-section" id="countdown" aria-labelledby="countdownTitle">
-    <div class="countdown-bg" aria-hidden="true"></div>
-    <div class="countdown-particles" aria-hidden="true">
-      <span></span><span></span><span></span><span></span><span></span><span></span>
-    </div>
-
-    <div class="countdown-content">
-      <p class="countdown-eyebrow countdown-reveal" data-countdown-letters style="--countdown-delay:130ms">Counting down to</p>
-      <h2 class="countdown-names countdown-reveal" id="countdownTitle" style="--countdown-delay:460ms">Forever</h2>
-      <div class="countdown-divider countdown-reveal" aria-hidden="true" style="--countdown-delay:720ms"></div>
-
-      <div class="countdown-grid" aria-label="Wedding countdown">
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:880ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="days">0</span><span class="countdown-label">Days</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1010ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="hours">00</span><span class="countdown-label">Hours</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1140ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="minutes">00</span><span class="countdown-label">Minutes</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1270ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="seconds">00</span><span class="countdown-label">Seconds</span>
-          </div>
-        </div>
+  <section class="countdown-section" id="countdown" aria-label="Countdown to the celebration">
+    <div class="countdown-grid">
+      <div class="cd-box countdown-reveal" style="--countdown-delay:80ms">
+        <span class="cd-num" data-unit="days">0</span><span class="cd-label">Days</span>
       </div>
-
+      <div class="cd-box countdown-reveal" style="--countdown-delay:170ms">
+        <span class="cd-num" data-unit="hours">00</span><span class="cd-label">Hours</span>
+      </div>
+      <div class="cd-box countdown-reveal" style="--countdown-delay:260ms">
+        <span class="cd-num" data-unit="minutes">00</span><span class="cd-label">Minutes</span>
+      </div>
+      <div class="cd-box countdown-reveal" style="--countdown-delay:350ms">
+        <span class="cd-num" data-unit="seconds">00</span><span class="cd-label">Seconds</span>
+      </div>
     </div>
   </section>
 
@@ -481,10 +460,14 @@
        for that reason — they used to come from .countdown-section.
        ============================================================ -->
   <footer class="wedding-footer" aria-label="Wedding footer">
-    <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Radhika &amp; Raghav</p>
-    <p class="footer-date countdown-reveal" data-footer-date style="--countdown-delay:1740ms"></p>
-    <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Hotel Damson Plum, Lucknow</p>
-    <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms"></p>
+    <div class="footer-inner">
+      <span class="footer-flourish countdown-reveal" aria-hidden="true" style="--countdown-delay:80ms">&#10086;</span>
+      <h2 class="footer-names countdown-reveal" style="--countdown-delay:220ms">
+        With love,<br /><span data-couple-names>Radhika &amp; Raghav</span>
+      </h2>
+      <p class="footer-line countdown-reveal" style="--countdown-delay:430ms">We cannot wait to celebrate with you</p>
+      <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:580ms"></p>
+    </div>
   </footer>
 
 </div><!-- /#device-frame -->

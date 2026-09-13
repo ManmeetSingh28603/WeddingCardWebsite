@@ -61,9 +61,17 @@ const CONFIG = {
      link IS the configuration, so inviting someone never needs a code
      change or a redeploy.
 
+     A link can also drop the Blessings section:
+
+       .../WeddingCardWebsite/?e=wedding&b=0
+
+     Blessings SHOW by default, so the plain URL is unaffected and only
+     a link that says otherwise hides them.
+
      invite-builder.html is the tool that writes the links. */
   invite: {
     param: 'e',
+    blessingsParam: 'b',
   },
 
   scratch: {
@@ -605,9 +613,22 @@ function initFooter() {
 }
 
 
+/* Blessings show unless a link says otherwise: ?b=0 takes the section
+   away entirely, heading and all, rather than leaving an empty panel. */
+function wantsBlessings() {
+  try {
+    const key = (CONFIG.invite || {}).blessingsParam || 'b';
+    const raw = new URLSearchParams(location.search).get(key);
+    if (raw === null) return true;
+    return !/^(0|no|off|false)$/i.test(raw.trim());
+  } catch (_) { return true; }
+}
+
 function renderBlessings() {
   const host = document.getElementById('blessings');
   if (!host) return;
+
+  if (!wantsBlessings()) { host.remove(); return; }
 
   const page = (side, label, blocks, note) => {
     const art = el('article', `bl-page bl-page--${side}`);

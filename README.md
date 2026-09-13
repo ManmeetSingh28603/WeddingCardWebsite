@@ -4,11 +4,12 @@ A static site: plain HTML, CSS and JavaScript, no build step and no
 dependencies.
 
 ```
-index.html    structure + the SVG ornament library (cartouche, phone, pin, upload)
-style.css     all styling and animation
-script.js     CONFIG at the top, then behaviour
-assets/       everything the site actually loads
-apps-script/  the RSVP form's backend — not served, deployed to Google
+index.html           the invitation
+invite-builder.html  writes the per-guest links; nothing on the site links to it
+style.css            all styling and animation
+script.js            CONFIG at the top, then behaviour
+assets/              everything the site actually loads
+apps-script/         the RSVP form's backend — not served, deployed to Google
 ```
 
 Everything the site loads lives in `assets/`, all of it referenced. The source
@@ -52,6 +53,9 @@ Two conventions worth knowing:
   renders them**. They were printed on the formal invitation card, which was
   removed on request; the strings are kept because deleting them would lose
   the only record of both sides' names in the project.
+- **Blessings and RSVP are the bride's side only.** The groom's-side lists
+  were never supplied and the placeholder pages came out on request; add a
+  `groom` array back to either and restore its `page()` / `list()` call.
 
 ## The RSVP form
 
@@ -141,10 +145,8 @@ on, so they are obvious. These are what is outstanding:
 | --- | --- |
 | Hashtag | not supplied — the line is hidden in the scratch section and the footer |
 | Groom's grandparents | only the parents' line (`S/O …`) was supplied. Kept in `CONFIG.lineage`, which renders nowhere since the invitation card was removed |
-| Groom's side blessings | the whole list |
-| Groom's side RSVP | no names or numbers |
-| Dress codes | all four functions. The line is hidden on a card until `dress` is filled in |
-| Hawan time | `— time —` on the card until one is given |
+| Dress codes | all six functions. The line is hidden on a card until `dress` is filled in |
+| Times | Haldi &amp; Mehendi, Hawan and Reception all show `— time —` until given |
 | Mehendi time | shows Afternoon; an exact time would be better |
 | Venue address | reverse-geocoded from the Maps link, not supplied — worth confirming |
 
@@ -251,13 +253,17 @@ are specific to this file.
 
 ## Save the dates
 
-Four cards, built from `CONFIG.events`. Tapping one expands it in place into
+Six cards, built from `CONFIG.events`. Tapping one expands it in place into
 the full invitation using a FLIP: the card jumps to its opened geometry, both
 boxes are measured, and only the inverse transform is animated back to zero,
 so nothing reflows mid-flight.
 
-Only three paintings exist for four cards, so **Mehendi borrows the Hawan
-marigold** — they are the two daytime ceremonies, so the palette carries.
+Only three paintings exist for six cards, so the daytime ceremonies share the
+marigold and the two evening ones share the night. Three more would give
+every function its own.
+
+**No card says whose side a function is on.** Guests are told what they are
+invited to by their own link; the cards read the same for everyone.
 
 One thing not to undo: **the backdrop hangs off `.schedule`, not off `body`.**
 `.schedule` carries a `z-index` and is therefore its own stacking context, so
@@ -268,6 +274,36 @@ neighbours while a card is open.
 
 Escape, the × button, and a tap on the backdrop all close; all three are
 tested.
+
+## One invitation, many links
+
+Guests are invited to different functions, and there is still only one
+invitation. The link carries the list:
+
+```
+https://…/WeddingCardWebsite/?e=wedding,reception
+```
+
+and only those cards render. The plain URL, with no `?e` at all, is the
+general invitation and shows everything.
+
+**Open `invite-builder.html` to make a link** — tick the functions, copy, or
+hand it straight to WhatsApp. Nothing is stored anywhere and no per-guest
+data lives in the repo, so inviting someone never needs a code change or a
+redeploy: the link *is* the configuration.
+
+Three things follow from that:
+
+- **The ids in `CONFIG.events` are part of every link already sent.**
+  Renaming one silently breaks those links. `invite-builder.html` keeps its
+  own copy of the list and has to be edited in step.
+- **The dates follow the visible cards.** Hero, foil and footer all read from
+  `spanOf()`, so a guest invited only to the Reception is told *25 November*,
+  not *18–25 November*. The countdown aims at their first function too. The
+  `CONFIG.dates` strings are only a fallback for when nothing is dated.
+- **An unknown or empty list falls back to the whole programme**, on purpose:
+  a guest following a mistyped or truncated link should land on the
+  invitation, not on an empty page.
 
 ## Where the celebration is
 
@@ -290,13 +326,12 @@ them so nobody goes hunting:
 | --- | --- |
 | The formal invitation card | the invocation line, the "We request the honor" wording, and **both families' lineage lines** — those strings survive in `CONFIG.lineage` but render nowhere |
 | The Wardrobe planner | the per-function dress-code rail. Dress codes now belong on the cards, where the line stays hidden until `dress` is filled in |
-| The Reception | its card, its painting and its film |
+| The Reception | brought back as a card on 25 November |
 
 The scratch section's arch, the wardrobe niche, the palace skyline and the
 blossom boughs went with them — six SVG symbols and 8.4 MB of artwork,
 deleted once nothing referenced them.
 
-The crest-flight code in `script.js` is now unreachable: it arms only when
-`.hero-crest img` exists, and the hero no longer has a crest. It is left in
-place, inert and self-guarding, rather than unpicked from the intro's veil
-timing.
+The crest flight is **gone** — 125 lines of JS, its config, and the 224 KB
+`crest.webp` it flew. It could never arm once the hero stopped having a
+crest; the intro now simply cross-dissolves, which is what it already did.

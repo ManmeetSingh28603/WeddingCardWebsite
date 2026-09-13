@@ -781,8 +781,28 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   margin: 0 auto clamp(26px, 4.5vh, 40px);
   color: rgba(174,137,80,.75);
 }
-.sch-rule-line { flex: 1; height: 1px; background: currentColor; opacity: .5; }
-.sch-rule-diamond { font-size: .52rem; }
+/* The hairline-diamond-hairline rule, shared by every section that uses
+   one. `.rsvp-rule-*` is in here because the RSVP heading and the
+   "Confirm Your Presence" heading both still use those class names: they
+   were styled alongside the wardrobe, and deleting that block took the
+   shared definition with it. Without these the two spans collapsed to
+   nothing and the diamond — the only thing left with any width — sat at
+   the flex-start edge of its 210px box, hard against the left. */
+.sch-rule-line,
+.rsvp-rule-line { flex: 1; height: 1px; background: currentColor; opacity: .5; }
+.sch-rule-diamond,
+.rsvp-rule-diamond { flex: none; font-size: .52rem; line-height: 1; }
+
+/* Both rules centre their own box, so the diamond lands on the middle. */
+.rsvp-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  width: min(100%, 240px);
+  margin: 0 auto .9rem;
+  color: rgba(192,138,62,.75);
+}
 
 .events-grid {
   display: grid;
@@ -1477,6 +1497,10 @@ body.has-open-card { overflow: hidden; }
 .attend-rule {
   display: flex;
   align-items: center;
+  /* Belt and braces with the flex:1 on the lines: if a line is ever
+     unstyled again, the diamond still lands on the middle of the box
+     rather than against its left edge. */
+  justify-content: center;
   gap: .55rem;
   width: min(100%, 210px);
   margin-bottom: .95rem;
@@ -1899,7 +1923,13 @@ body.has-open-card { overflow: hidden; }
     transform 1.05s cubic-bezier(.16,1,.3,1) var(--countdown-delay, 0ms),
     filter .95s ease var(--countdown-delay, 0ms);
 }
-.countdown-section.is-visible .countdown-reveal { opacity: 1; transform: translateY(0); filter: blur(0); }
+/* The footer is in this list because it carries .countdown-reveal spans
+   but is no longer inside .countdown-section — the countdown moved up
+   under the scratch card and left it behind. With only the first
+   selector, nothing ever cleared the footer's blur and it sat at
+   opacity 0 for good. */
+.countdown-section.is-visible .countdown-reveal,
+.wedding-footer.is-visible .countdown-reveal { opacity: 1; transform: translateY(0); filter: blur(0); }
 
 .countdown-eyebrow {
   margin: 0 0 clamp(6px, 1.1vh, 10px);
@@ -2035,10 +2065,22 @@ body.has-open-card { overflow: hidden; }
   44%      { transform: scale(1.025); filter: drop-shadow(0 13px 20px rgba(150,90,40,.16)) drop-shadow(0 0 14px rgba(192,138,62,.2)); }
 }
 
+/* A section of its own now. It used to be the last thing inside the
+   countdown — which is why it read its colours from .countdown-section's
+   tokens — but the countdown moved up under the scratch card and this
+   stayed, because the page still has to end here. So it carries the same
+   five tokens itself, and `margin-top: auto` is gone: that only meant
+   anything while it was the bottom item of the countdown's flex column. */
 .wedding-footer {
-  margin-top: auto;
-  padding-top: clamp(4px, 1vh, 10px);
+  --cd-rose: #c2547c;
+  --cd-ink:  #7c380f;
+  --cd-soft: #a06c46;
+
+  position: relative;
   width: 100%;
+  padding: clamp(48px, 8vh, 78px) clamp(20px, 6vw, 34px) clamp(40px, 7vh, 66px);
+  text-align: center;
+  background: linear-gradient(180deg, var(--card-ground) 0%, #f6e7d2 55%, #f3dfe4 100%);
   color: var(--cd-soft);
 }
 .wedding-footer p { margin: 0; }

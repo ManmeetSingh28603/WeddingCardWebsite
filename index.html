@@ -25,7 +25,7 @@
   <meta property="og:image:alt" content="Radhika &amp; Raghav — Hotel Damson Plum, Lucknow" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Radhika &amp; Raghav — Wedding Invitation" />
-  <meta name="twitter:description" content="Hotel Damson Plum, Lucknow · 19–21 November 2026" />
+  <meta name="twitter:description" content="Hotel Damson Plum, Lucknow · 18–25 November 2026" />
   <meta name="twitter:image" content="https://manmeetsingh28603.github.io/WeddingCardWebsite/assets/og/og.jpg" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
@@ -38,12 +38,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500&family=Italiana&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <!-- assets/hero/crest.webp is deliberately NOT preloaded. Nothing renders
-       it today: CONFIG.couple.heroCrest is false, so the hero crest is
-       removed at boot, and the intro card that used to carry it is now the
-       gate film. It was costing 226 KB at high priority on every load,
-       against the poster and film on the one screen where speed shows.
-       Put this back if you ever set heroCrest to true. -->
   <link rel="preload" as="image" href="assets/hero/opening_poster.webp" fetchpriority="high" />
   <!-- The ground of the card the gate opens onto — wanted the moment the
        film ends, so it is fetched while the film is still playing. -->
@@ -195,6 +189,51 @@
            onerror="this.style.display='none'" />
 
       <p class="scratch-hashtag" id="scratchHashtag" data-hashtag></p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       Countdown + footer.
+       ============================================================ -->
+  <section class="countdown-section" id="countdown" aria-labelledby="countdownTitle">
+    <div class="countdown-bg" aria-hidden="true"></div>
+    <div class="countdown-particles" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="countdown-content">
+      <p class="countdown-eyebrow countdown-reveal" data-countdown-letters style="--countdown-delay:130ms">Counting down to</p>
+      <h2 class="countdown-names countdown-reveal" id="countdownTitle" style="--countdown-delay:460ms">Forever</h2>
+      <div class="countdown-divider countdown-reveal" aria-hidden="true" style="--countdown-delay:720ms"></div>
+
+      <div class="countdown-grid" aria-label="Wedding countdown">
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:880ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="days">0</span><span class="countdown-label">Days</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1010ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="hours">00</span><span class="countdown-label">Hours</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1140ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="minutes">00</span><span class="countdown-label">Minutes</span>
+          </div>
+        </div>
+        <div class="countdown-card countdown-reveal" style="--countdown-delay:1270ms">
+          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
+          <div class="countdown-card-content">
+            <span class="countdown-number" data-unit="seconds">00</span><span class="countdown-label">Seconds</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -433,55 +472,20 @@
   </section>
 
 
+
+
   <!-- ============================================================
-       Countdown + footer.
+       Footer. It used to live inside the countdown; the countdown
+       moved up under the scratch card and this stayed, because the
+       page still has to END here. It carries its own colour tokens
+       for that reason — they used to come from .countdown-section.
        ============================================================ -->
-  <section class="countdown-section" id="countdown" aria-labelledby="countdownTitle">
-    <div class="countdown-bg" aria-hidden="true"></div>
-    <div class="countdown-particles" aria-hidden="true">
-      <span></span><span></span><span></span><span></span><span></span><span></span>
-    </div>
-
-    <div class="countdown-content">
-      <p class="countdown-eyebrow countdown-reveal" data-countdown-letters style="--countdown-delay:130ms">Counting down to</p>
-      <h2 class="countdown-names countdown-reveal" id="countdownTitle" style="--countdown-delay:460ms">Forever</h2>
-      <div class="countdown-divider countdown-reveal" aria-hidden="true" style="--countdown-delay:720ms"></div>
-
-      <div class="countdown-grid" aria-label="Wedding countdown">
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:880ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="days">0</span><span class="countdown-label">Days</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1010ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="hours">00</span><span class="countdown-label">Hours</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1140ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="minutes">00</span><span class="countdown-label">Minutes</span>
-          </div>
-        </div>
-        <div class="countdown-card countdown-reveal" style="--countdown-delay:1270ms">
-          <svg class="countdown-card-frame" viewBox="0 0 150 200" aria-hidden="true"><use href="#orn-cartouche"/></svg>
-          <div class="countdown-card-content">
-            <span class="countdown-number" data-unit="seconds">00</span><span class="countdown-label">Seconds</span>
-          </div>
-        </div>
-      </div>
-
-      <footer class="wedding-footer" aria-label="Wedding footer">
-        <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Radhika &amp; Raghav</p>
-        <p class="footer-date countdown-reveal" data-footer-date style="--countdown-delay:1740ms"></p>
-        <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Hotel Damson Plum, Lucknow</p>
-        <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms"></p>
-      </footer>
-    </div>
-  </section>
+  <footer class="wedding-footer" aria-label="Wedding footer">
+    <p class="footer-names countdown-reveal" data-couple-names style="--countdown-delay:1460ms">Radhika &amp; Raghav</p>
+    <p class="footer-date countdown-reveal" data-footer-date style="--countdown-delay:1740ms"></p>
+    <p class="footer-venue countdown-reveal" data-venue style="--countdown-delay:1880ms">Hotel Damson Plum, Lucknow</p>
+    <p class="footer-hashtag countdown-reveal" data-hashtag style="--countdown-delay:1980ms"></p>
+  </footer>
 
 </div><!-- /#device-frame -->
 

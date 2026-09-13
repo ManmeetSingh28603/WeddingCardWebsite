@@ -19,20 +19,18 @@ const CONFIG = {
     /* MISSING — not supplied. Left empty, which hides it in the scratch
        section and the footer rather than printing a placeholder. */
     hashtag: '',
-    /* Set to null to drop the artwork and set the names in script instead,
-       on the opening card and in the hero. */
-    crest:   'assets/hero/crest.webp',
-    /* The crest opens the invitation, then stands aside: the hero film has
-       the hotel's own sign in it, and the crest landing over the building
-       stacked two marks on top of each other. Set true to bring it back —
-       the flight from the opening card into the hero comes back with it. */
-    heroCrest: false,
   },
 
   dates: {
-    scratchNumber: '19 – 21',        // revealed under the foil
+    year: 2026,
+    /* These three are FALLBACKS. The dates actually printed in the hero,
+       under the foil and in the footer are derived from whichever
+       functions are on screen — see spanOf() — so a guest invited only to
+       the Reception is not told the celebration runs 18–25 November.
+       They are used only if that derivation finds no dated events. */
+    scratchNumber: '18 – 25',        // revealed under the foil
     scratchMonth:  'November 2026',
-    footer:        '19<sup>th</sup> – 21<sup>st</sup> November 2026',
+    footer:        '18<sup>th</sup> – 25<sup>th</sup> November 2026',
     /* Drives the countdown; mo is 0-indexed, so 10 = November. Set to the
        wedding itself. The year is not stated anywhere in the details, but
        20 Nov falls on a Friday and 21 Nov on a Saturday in 2026 and in no
@@ -47,7 +45,25 @@ const CONFIG = {
     /* The mark inside the gold ring. Empty removes the ring entirely. */
     mark:    'ॐ',
     invite:  'With joyous hearts, we invite you to celebrate the beginning of our beautiful new chapter.',
-    dates:   '19 · 21 November',
+    /* Fallback only — see CONFIG.dates. */
+    dates:   '18 · 25 November',
+  },
+
+  /* ── Per-guest invitations ──────────────────────────────────────
+     One invitation, many links. A link carries the functions that
+     guest is invited to:
+
+       .../WeddingCardWebsite/?e=wedding,reception
+
+     and only those cards render. The plain URL, with no ?e at all, is
+     the general invitation and shows every function. Nothing else about
+     the page changes, and no per-guest data lives in the repo — the
+     link IS the configuration, so inviting someone never needs a code
+     change or a redeploy.
+
+     invite-builder.html is the tool that writes the links. */
+  invite: {
+    param: 'e',
   },
 
   scratch: {
@@ -87,19 +103,35 @@ const CONFIG = {
 
   /* One card per function. Tapping a card expands it in place into the
      full invitation — see initEventCards().
-       art      the painting behind the card
-       theme    which particle treatment plays: marigold | stars | breeze
-       copy     the line inside the opened card
-       dress    EMPTY HIDES THE LINE, same convention as the hashtag.
-                No dress codes have been supplied yet.
-     Only three paintings exist, so Mehendi borrows the Hawan marigold —
-     they are the two daytime ceremonies, so the palette carries over. */
+
+     `id` is what a guest link names, so these strings are part of every
+     link already sent out: renaming one breaks those links.
+
+     No card says whose side a function is on. Guests are told which
+     functions they are invited to by their own link, and the cards read
+     the same for everyone.
+
+       at     when the countdown aims at this function; noon if absent
+       art    the painting behind the card
+       theme  which particle treatment plays: marigold | stars | breeze
+       dress  EMPTY HIDES THE LINE, same convention as the hashtag.
+              No dress codes have been supplied yet.
+
+     Only three paintings exist for six cards, so the daytime ceremonies
+     share the marigold and the two evening ones share the night. Three
+     more would give every function its own. */
   events: [
+    {
+      id: 'haldi', title: 'Haldi &amp; Mehendi',
+      day: '18', suffix: 'th', weekday: 'Wednesday', month: 'November',
+      time: '— time —',
+      copy: 'Turmeric, marigolds and far too much laughter — the celebration opens here.',
+      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+    },
     {
       id: 'hawan', title: 'Hawan',
       day: '19', suffix: 'th', weekday: 'Thursday', month: 'November',
       time: '— time —',
-      note: 'Bride&rsquo;s side',
       copy: 'The first of the rites, and the quiet beginning of everything that follows.',
       art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
     },
@@ -107,7 +139,7 @@ const CONFIG = {
       id: 'mehendi', title: 'Mehendi',
       day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
       time: 'Afternoon',
-      note: '',
+      at: { h: 14, min: 0 },
       copy: 'An afternoon of henna, music and long tables of food, before the evening begins.',
       art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
     },
@@ -115,7 +147,7 @@ const CONFIG = {
       id: 'sangeet', title: 'Engagement &amp; Sangeet',
       day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
       time: '6:00 pm onwards',
-      note: '',
+      at: { h: 18, min: 0 },
       copy: 'An evening of dance, music and laughter — come ready to celebrate under the stars.',
       art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
     },
@@ -123,19 +155,25 @@ const CONFIG = {
       id: 'wedding', title: 'Wedding',
       day: '21', suffix: 'st', weekday: 'Saturday', month: 'November',
       time: '1:00 – 2:00 pm onwards',
-      note: '',
+      at: { h: 13, min: 0 },
       copy: 'Join us for the vows, and for the evening of celebration that follows them.',
       art: 'assets/cards/wedding.webp', theme: 'breeze', dress: '',
     },
+    {
+      id: 'reception', title: 'Reception',
+      day: '25', suffix: 'th', weekday: 'Wednesday', month: 'November',
+      time: '— time —',
+      copy: 'One last evening together, to close the celebration the way it began.',
+      art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
+    },
   ],
 
+  /* One side only, on request — the groom's-side list was never supplied
+     and the placeholder page has been taken out rather than left showing
+     "— name —" three times. Add a `groom` array here and a matching
+     page() call in renderBlessings() to bring it back. */
   blessings: {
     note: 'With the love and good wishes of our families.',
-    /* MISSING — no groom's side list supplied */
-    groom: [
-      { title: 'With Best Compliments', names: ['— name —', '— name —', '— name —'] },
-      { title: 'Awaiting Eyes',         names: ['— names of the children —'] },
-    ],
     bride: [
       {
         title: 'With Best Compliments',
@@ -161,11 +199,10 @@ const CONFIG = {
 
   /* `tel` is the full international form behind the call and WhatsApp
      links; `shown` is what is printed on the page. */
+  /* One side only, on request — no groom's-side contacts were supplied
+     and the placeholder row, which had no working call or WhatsApp
+     button, has been taken out. */
   rsvp: {
-    /* MISSING — no groom's side contacts supplied */
-    groom: [
-      { name: '— name —', shown: '— number —', tel: '' },
-    ],
     bride: [
       { name: 'Atul',  shown: '94150 22314', tel: '919415022314' },
       { name: 'Meetu', shown: '99199 96769', tel: '919919996769' },
@@ -250,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initIntro();
   initHero();
   initEventCards();
+  initFooter();
   initBlessings();
   initRsvp();
   initAttendance();
@@ -318,10 +356,11 @@ function renderStrings() {
     });
   };
   const H = CONFIG.hero || {};
+  const heroSpan = spanOf(visibleEvents());
   line('[data-hero-eyebrow]', H.eyebrow);
   line('[data-hero-mark]',    H.mark);
   line('[data-hero-invite]',  H.invite);
-  line('[data-hero-dates]',   H.dates);
+  line('[data-hero-dates]',   heroSpan ? heroSpan.hero : H.dates);
 
   document.querySelectorAll('[data-bride-name]').forEach(n => { n.textContent = CONFIG.couple.bride; });
   document.querySelectorAll('[data-groom-name]').forEach(n => { n.textContent = CONFIG.couple.groom; });
@@ -330,12 +369,15 @@ function renderStrings() {
   line('[data-scratch-heading]', S.heading);
   line('[data-scratch-cta]',     S.cta);
 
+  /* Dates follow whichever functions this link shows — see spanOf(). The
+     CONFIG.dates strings are the fallback for when nothing is dated. */
+  const span = spanOf(visibleEvents());
   const num = document.querySelector('[data-date-num]');
   const mon = document.querySelector('[data-date-month]');
-  if (num) num.textContent = CONFIG.dates.scratchNumber;
-  if (mon) mon.textContent = CONFIG.dates.scratchMonth;
+  if (num) num.textContent = span ? span.number : CONFIG.dates.scratchNumber;
+  if (mon) mon.textContent = span ? span.month  : CONFIG.dates.scratchMonth;
   const fd = document.querySelector('[data-footer-date]');
-  if (fd) fd.innerHTML = CONFIG.dates.footer;
+  if (fd) fd.innerHTML = span ? span.footer : CONFIG.dates.footer;
   document.title = `${CONFIG.couple.names} — ${CONFIG.couple.venue}`;
 }
 
@@ -383,11 +425,59 @@ function renderVenue() {
 /* ============================================================
    SAVE THE DATES — one card per function
    ============================================================ */
+/* Which functions this particular link is for.
+
+   ?e=wedding,reception  ->  just those two cards
+   no ?e at all          ->  every function, the general invitation
+
+   A list that matches nothing falls back to the whole programme on
+   purpose: a guest following a mistyped or truncated link should land on
+   the invitation, not on an empty page. Computed once and reused, so the
+   cards, the dates and the countdown can never disagree. */
+let VISIBLE_EVENTS = null;
+
+function visibleEvents() {
+  if (VISIBLE_EVENTS) return VISIBLE_EVENTS;
+  const all = CONFIG.events;
+  let picked = all;
+  try {
+    const raw = new URLSearchParams(location.search).get((CONFIG.invite || {}).param || 'e');
+    if (raw) {
+      const want = raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const hit = all.filter(ev => want.indexOf(ev.id) !== -1);
+      if (hit.length) picked = hit;
+    }
+  } catch (_) { /* no URL API, or a malformed query — show everything */ }
+  VISIBLE_EVENTS = picked;
+  return picked;
+}
+
+/* The span the visible functions cover, so the hero, the foil and the
+   footer never announce dates a guest is not invited to. Returns null if
+   nothing is dated, and the CONFIG.dates strings stand in. */
+function spanOf(events) {
+  const dated = events.filter(e => Number.isFinite(Number(e.day)));
+  if (!dated.length) return null;
+  const byDay = [...dated].sort((a, b) => Number(a.day) - Number(b.day));
+  const lo = byDay[0], hi = byDay[byDay.length - 1];
+  const year = (CONFIG.dates && CONFIG.dates.year) || '';
+  const one  = lo.day === hi.day;
+  return {
+    number: one ? `${lo.day}` : `${lo.day} – ${hi.day}`,
+    month:  `${lo.month} ${year}`,
+    hero:   one ? `${lo.day} ${lo.month}` : `${lo.day} · ${hi.day} ${lo.month}`,
+    footer: one
+      ? `${lo.day}<sup>${lo.suffix}</sup> ${lo.month} ${year}`
+      : `${lo.day}<sup>${lo.suffix}</sup> – ${hi.day}<sup>${hi.suffix}</sup> ${lo.month} ${year}`,
+    first: lo,
+  };
+}
+
 function renderEventCards() {
   const host = document.getElementById('eventsGrid');
   if (!host) return;
 
-  CONFIG.events.forEach((ev, i) => {
+  visibleEvents().forEach((ev, i) => {
     const card = document.createElement('article');
     card.className = `event event--${ev.theme || 'marigold'}`;
     card.id = `evt-${ev.id}`;
@@ -505,6 +595,16 @@ function initEventCards() {
 }
 
 
+/* The footer used to ride along on the countdown's reveal. It is its own
+   section now, so it needs its own trigger — without one its lines stay
+   blurred at opacity 0, because the CSS that clears them keys off an
+   ancestor it no longer has. */
+function initFooter() {
+  revealOnce(document.querySelector('.wedding-footer'), 'is-visible',
+             { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+}
+
+
 function renderBlessings() {
   const host = document.getElementById('blessings');
   if (!host) return;
@@ -532,8 +632,8 @@ function renderBlessings() {
     return art;
   };
 
-  host.appendChild(page('groom', 'Groom’s Side', CONFIG.blessings.groom, CONFIG.blessings.note));
-  host.appendChild(page('bride', 'Bride’s Side', CONFIG.blessings.bride, null));
+  /* Only the bride's side now, so the note it used to carry moves here. */
+  host.appendChild(page('bride', 'Bride’s Side', CONFIG.blessings.bride, CONFIG.blessings.note));
 }
 
 function renderRsvp() {
@@ -568,8 +668,6 @@ function renderRsvp() {
     host.appendChild(ul);
   };
 
-  /* the groom's side is read first, then the bride's */
-  list('Groom’s Side', CONFIG.rsvp.groom);
   list('Bride’s Side', CONFIG.rsvp.bride);
 }
 
@@ -1079,8 +1177,17 @@ function initCountdownSection() {
     });
   });
 
+  /* Counts to the FIRST function this link shows, not always the wedding:
+     a guest invited only to the Reception wants to know how long until
+     their evening. Falls back to CONFIG.dates.moment when nothing on
+     screen is dated. `at` gives the hour; noon if a function has none,
+     which only shifts the hours column, never the days. */
   const M = CONFIG.dates.moment;
-  const target = new Date(M.y, M.mo, M.d, M.h, M.min, 0).getTime();
+  const first = (spanOf(visibleEvents()) || {}).first;
+  const target = first
+    ? new Date(M.y, M.mo, Number(first.day),
+               (first.at && first.at.h) || 12, (first.at && first.at.min) || 0, 0).getTime()
+    : new Date(M.y, M.mo, M.d, M.h, M.min, 0).getTime();
   const units = {
     days:    section.querySelector('[data-unit="days"]'),
     hours:   section.querySelector('[data-unit="hours"]'),
@@ -1251,7 +1358,10 @@ function initIntro() {
        hero whether the flight is armed rather than running it first: this
        is the one ordering that guarantees no glimpse. */
     const hero = document.getElementById('hero');
-    const holding = !!(hero && hero.classList.contains('is-crest-flight'));
+    /* No flight any more — the crest that used to fly from the opening
+       card into the hero went when the hero became the floral card. The
+       veil simply cross-dissolves. */
+    const holding = false;
 
     if (dissolve) {
       if (holding) dissolve.classList.add('is-hold');   /* opaque immediately */
@@ -1383,7 +1493,6 @@ function initIntro() {
      1300  the gold shine crosses it
      2400  it sets off for its place
      3700  it lands — only then does the veil draw back (CSS) */
-const CREST_FLIGHT = { bloomAt: 500, shineAt: 1300, travelAt: 2400, travel: 1300 };
 /* how long the veil takes to draw back once the crest is home — must match
    the .is-lifting transition, since it decides when the veil is torn down */
 const VEIL_LIFT_MS = 1100;
@@ -1395,32 +1504,14 @@ let liftIvoryVeil = null;
 
 function revealHero() {
   const hero = document.getElementById('hero');
-  if (hero) {
-    runCrestFlight(hero);
-    hero.classList.add('is-animated');
-  }
-  /* with a flight the hero is still behind a shut veil, so the control waits
-     for the landing and arrives with the scene */
-  if (!(hero && hero.classList.contains('is-crest-flight'))) showMusicControl();
+  if (hero) hero.classList.add('is-animated');
+  showMusicControl();
 }
 
 function initHero() {
   const hero = document.getElementById('hero');
   if (!hero) return;
 
-
-  /* The flight is the hand-off from the opening card, so it is armed only
-     when the gate is really there to hand off from. Armed BEFORE the reveal
-     so the hero's own crest animation never gets a frame in. */
-  /* The flight carries the crest from the opening card into the hero, so it
-     needs a crest at BOTH ends: artwork to fly, and a place in the hero for
-     it to land. Without either, the hero plays its ordinary reveal and the
-     opening card simply dissolves. */
-  if (CONFIG.couple.crest && hero.querySelector('.hero-crest img')
-      && document.getElementById('introScreen') && !CFG.reducedMotion) {
-    hero.classList.add('is-crest-flight');
-    prepareCrestFlight(hero);
-  }
 
   if (document.getElementById('introScreen')) return;
   if (CFG.reducedMotion) { hero.classList.add('is-animated'); return; }
@@ -1431,132 +1522,6 @@ function initHero() {
    an image decode and the rasterising of a full-size mask, and doing that
    at the moment the card closes is what stalls the first paint of the
    reveal. Made here, it is warm by the time it is needed. */
-let crestFlightEl = null;
-
-function prepareCrestFlight(hero) {
-  const art = hero.querySelector('.hero-crest img');
-  if (!art) return;
-
-  const fly = el('div', 'crest-flight');
-  fly.setAttribute('aria-hidden', 'true');
-  const flyArt = new Image();
-  flyArt.alt = '';
-  flyArt.draggable = false;
-  flyArt.src = art.currentSrc || art.src;
-  fly.appendChild(flyArt);
-
-  /* off screen and invisible, but laid out and painted, so the decode and
-     the mask raster are both done before the reveal asks for them */
-  fly.style.cssText = 'left:0;top:0;width:1px;height:1px';
-  document.body.appendChild(fly);
-  if (flyArt.decode) flyArt.decode().catch(() => {});
-  crestFlightEl = fly;
-}
-
-/* Fly the crest from the middle of the ivory light into its place in the
-   hero. The copy is positioned ON the hero crest's own box and then pushed
-   OUT to the opening pose, so "home" is simply transform:none — the landing
-   is exact by construction, at any width. */
-function runCrestFlight(hero) {
-  if (!hero.classList.contains('is-crest-flight')) return;
-
-  const crest = hero.querySelector('.hero-crest');
-  const art = crest && crest.querySelector('img');
-  const target = art && art.getBoundingClientRect();
-
-  /* Artwork missing, still unsized, or the text fallback is showing. The
-     veil was already shut on the promise of a flight and nothing will land
-     to open it — draw it back now rather than leaving the guest on ivory. */
-  if (!target || !target.width || !target.height || crest.classList.contains('is-fallback')) {
-    hero.classList.remove('is-crest-flight');
-    if (crestFlightEl && crestFlightEl.parentNode) crestFlightEl.remove();
-    if (liftIvoryVeil) liftIvoryVeil();
-    return;
-  }
-
-  const fly = crestFlightEl || el('div', 'crest-flight');
-  if (!crestFlightEl) {
-    fly.setAttribute('aria-hidden', 'true');
-    const flyArt = new Image();
-    flyArt.src = art.currentSrc || art.src;
-    flyArt.alt = '';
-    flyArt.draggable = false;
-    fly.appendChild(flyArt);
-  }
-
-  let opened = '';
-  const pin = () => {
-    const box = art.getBoundingClientRect();
-    const hb = hero.getBoundingClientRect();
-    fly.style.left = `${box.left}px`;
-    fly.style.top = `${box.top}px`;
-    fly.style.width = `${box.width}px`;
-    fly.style.height = `${box.height}px`;
-    /* centred on the invite COLUMN, not the viewport — the desktop frame is
-       a 480px column, and the viewport centre would miss it */
-    const scale = Math.min(hb.width * 0.78, 340) / box.width;
-    const dx = (hb.left + hb.width / 2) - (box.left + box.width / 2);
-    const dy = (window.innerHeight * 0.46) - (box.top + box.height / 2);
-    opened = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-  };
-  pin();
-
-  /* struck out of the light: smaller and soft, before it firms up */
-  fly.style.transform = `${opened} scale(0.92)`;
-  fly.style.filter = 'blur(14px)';
-  if (!fly.parentNode) document.body.appendChild(fly);
-
-  let landed = false;
-  const land = () => {
-    if (landed) return;
-    landed = true;
-    hero.classList.add('is-crest-landed');   /* real crest on, breath starts */
-    if (liftIvoryVeil) liftIvoryVeil();      /* the scene arrives with the crest */
-    showMusicControl();
-    window.removeEventListener('resize', onResize);
-    /* one frame later — never leave a gap where neither crest is painted */
-    requestAnimationFrame(() => { if (fly.parentNode) fly.remove(); });
-  };
-
-  const timers = [
-    setTimeout(() => {
-      fly.classList.add('is-in');
-      fly.style.transform = opened;
-      fly.style.filter = '';               /* the class owns the glow now */
-    }, CREST_FLIGHT.bloomAt),
-
-    setTimeout(() => fly.classList.add('is-shining'), CREST_FLIGHT.shineAt),
-
-    setTimeout(() => {
-      /* The scroll lock is released partway through, which brings back the
-         scrollbar and narrows the layout — so the crest's box is NOT where
-         it was measured. Re-pin to the box as it is now, holding the copy
-         visually still while we do it, or the landing misses by the width
-         of the scrollbar. */
-      fly.style.transition = 'none';
-      pin();
-      fly.style.transform = opened;
-      void fly.offsetWidth;                /* commit before the travel starts */
-      fly.style.transition = '';
-
-      fly.classList.remove('is-in');
-      fly.classList.add('is-home');
-      fly.style.transform = 'translate3d(0, 0, 0) scale(1)';
-    }, CREST_FLIGHT.travelAt),
-
-    setTimeout(land, CREST_FLIGHT.travelAt + CREST_FLIGHT.travel),
-  ];
-
-  /* A rotation invalidates every measurement above, and a scroll moves the
-     crest out from under the copy, which is fixed to the viewport. Either
-     way: stop, and let the real crest take the frame. */
-  function onResize() {
-    timers.forEach(clearTimeout);
-    land();
-  }
-  window.addEventListener('resize', onResize, { once: true });
-  window.addEventListener('scroll', () => { if (window.scrollY > 4) onResize(); }, { passive: true });
-}
 
 /* ============================================================
    SCRATCH TO REVEAL + BLOSSOM SHOWER

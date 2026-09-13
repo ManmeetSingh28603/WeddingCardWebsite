@@ -577,10 +577,21 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
+  /* GRID, not flex, and the reason is `align-content`.
+     The two lines want a shared baseline — the month is a third the size
+     of the day and hanging it off the day's baseline is the only way it
+     reads as one line. But `align-items: baseline` in a FLEX box aligns
+     the items to each other and then leaves the whole line at the top of
+     the container: the date sat flush against the top of the bar with
+     40px of nothing under it. Flex's `align-content` cannot fix that —
+     it only does anything once the items wrap onto several lines.
+     Grid's does: it centres the single row, while `align-items: baseline`
+     still holds the two together. */
+  display: grid;
+  grid-auto-flow: column;
   justify-content: center;
+  align-content: center;
+  align-items: baseline;
   gap: .55em;
   padding: 0 14px;
   /* Both lines are centred here rather than left to the flex box: once a
@@ -622,11 +633,13 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
 }
 .scratch-date-month {
   position: relative;
-  margin: 0;
-  /* Tracked caps carry a trailing gap after the last letter, which is inside
-     the line box — so a centred line sits half a gap left of true centre.
-     One full gap of left padding puts the ink back on centre exactly. */
-  padding-left: .15em;
+  /* Tracked caps carry a trailing gap after the last letter, and that gap is
+     inside the line box — so centring the box leaves the ink sitting half a
+     gap to the left. Pulling the same amount back off the right edge makes
+     the box end where the letters do.
+     (This used to be `padding-left`, which was right when the month was its
+     own centred line and wrong once it became half of a row.) */
+  margin: 0 -.15em 0 0;
   font-family: var(--font-sans);
   font-size: clamp(.56rem, 2.5vw, .66rem);
   font-weight: 500;

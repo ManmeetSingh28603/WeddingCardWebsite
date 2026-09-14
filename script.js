@@ -158,6 +158,7 @@ let CONFIG = {
       at: { h: 18, min: 0 },
       copy: 'An evening of dance, music and laughter — come ready to celebrate under the stars.',
       art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
+      film: 'assets/video/sangeet-bg.mp4', filmTone: 'night',
     },
     {
       id: 'wedding', title: 'Wedding',
@@ -166,6 +167,7 @@ let CONFIG = {
       at: { h: 13, min: 0 },
       copy: 'Join us for the vows, and for the evening of celebration that follows them.',
       art: 'assets/cards/wedding.webp', theme: 'breeze', dress: '',
+      film: 'assets/video/wedding-bg.mp4',
     },
     {
       id: 'reception', title: 'Reception',
@@ -434,7 +436,6 @@ function renderStrings() {
   document.querySelectorAll('[data-groom-name]').forEach(n => { n.textContent = CONFIG.couple.groom; });
   document.querySelectorAll('[data-bride-lineage]').forEach(n => { n.innerHTML = CONFIG.lineage.bride.join('<br>'); });
   document.querySelectorAll('[data-groom-lineage]').forEach(n => { n.innerHTML = CONFIG.lineage.groom.join('<br>'); });
-  document.querySelectorAll('[data-intro-names]').forEach(n => { n.textContent = SIDE_CONFIG.names; });
   document.querySelectorAll('.hero-names').forEach((names) => {
     const bride = names.querySelector('[data-person="bride"]');
     const groom = names.querySelector('[data-person="groom"]');
@@ -558,7 +559,11 @@ function renderEventCards() {
 
   visibleEvents().forEach((ev, i) => {
     const card = document.createElement('article');
-    card.className = `event event--${ev.theme || 'marigold'}`;
+    /* filmTone: 'night' flips the opened card to a dark veil and cream
+       type — deep ink over a night sky reads as nothing. */
+    card.className = `event event--${ev.theme || 'marigold'}`
+      + (ev.film ? ' has-film' : '')
+      + (ev.film && ev.filmTone === 'night' ? ' has-film--night' : '');
     card.id = `evt-${ev.id}`;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
@@ -568,11 +573,20 @@ function renderEventCards() {
     /* `note` and `dress` are optional: an empty one prints nothing at all
        rather than an empty row. No dress codes have been supplied yet. */
     const note  = ev.note  ? `<p class="event-note">${ev.note}</p>` : '';
+    /* preload="none": the film is only wanted once the card is opened, and
+       a grid of six must not pull six videos on load. The still art is the
+       poster, so the swap has nothing to flash through. */
+    const film  = ev.film
+      ? `<video class="event-film" src="${ev.film}"${ev.art ? ` poster="${ev.art}"` : ''}
+                muted loop playsinline webkit-playsinline preload="none"
+                disablepictureinpicture aria-hidden="true"></video>`
+      : '';
     const dress = ev.dress ? `<p class="pop-dress">Dress code<strong>${ev.dress}</strong></p>` : '';
     const when  = `${ev.day}<sup>${ev.suffix}</sup> ${ev.month}`;
 
     card.innerHTML =
       `<div class="event-art" aria-hidden="true"></div>
+       ${film}
        <div class="event-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
        <div class="event-summary">
          <h3 class="event-name">${ev.title}</h3>
@@ -623,6 +637,19 @@ function initEventCards() {
     document.body.classList.toggle('has-open-card', opening);
     card.setAttribute('aria-expanded', String(opening));
     openCard = opening ? card : null;
+
+    /* The film runs only while the card is open — a closed card must not
+       leave a video decoding behind the grid. */
+    const film = card.querySelector('.event-film');
+    if (film) {
+      if (opening) {
+        try { film.currentTime = 0; } catch (_) {}
+        const play = film.play();
+        if (play && play.catch) play.catch(() => {});   /* the still stands in */
+      } else {
+        film.pause();
+      }
+    }
 
     const last = card.getBoundingClientRect();
     const dx = first.left - last.left;
@@ -1519,24 +1546,6 @@ function initIntro() {
        covers it; startBgMusic carries its own retry net if refused. */
     startBgMusic();
 
-    /* The groom's side has no film: its gate is a CSS envelope. Open the
-       flap and hand over when the flap's own transition ends, so the two
-       sides run off the same begin()/finish() path — one is driven by a
-       video's `ended`, the other by a transition's. */
-    const flap = screen.querySelector('.env-flap');
-    if (!film && flap) {
-      screen.classList.add('is-opening');
-      let handed = false;
-      const hand = () => { if (handed) return; handed = true; finish(); };
-      flap.addEventListener('transitionend', (e) => {
-        /* long enough that the card is actually seen out of the pocket
-           before the veil takes the scene */
-        if (e.propertyName === 'transform') setTimeout(hand, 620);
-      }, { once: true });
-      setTimeout(hand, 2600);          /* transitionend never fired */
-      return;
-    }
-
     if (!film) { finish(); return; }
     try { film.currentTime = 0; } catch (_) {}
     /* the film is silent throughout — a muted play is always permitted, so
@@ -1558,13 +1567,25 @@ function initIntro() {
       }, 1400);
     }
 
-    /* the film closes on the hotel revealed through the open gate — that
-       last frame is the hand-off */
+    /* The bride's film closes on the hotel revealed through the open gate —
+       that last frame is the hand-off. The groom's runs on past the moment
+       that matters, into the backdrop its source template used, so it
+       carries data-film-end and hands over on the light blowing out of the
+       envelope instead. Paused there, so the held frame — the brightest in
+       the film — is what the dissolve fades out of. */
+    const cutAt = parseFloat(film.dataset.filmEnd);
+    const cut = Number.isFinite(cutAt) && cutAt > 0 ? cutAt : null;
+    if (cut) {
+      film.addEventListener('timeupdate', () => {
+        if (film.currentTime >= cut) { film.pause(); finish(); }
+      });
+    }
     film.addEventListener('ended', finish, { once: true });
-    /* Safety, for when 'ended' never arrives: a stalled buffer, a tab sent
-       to the background mid-play. Sized off the film's own length so
-       swapping in a longer one does not silently start cutting it short. */
-    const len = Number.isFinite(film.duration) && film.duration > 0 ? film.duration : 10;
+    /* Safety, for when neither arrives: a stalled buffer, a tab sent to the
+       background mid-play. Sized off whichever end comes first, so swapping
+       in a longer film does not silently start cutting it short. */
+    const full = Number.isFinite(film.duration) && film.duration > 0 ? film.duration : 10;
+    const len = cut ? Math.min(cut, full) : full;
     setTimeout(finish, Math.round(len * 1000) + 6000);
   };
 

@@ -101,29 +101,29 @@
        wording of its own, so the prompt below is the only thing telling
        a guest to tap — it is not decoration, do not drop it.
        ============================================================ -->
-  <div class="intro-screen is-active" id="introScreen" data-gate="envelope"
+  <div class="intro-screen is-active" id="introScreen"
        role="button" tabindex="0" aria-label="Tap to open the invitation">
     <div class="intro-paper" aria-hidden="true"></div>
 
-    <!-- No film on this side. The whole screen is the envelope: a blush
-         panel with the floral pressed into it, the flap folded down over
-         it, and a wax seal at the point. Tapping lifts the flap and the
-         card rises out of the pocket — see .intro-screen.is-opening.
-         Built in CSS rather than shot as a video so it stays sharp at any
-         size and costs nothing to load. -->
-    <div class="envelope" aria-hidden="true">
-      <div class="env-card"></div>
-      <div class="env-pocket"></div>
-      <div class="env-flap"></div>
-      <div class="env-seal"><span>Tap<br />to<br />open</span></div>
-    </div>
+    <!-- The sealed envelope, filmed: the wax seal breaks, the flap lifts
+         and the light comes out of it. data-film-end hands over at the
+         white flash the burst ends on, so the film's own blow-out IS the
+         dissolve into the invitation — what runs after it in the source
+         is that template's backdrop, which this card has no use for.
+         data-shape drives the crop; see .intro-film in the stylesheet. -->
+    <video class="intro-film" id="introVideo"
+           data-shape="portrait" data-film-end="5.9"
+           src="assets/video/envelope-opening.mp4"
+           poster="assets/hero/envelope_poster.jpg"
+           muted playsinline webkit-playsinline preload="auto"
+           disablepictureinpicture aria-hidden="true"></video>
 
-    <p class="intro-couple" data-intro-names>Raghav &amp; Radhika</p>
-    <div class="intro-prompt" id="introPrompt" aria-hidden="true">
-      <span class="intro-prompt-rule"></span>
-      <span class="intro-prompt-text" id="introPromptText">You are invited</span>
-      <span class="intro-prompt-rule"></span>
-    </div>
+    <div class="intro-scrim" aria-hidden="true"></div>
+
+    <!-- No prompt over this one. The film carries its own, pressed into
+         the envelope: a wax seal reading "Tap to open" and "YOU ARE
+         INVITED" along the foot. An overlay lands straight on that
+         ornament and says the same thing a third time. -->
   </div>
   <div class="ivory-dissolve" id="ivoryDissolve" aria-hidden="true"></div>
 

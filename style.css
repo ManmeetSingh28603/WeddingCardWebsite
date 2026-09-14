@@ -135,37 +135,54 @@ html, body {
   opacity: .5;
   background: repeating-linear-gradient(92deg, rgba(150,120,80,.035) 0 1px, transparent 1px 6px);
 }
-/* The Rumi Darwaza film IS the gate — 1280x720, landscape, with the arch
-   dead centre. The envelope card this replaced was portrait and was shown
-   whole; this one is a cinematic frame and is shown FULL-BLEED instead, so
-   the gate opens across the whole screen rather than inside a letterbox.
+/* A gate film IS the gate — shown FULL-BLEED, so it opens across the whole
+   screen rather than inside a letterbox. Both sides run one now.
 
-   It carries the generator's sparkle watermark at x 1137-1182, y 577-622 of
-   the source frame — 7.6% in from the right edge. That is cut with
-   clip-path, whose percentages resolve against the ELEMENT's own box, so the
-   crop is exact at every viewport; the element is laid out at the film's own
-   aspect ratio for that to hold. The cut is taken off BOTH sides even though
-   the mark is only on one: the arch is centred, and shaving one edge alone
-   would swing it off axis. 12% clears the mark's 11.17% with room to spare.
+   Both films carry their generator's watermark, and both are cut off with
+   clip-path, whose percentages resolve against the ELEMENT's own box — so
+   the crop is exact at every viewport, PROVIDED the element is laid out at
+   the film's own aspect ratio. Get that ratio wrong and the box stops
+   describing the picture: the frame letterboxes itself and the gate shows
+   bands down the sides. That is exactly what a portrait 336/896 box did to
+   this landscape film.
 
-   Sizing, so what survives the cut still covers the screen:
-     visible width  = W * (1 - 2*0.12) = W * 0.76   ->  W >= 100% / 0.76 = 131.6%
-     element height = W * 720/1280                  ->  W >= 100svh * 1.7778
-   Swap in a film of another shape and both numbers move with its ratio. */
+   Bride — assets/video/opening.mp4, 1280x720 landscape, arch dead centre.
+   Its sparkle mark sits at x 1137-1182, y 577-622 of the source: 11.17% in
+   from the right edge. 12% clears it, and is taken off BOTH sides even
+   though the mark is only on one — the arch is centred, and shaving a
+   single edge would swing it off axis.
+     visible width  = W * (1 - 2*0.12) = W * 0.76  ->  W >= 100% / 0.76 = 131.58%
+     element height = W * 720/1280                 ->  W >= 100svh * 1.7778 */
 .intro-film {
-  --crop: 5.5%;
+  --crop: 12%;
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 2;
-  width: min(100%, calc(100svh * 0.397));
-  aspect-ratio: 336 / 896;
-  transform: translate(-50%, calc(-50% + var(--crop) / 2));
-  clip-path: inset(0 0 var(--crop) 0);
+  width: max(133%, calc(100svh * 1.79));
+  aspect-ratio: 1280 / 720;
+  transform: translate(-50%, -50%);
+  clip-path: inset(0 var(--crop));
   object-fit: cover;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* The groom's film — assets/video/envelope-opening.mp4, 720x1280 portrait.
+   Its mark sits in the bottom-right corner with its top edge 12.19% up
+   from the bottom, so here the cheap cut is off the BOTTOM: 15% clears it
+   with 36px of the source to spare, where taking it off the right instead
+   would cost 21.7%. Only one edge is cut, so the element is pushed DOWN by
+   half the cut to re-centre what survives it.
+     visible height = H * (1 - 0.15) = H * 0.85  ->  H >= 100svh / 0.85 = 117.65svh
+     element width  = H * 720/1280               ->  W >= 66.18svh, and >= 100% */
+.intro-film[data-shape="portrait"] {
+  --crop: 15%;
+  width: max(101%, calc(100svh * 0.669));
+  aspect-ratio: 720 / 1280;
+  transform: translate(-50%, calc(-50% + var(--crop) / 2));
+  clip-path: inset(0 0 var(--crop) 0);
 }
 
 /* Warm dusk stone behind the prompt — cream text alone was washing out
@@ -189,20 +206,6 @@ html, body {
   gap: .8rem;
   width: min(86%, 400px);
   transform: translateX(-50%);
-  pointer-events: none;
-  display: none;
-}
-.intro-couple {
-  position: absolute;
-  left: 50%; top: 24%; z-index: 4;
-  margin: 0;
-  transform: translateX(-50%);
-  color: var(--deep-ink);
-  font-family: var(--font-name);
-  font-size: clamp(1.55rem, 7vw, 2.25rem);
-  font-weight: 400;
-  white-space: nowrap;
-  text-align: center;
   pointer-events: none;
 }
 .intro-prompt-rule {
@@ -242,146 +245,6 @@ html, body {
 .intro-prompt.is-gone { opacity: 0; transition: opacity .45s ease; }
 video.intro-film::-webkit-media-controls,
 video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
-/* ── The groom's gate: a wax-sealed envelope ──────────────────
-   The bride's side opens on the Rumi Darwaza film. This side has no
-   film at all — the whole screen IS the envelope, built in CSS so it
-   stays sharp at any size and adds nothing to the page weight. The
-   floral is the same file the hero uses, pressed into the blush at low
-   opacity to read as an emboss rather than a picture. */
-.intro-screen[data-gate="envelope"] {
-  background: #eec4c4;
-  perspective: 1400px;
-}
-.intro-screen[data-gate="envelope"] .intro-paper {
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(247,214,214,.9), transparent 70%),
-    linear-gradient(165deg, #f2cccc 0%, #e9bcbc 55%, #e2b1b1 100%);
-}
-/* the emboss: the hero's floral, bleached almost flat */
-.intro-screen[data-gate="envelope"] .intro-paper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: .3;
-  mix-blend-mode: luminosity;
-  background: url("assets/hero/floral_frame.webp") center / 150% auto repeat;
-}
-
-.envelope {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  transform-style: preserve-3d;
-}
-
-/* The card sitting inside, just showing above the pocket's lip. It rises
-   out as the flap lifts. */
-/* Tucked between the back and the pocket front, its top edge hidden
-   under the flap. It only becomes visible once the flap lifts. */
-.env-card {
-  position: absolute;
-  left: 50%;
-  bottom: 4%;
-  width: min(78%, 310px);
-  /* Top edge at 48%, just under the pocket's 46%: a card that pokes above
-     that line shows its corners past the flap's taper, which is exactly
-     what the two white wedges were. */
-  height: 48%;
-  transform: translateX(-50%);
-  border-radius: 5px 5px 0 0;
-  background: linear-gradient(180deg, #fdf8f1, #f7ecdf);
-  box-shadow: 0 -6px 18px -10px rgba(90,40,40,.4);
-  transition: transform .85s cubic-bezier(.16,.82,.24,1) .25s;
-}
-
-/* The pocket front — the two lower folds, drawn as one V-topped panel. */
-/* The front of the envelope — a plain panel, NOT a V. The V you see on
-   a closed envelope is the flap's own two edges lying over this; cutting
-   the same shape out of the pocket as well just let the card show
-   through the corners as two white wedges. */
-.env-pocket {
-  position: absolute;
-  inset: 46% 0 0;
-  background: linear-gradient(170deg, #e3b2b2 0%, #dba5a5 60%, #d29797 100%);
-  box-shadow: 0 -1px 0 rgba(198,158,92,.5);
-}
-
-/* The flap, folded down over the card. Hinged on its own top edge. */
-.env-flap {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 56%;
-  transform-origin: top center;
-  transform: rotateX(0deg);
-  transform-style: preserve-3d;
-  background: linear-gradient(178deg, #f0c8c8 0%, #e8bcbc 70%, #e0aeae 100%);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  /* drop-shadow follows the clip-path, so this draws the gold crease
-     along the two diagonals; box-shadow would trace the element box. */
-  filter: drop-shadow(0 1px 0 rgba(198,158,92,.65)) drop-shadow(0 6px 12px rgba(90,40,40,.28));
-  transition: transform 1.05s cubic-bezier(.6,0,.25,1);
-}
-.env-flap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: .34;
-  mix-blend-mode: luminosity;
-  background: url("assets/hero/floral_frame.webp") center / 150% auto repeat;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-}
-
-/* The wax seal, sitting on the flap's point. */
-.env-seal {
-  position: absolute;
-  top: 56%; left: 50%;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: clamp(88px, 25vw, 116px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 34% 30%, #f4dda6 0%, #dcb96e 34%, #c39a4c 62%, #a87f38 100%);
-  box-shadow:
-    inset 0 2px 6px rgba(255,247,220,.7),
-    inset 0 -3px 8px rgba(120,84,26,.55),
-    0 8px 20px -8px rgba(90,50,10,.6);
-  transition: opacity .45s ease, transform .5s ease;
-}
-/* the stamped rim */
-.env-seal::before {
-  content: "";
-  position: absolute;
-  inset: 11%;
-  border: 1px solid rgba(126,90,32,.5);
-  border-radius: 50%;
-}
-.env-seal span {
-  position: relative;
-  color: #6d4d15;
-  font-family: var(--font-script);
-  font-size: clamp(.95rem, 3.6vw, 1.2rem);
-  line-height: 1.05;
-  text-align: center;
-  text-shadow: 0 1px 0 rgba(255,244,214,.5);
-}
-
-/* ── opening ── */
-/* The flap swings back past vertical, the seal goes with it, and the
-   card rides up out of the pocket. finish() is called off the flap's
-   transitionend, so the timings here ARE the hand-off timing. */
-.intro-screen.is-opening .env-flap { transform: rotateX(-168deg); }
-.intro-screen.is-opening .env-seal { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
-.intro-screen.is-opening .env-card { transform: translateX(-50%) translateY(-38%); }
-.intro-screen.is-opening .intro-prompt { opacity: 0; transition: opacity .4s ease; }
-
-@media (prefers-reduced-motion: reduce) {
-  .env-flap, .env-card, .env-seal { transition-duration: .001ms !important; }
-}
-
 .intro-screen.is-fading {
   opacity: 0;
   filter: blur(16px);
@@ -1028,6 +891,25 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   opacity: .5;
   transition: opacity .45s ease;
 }
+
+/* Some cards open onto a film rather than a painting. It runs ONLY while
+   the card is open: closed, the still art carries the grid and the video
+   is never fetched (preload="none" on the element), so a page of six cards
+   still costs one download, not six. The still doubles as the poster, so
+   the swap has nothing to flash through. */
+.event-film {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+.event.is-open .event-film { opacity: 1; }
+.event.is-open.has-film .event-art { opacity: 0; }
 /* A scrim, so the type holds against whatever part of the painting the
    crop happens to land on. */
 .event::before {
@@ -1104,6 +986,38 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
 .event.is-open::before {
   background: linear-gradient(180deg,
     rgba(250,246,238,.86) 0%, rgba(250,246,238,.7) 46%, rgba(250,246,238,.9) 100%);
+}
+/* Over a film that same scrim flattens the picture straight back into a
+   tint, which is the one thing the film was added to fix. This is the
+   lightest veil the dark type still holds against. */
+.event.is-open.has-film::before {
+  background: linear-gradient(180deg,
+    rgba(250,246,238,.80) 0%, rgba(250,246,238,.32) 44%, rgba(250,246,238,.86) 100%);
+}
+/* A night film needs the opposite treatment — a dark veil, and the type
+   flipped to cream. Deep ink on a navy sky reads as nothing at all. */
+.event.is-open.has-film--night::before {
+  background: linear-gradient(180deg,
+    rgba(14,18,30,.74) 0%, rgba(14,18,30,.38) 44%, rgba(14,18,30,.88) 100%);
+}
+.event.is-open.has-film--night .pop-name,
+.event.is-open.has-film--night .pop-venue,
+.event.is-open.has-film--night .pop-dress strong { color: #fdf3e4; }
+.event.is-open.has-film--night .pop-copy  { color: rgba(253,243,228,.92); }
+.event.is-open.has-film--night .pop-when  { color: rgba(253,243,228,.76); }
+.event.is-open.has-film--night .pop-kicker { color: #e7c98f; }
+.event.is-open.has-film--night .pop-dress {
+  border-top-color: rgba(231,201,143,.34);
+  color: rgba(253,243,228,.76);
+}
+.event.is-open.has-film--night .event-map-link {
+  border-color: rgba(231,201,143,.6);
+  color: #fdf3e4;
+}
+.event.is-open.has-film--night .event-close {
+  border-color: rgba(231,201,143,.45);
+  background: rgba(18,22,34,.72);
+  color: #fdf3e4;
 }
 .event.is-open .event-summary { display: none; }
 

@@ -9,7 +9,7 @@
    Everything the invitation says lives in this object. Nothing
    below it needs touching to change a name, a time or a number.
    ════════════════════════════════════════════════════════════ */
-const CONFIG = {
+let CONFIG = {
 
   couple: {
     names:   'Radhika & Raghav',
@@ -271,6 +271,44 @@ const CONFIG = {
     aadhaarRequired: true,
   },
 };
+
+const SIDE = document.documentElement.dataset.inviteSide === 'groom' ? 'groom' : 'bride';
+const MAP_VIEW = 'https://maps.app.goo.gl/U9xHcH8F4znFgR7Z7';
+const WEDDING_VENUE = { name: 'Hotel Damson Plum', city: 'Lucknow', mapUrl: MAP_VIEW };
+const RECEPTION_VENUE = { name: 'The Tivoli, Chattarpur', city: '', mapUrl: MAP_VIEW };
+const SIDE_CONFIGS = {
+  bride: {
+    names: 'Radhika & Raghav', order: ['bride', 'groom'], blessings: true,
+    events: ['hawan', 'mehendi', 'sangeet', 'wedding'], rsvp: CONFIG.rsvp.bride,
+  },
+  groom: {
+    names: 'Raghav & Radhika', order: ['groom', 'bride'], blessings: false,
+    events: ['haldi', 'sangeet', 'wedding', 'reception'],
+    rsvp: [{ name: 'Sonia', shown: '97171 94045', tel: '919717194045' }],
+  },
+};
+
+CONFIG.lineage = {
+  bride: [
+    'GD/O Lt. Smt. Vijay Rastogi &amp; Shri Sharad Rastogi',
+    'D/O Smt. Meetu Rastogi &amp; Shri Atul Chandra Rastogi',
+  ],
+  groom: [
+    'GS/O Smt. Madhu Khanna &amp; Shri R.N Khanna',
+    'S/O Smt. Sonia Khanna &amp; Shri Manoj Khanna',
+  ],
+};
+CONFIG.venue.mapUrl = MAP_VIEW;
+CONFIG.events = CONFIG.events.map((event) => ({
+  ...event,
+  venue: event.id === 'reception' ? RECEPTION_VENUE
+    : event.id === 'wedding' ? WEDDING_VENUE
+    : { name: 'Hotel Damson Plum', city: 'Lucknow', mapUrl: '' },
+}));
+const SIDE_CONFIG = SIDE_CONFIGS[SIDE];
+CONFIG.couple.names = SIDE_CONFIG.names;
+CONFIG.rsvp.bride = SIDE_CONFIG.rsvp;
+CONFIG.events = CONFIG.events.filter((event) => SIDE_CONFIG.events.includes(event.id));
 /* ════════════════════════════════════════════════════════════
    Nothing below here needs editing for ordinary changes.
    ════════════════════════════════════════════════════════════ */
@@ -364,14 +402,24 @@ function renderStrings() {
     });
   };
   const H = CONFIG.hero || {};
-  const heroSpan = spanOf(visibleEvents());
   line('[data-hero-eyebrow]', H.eyebrow);
   line('[data-hero-mark]',    H.mark);
   line('[data-hero-invite]',  H.invite);
-  line('[data-hero-dates]',   heroSpan ? heroSpan.hero : H.dates);
+  line('[data-hero-dates]',   '');
 
   document.querySelectorAll('[data-bride-name]').forEach(n => { n.textContent = CONFIG.couple.bride; });
   document.querySelectorAll('[data-groom-name]').forEach(n => { n.textContent = CONFIG.couple.groom; });
+  document.querySelectorAll('[data-bride-lineage]').forEach(n => { n.innerHTML = CONFIG.lineage.bride.join('<br>'); });
+  document.querySelectorAll('[data-groom-lineage]').forEach(n => { n.innerHTML = CONFIG.lineage.groom.join('<br>'); });
+  document.querySelectorAll('[data-intro-names]').forEach(n => { n.textContent = SIDE_CONFIG.names; });
+  document.querySelectorAll('.hero-names').forEach((names) => {
+    const bride = names.querySelector('[data-person="bride"]');
+    const groom = names.querySelector('[data-person="groom"]');
+    const amp = names.querySelector('.hero-amp');
+    const first = SIDE_CONFIG.order[0] === 'groom' ? groom : bride;
+    const second = SIDE_CONFIG.order[1] === 'groom' ? groom : bride;
+    if (first && amp && second) names.replaceChildren(first, amp, second);
+  });
 
   const S = CONFIG.scratch || {};
   line('[data-scratch-heading]', S.heading);
@@ -516,7 +564,8 @@ function renderEventCards() {
          <h3 class="pop-name">${ev.title}</h3>
          <p class="pop-when">${ev.weekday}, ${when} &middot; ${ev.time}</p>
          <p class="pop-copy">${ev.copy}</p>
-         <p class="pop-venue">${CONFIG.venue.name}<br />Lucknow</p>
+         <p class="pop-venue">${ev.venue.name}${ev.venue.city ? `<br />${ev.venue.city}` : ''}</p>
+         ${ev.venue.mapUrl ? `<a class="event-map-link" href="${ev.venue.mapUrl}" target="_blank" rel="noopener noreferrer">Show location on map</a>` : ''}
          ${dress}
        </div>`;
 
@@ -625,6 +674,7 @@ function wantsBlessings() {
 }
 
 function renderBlessings() {
+  if (!SIDE_CONFIG.blessings) return;
   const host = document.getElementById('blessings');
   if (!host) return;
 
@@ -710,6 +760,10 @@ const DRIFT_LAYERS = [];
    long arrives a group at a time, as it is read.
    ============================================================ */
 function initBlessings() {
+  if (!SIDE_CONFIG.blessings) {
+    document.getElementById('blessings')?.remove();
+    return;
+  }
   const section = document.getElementById('blessings');
   if (!section) return;
 

@@ -153,16 +153,15 @@ html, body {
      element height = W * 720/1280                  ->  W >= 100svh * 1.7778
    Swap in a film of another shape and both numbers move with its ratio. */
 .intro-film {
-  --side: 12%;
+  --crop: 5.5%;
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 2;
-  width: max(131.6%, calc(100svh * 1.7778));
-  aspect-ratio: 1280 / 720;
-  /* the cut is symmetric, so the surviving centre is the element's centre */
-  transform: translate(-50%, -50%);
-  clip-path: inset(0 var(--side) 0 var(--side));
+  width: min(100%, calc(100svh * 0.397));
+  aspect-ratio: 336 / 896;
+  transform: translate(-50%, calc(-50% + var(--crop) / 2));
+  clip-path: inset(0 0 var(--crop) 0);
   object-fit: cover;
   pointer-events: none;
   user-select: none;
@@ -176,9 +175,7 @@ html, body {
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  background:
-    linear-gradient(to top, rgba(38,20,8,.62) 0%, rgba(38,20,8,.28) 22%, transparent 46%),
-    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(38,20,8,.35), transparent 70%);
+  display: none;
 }
 
 /* The film says nothing on its own, so this is the whole instruction. */
@@ -193,7 +190,20 @@ html, body {
   width: min(86%, 400px);
   transform: translateX(-50%);
   pointer-events: none;
-  animation: introPromptIn 1100ms cubic-bezier(.16,1,.3,1) 420ms both;
+  display: none;
+}
+.intro-couple {
+  position: absolute;
+  left: 50%; top: 24%; z-index: 4;
+  margin: 0;
+  transform: translateX(-50%);
+  color: var(--deep-ink);
+  font-family: var(--font-name);
+  font-size: clamp(1.55rem, 7vw, 2.25rem);
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
 }
 .intro-prompt-rule {
   flex: 1;
@@ -365,6 +375,18 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   letter-spacing: -.045em;
 }
 .hero-name { display: block; }
+.hero-person { display: block; }
+.hero-lineage {
+  display: block;
+  max-width: 22em;
+  margin: .6em auto 0;
+  color: var(--ink-2);
+  font-family: var(--font-display);
+  font-size: clamp(.62rem, 2.45vw, .78rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.32;
+}
 .hero-amp {
   display: block;
   margin: .16em 0 .1em;
@@ -1000,6 +1022,20 @@ body.has-open-card { overflow: hidden; }
   font-size: clamp(1.02rem, 4.2vw, 1.2rem);
   font-weight: 500;
   line-height: 1.3;
+}
+.event-map-link {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 9px 15px;
+  border: 1px solid rgba(174,137,80,.48);
+  border-radius: 999px;
+  color: var(--deep-ink);
+  font-family: var(--font-sans);
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 .pop-dress {
   display: grid;

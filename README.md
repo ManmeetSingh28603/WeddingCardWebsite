@@ -4,8 +4,11 @@ A static site: plain HTML, CSS and JavaScript, no build step and no
 dependencies.
 
 ```
-index.html           the invitation
-invite-builder.html  writes the per-guest links; nothing on the site links to it
+bride.html           bride-side invitation
+groom.html           groom-side invitation
+bride-invite-builder.html  bride-side guest-link builder
+groom-invite-builder.html  groom-side guest-link builder
+index.html           bride-side compatibility entry point
 style.css            all styling and animation
 script.js            CONFIG at the top, then behaviour
 assets/              everything the site actually loads
@@ -28,6 +31,17 @@ and what is still missing. It is gitignored: it carries the families' mobile
 numbers and this repo is public.
 
 ## Viewing it
+
+### Published pages
+
+- Bride invitation: `https://manmeetsingh28603.github.io/WeddingCardWebsite/bride.html`
+- Groom invitation: `https://manmeetsingh28603.github.io/WeddingCardWebsite/groom.html`
+- Bride builder: `https://manmeetsingh28603.github.io/WeddingCardWebsite/bride-invite-builder.html`
+- Groom builder: `https://manmeetsingh28603.github.io/WeddingCardWebsite/groom-invite-builder.html`
+
+The legacy `invite-builder.html` URL opens the bride builder. The builders are
+unlinked from the guest-facing pages, but GitHub Pages itself cannot password
+protect a static file.
 
 Double-click `index.html`. Everything works from the filesystem; the only
 degradation is that the flying grains during the scratch use fallback colours

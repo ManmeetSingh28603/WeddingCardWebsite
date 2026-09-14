@@ -8,7 +8,7 @@ bride.html           bride-side invitation
 groom.html           groom-side invitation
 bride-invite-builder.html  bride-side guest-link builder
 groom-invite-builder.html  groom-side guest-link builder
-index.html           bride-side compatibility entry point
+index.html           the way in — links to both cards and both builders
 style.css            all styling and animation
 script.js            CONFIG at the top, then behaviour
 assets/              everything the site actually loads
@@ -22,9 +22,10 @@ was 42 MB the site never loaded, and every asset derived from it is already
 here. If an asset ever needs re-cutting at a different size or crop, the
 original has to come back from the client first.
 
-Root-level `*.mp4` is gitignored, so working files dropped in the folder —
-`herofinal.mp4`, `rumi gate wedding.mp4` — stay out of the repo. Only the copy
-under `assets/` is served.
+Root-level `*.mp4` and `*.mp3` are gitignored, so working files dropped in the
+folder stay out of the repo. `background.png` is the one source kept on disk:
+the hero's floral frame was re-composed from it and cannot be re-cut from the
+derived WebP.
 
 `wedding-details.txt` is a working document for the client — what is on record
 and what is still missing. It is gitignored: it carries the families' mobile
@@ -39,7 +40,8 @@ numbers and this repo is public.
 - Bride builder: `https://manmeetsingh28603.github.io/WeddingCardWebsite/bride-invite-builder.html`
 - Groom builder: `https://manmeetsingh28603.github.io/WeddingCardWebsite/groom-invite-builder.html`
 
-The legacy `invite-builder.html` URL opens the bride builder. The builders are
+`index.html` is the way in — it links to both cards and both builders rather
+than bouncing to one of them. The builders are
 unlinked from the guest-facing pages, but GitHub Pages itself cannot password
 protect a static file.
 
@@ -63,13 +65,13 @@ Two conventions worth knowing:
   where a line should be reads as a fault, a shorter card does not.
 - A contact with an empty `tel` renders **without** call and WhatsApp buttons,
   since a `tel:+` link with no number leads nowhere.
-- `CONFIG.lineage` holds both families' `GD/O` and `S/O` lines and **nothing
-  renders them**. They were printed on the formal invitation card, which was
-  removed on request; the strings are kept because deleting them would lose
-  the only record of both sides' names in the project.
-- **Blessings and RSVP are the bride's side only.** The groom's-side lists
-  were never supplied and the placeholder pages came out on request; add a
-  `groom` array back to either and restore its `page()` / `list()` call.
+- `CONFIG.lineage` prints under each name in the hero, the invited side first.
+  Set in Pinyon Script above them, so `.hero-names` needs a line-height over 1
+  and the padding under `.hero-name`: at `.82` the tail of Raghav's *g* ran
+  straight into the `GS/O` line beneath it.
+- **Each side has its own venue**, name, address *and* coordinates —
+  `DAMSON` and `TIVOLI` in `script.js`. Sharing one map link between them,
+  which is what the split first did, sends half the guests to the wrong city.
 
 ## The RSVP form
 
@@ -83,7 +85,7 @@ Enough questions to read as a wall, so the fields are grouped under
 
 There is no "Function attending" question. There was one; it was dropped on
 request. Bringing it back means four edits that have to land together — the
-select in `index.html`, a `functions` list in `CONFIG.attendance`, the
+select in the card pages, a `functions` list in `CONFIG.attendance`, the
 validation and payload field in `script.js`, and the column in `Code.gs`.
 
 Three details in that form that are easy to undo by accident:
@@ -182,8 +184,8 @@ Two things were inferred rather than given, and are worth confirming:
 | `hero/floral_frame.webp` | `background.png`, re-composed — see below |
 | `cards/hawan.webp`, `cards/sangeet.webp`, `cards/wedding.webp` | the reference invitation's card paintings, re-encoded from 5.9 MB of PNG to 864 KB of WebP |
 | `scratch/couple.webp` | the reference scratch illustration, white ground flood-filled to alpha |
-| `video/opening.mp4`, `hero/opening_poster.webp` | `herofinal.mp4` — the opening gate, copied byte-for-byte; the poster is its first frame, uncropped so it lines up with the film |
-| `music/music.mp3` | `bg song.mp3` |
+| `video/opening.mp4`, `hero/opening_poster.webp` | the Rumi Darwaza gate — **the bride card only**. The groom card has no film: its gate is a CSS envelope (`.env-*` in `style.css`), which is why there is no second video here. |
+| `music/ishq-hai.mp3` | supplied track. It comes in at **0:38** — `MUSIC_START` in `script.js` — and the `<audio>` carries no `loop`, because looping natively would drop back to 0 and replay the intro; the loop is re-seeded on `ended` instead. |
 | `og/og.jpg`, `favicon.png`, `apple-touch-icon.png` | composed from the couple's names |
 
 The supplied JPEGs arrived with a flat backdrop where transparency was needed,
@@ -235,7 +237,9 @@ that keep what survives the cut covering the screen.
 ## The hero card
 
 What the gate opens onto: eyebrow, ॐ in a gold ring, the names in
-**Italiana**, the invitation sentence, and the dates between gold rules. It
+**Pinyon Script** — cursive but a formal copperplate, and already loaded for
+the script accents so it costs no extra request — the invitation sentence, and
+the dates between gold rules. It
 follows the reference invitation, which is **light** — `#f5eee3` ground with
 `#313b29` ink. The screenshot of it looks dark only because of the phone it
 was taken on; its own CSS says otherwise, so nothing here is tinted.
@@ -301,7 +305,7 @@ https://…/WeddingCardWebsite/?e=wedding,reception
 and only those cards render. The plain URL, with no `?e` at all, is the
 general invitation and shows everything.
 
-**Open `invite-builder.html` to make a link** — tick the functions, choose
+**Open the builder for that side to make a link** — tick the functions, choose
 whether Blessings are included, copy, or hand it straight to WhatsApp. Nothing is stored anywhere and no per-guest
 data lives in the repo, so inviting someone never needs a code change or a
 redeploy: the link *is* the configuration.
@@ -309,7 +313,7 @@ redeploy: the link *is* the configuration.
 Three things follow from that:
 
 - **The ids in `CONFIG.events` are part of every link already sent.**
-  Renaming one silently breaks those links. `invite-builder.html` keeps its
+  Renaming one silently breaks those links. Each builder keeps its
   own copy of the list and has to be edited in step.
 - **The dates follow the visible cards.** Hero, foil and footer all read from
   `spanOf()`, so a guest invited only to the Reception is told *25 November*,
@@ -371,3 +375,23 @@ It shows the flourish, "With love, <names>", the celebrate line and the
 hashtag. **The date and venue lines came out** — they were in the old footer
 but are not in the design this follows, and both still appear in the hero, in
 the scratch reveal and on every card.
+
+## The two gates
+
+They are deliberately different, and neither is a video on both sides:
+
+- **Bride** — the Rumi Darwaza film (`assets/video/opening.mp4`), handing over
+  on its own `ended` event.
+- **Groom** — a wax-sealed envelope built entirely in CSS (`.env-flap`,
+  `.env-pocket`, `.env-card`, `.env-seal`). Tapping lifts the flap and the card
+  rides out of the pocket; the hand-off runs off the flap's `transitionend`, so
+  both sides come back through the same `begin()` / `finish()` path.
+
+Two things in that envelope are easy to break:
+
+- **The card must sit entirely below the pocket's top edge when closed.** Let
+  its top poke above that line and its corners appear past the flap's taper as
+  two white wedges.
+- **The pocket is a plain panel, not a V.** The V you see is the flap's own two
+  edges lying over it; cutting the same shape from the pocket is what let the
+  card show through in the first place.

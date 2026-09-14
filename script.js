@@ -273,18 +273,38 @@ let CONFIG = {
 };
 
 const SIDE = document.documentElement.dataset.inviteSide === 'groom' ? 'groom' : 'bride';
-const MAP_VIEW = 'https://maps.app.goo.gl/U9xHcH8F4znFgR7Z7';
-const WEDDING_VENUE = { name: 'Hotel Damson Plum', city: 'Lucknow', mapUrl: MAP_VIEW };
-const RECEPTION_VENUE = { name: 'The Tivoli, Chattarpur', city: '', mapUrl: MAP_VIEW };
+
+/* Two venues, one per side. Each carries its own link AND its own
+   coordinates: the "Find your way to us" map is pinned by lat/lng, so a
+   shared link with the wrong name and address underneath — which is what
+   both cards had — sends half the guests to the wrong city. */
+const DAMSON = {
+  name: 'Hotel Damson Plum',
+  address: 'Shaheed Path, Ahmamau, Sarojini Nagar,<br />Lucknow, Uttar Pradesh 226030',
+  mapUrl: 'https://maps.app.goo.gl/DXLwTFf2VQH3iJxq8',
+  lat: 26.7794782, lng: 80.9931704,
+};
+const TIVOLI = {
+  name: 'The Tivoli, Chattarpur',
+  address: 'Sant Shri Nagpal Marg, Chhattarpur,<br />New Delhi, Delhi 110030',
+  mapUrl: 'https://maps.app.goo.gl/U9xHcH8F4znFgR7Z7',
+  lat: 28.4966351, lng: 77.1853145,
+};
+const MAP_VIEW = TIVOLI.mapUrl;
+const WEDDING_VENUE = { name: DAMSON.name, city: 'Lucknow', mapUrl: DAMSON.mapUrl };
+const RECEPTION_VENUE = { name: TIVOLI.name, city: '', mapUrl: TIVOLI.mapUrl };
 const SIDE_CONFIGS = {
   bride: {
     names: 'Radhika & Raghav', order: ['bride', 'groom'], blessings: true,
     events: ['hawan', 'mehendi', 'sangeet', 'wedding'], rsvp: CONFIG.rsvp.bride,
+    venue: DAMSON,
   },
   groom: {
     names: 'Raghav & Radhika', order: ['groom', 'bride'], blessings: false,
     events: ['haldi', 'sangeet', 'wedding', 'reception'],
     rsvp: [{ name: 'Sonia', shown: '97171 94045', tel: '919717194045' }],
+    /* the groom's side gathers at the Tivoli, so that is the map on his card */
+    venue: TIVOLI,
   },
 };
 
@@ -298,7 +318,10 @@ CONFIG.lineage = {
     'S/O Smt. Sonia Khanna &amp; Shri Manoj Khanna',
   ],
 };
-CONFIG.venue.mapUrl = MAP_VIEW;
+Object.assign(CONFIG.venue, SIDE_CONFIGS[SIDE].venue);
+/* Feeds the <title> and any [data-venue] line, so it has to follow the
+   side too — the groom's card is not a Damson Plum card. */
+CONFIG.couple.venue = SIDE === 'groom' ? 'The Tivoli, Chattarpur' : 'Hotel Damson Plum, Lucknow';
 CONFIG.events = CONFIG.events.map((event) => ({
   ...event,
   venue: event.id === 'reception' ? RECEPTION_VENUE
@@ -1333,6 +1356,13 @@ function showMusicControl() {
 
 function initMusic() {
   bgAudio = document.getElementById('bgMusic');
+  /* The element carries no `loop`: looping natively would drop the play
+     head back to 0 and replay the 38-second intro every time round. */
+  if (bgAudio) {
+    bgAudio.addEventListener('ended', () => {
+      try { bgAudio.currentTime = MUSIC_START; bgAudio.play(); } catch (_) {}
+    });
+  }
   musicBtn = document.getElementById('musicBtn');
   if (!bgAudio || !musicBtn) return;
 
@@ -1381,6 +1411,10 @@ function retryBgMusic() {
   startBgMusic();
 }
 
+/* Where the score comes in — the first 38 seconds of the track are an
+   intro nobody needs to sit through. */
+const MUSIC_START = 38;
+
 /* Start the score and reveal the toggle. Idempotent. On rejection, arm
    one-shot listeners on the trailing gesture events so the SAME tap — or
    the next one — recovers. */
@@ -1388,7 +1422,10 @@ function startBgMusic() {
   if (!bgAudio || musicFailed || musicStarted) return;
   if (!bgAudio.paused) { musicStarted = true; return; }
   musicStarted = true;
-  try { bgAudio.muted = false; bgAudio.volume = 1; bgAudio.currentTime = 0; } catch (_) {}
+  /* The track opens on 38 seconds of intro; the song proper starts there,
+     and so does the invitation. `loop` on the element would send it back
+     to 0 and replay that intro, so the loop is handled below instead. */
+  try { bgAudio.muted = false; bgAudio.volume = 1; bgAudio.currentTime = MUSIC_START; } catch (_) {}
   const p = bgAudio.play();
   if (p && p.catch) {
     p.catch(() => {
@@ -1481,6 +1518,24 @@ function initIntro() {
        synchronously inside the gesture handler so the activation token
        covers it; startBgMusic carries its own retry net if refused. */
     startBgMusic();
+
+    /* The groom's side has no film: its gate is a CSS envelope. Open the
+       flap and hand over when the flap's own transition ends, so the two
+       sides run off the same begin()/finish() path — one is driven by a
+       video's `ended`, the other by a transition's. */
+    const flap = screen.querySelector('.env-flap');
+    if (!film && flap) {
+      screen.classList.add('is-opening');
+      let handed = false;
+      const hand = () => { if (handed) return; handed = true; finish(); };
+      flap.addEventListener('transitionend', (e) => {
+        /* long enough that the card is actually seen out of the pocket
+           before the veil takes the scene */
+        if (e.propertyName === 'transform') setTimeout(hand, 620);
+      }, { once: true });
+      setTimeout(hand, 2600);          /* transitionend never fired */
+      return;
+    }
 
     if (!film) { finish(); return; }
     try { film.currentTime = 0; } catch (_) {}

@@ -242,6 +242,146 @@ html, body {
 .intro-prompt.is-gone { opacity: 0; transition: opacity .45s ease; }
 video.intro-film::-webkit-media-controls,
 video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
+/* ── The groom's gate: a wax-sealed envelope ──────────────────
+   The bride's side opens on the Rumi Darwaza film. This side has no
+   film at all — the whole screen IS the envelope, built in CSS so it
+   stays sharp at any size and adds nothing to the page weight. The
+   floral is the same file the hero uses, pressed into the blush at low
+   opacity to read as an emboss rather than a picture. */
+.intro-screen[data-gate="envelope"] {
+  background: #eec4c4;
+  perspective: 1400px;
+}
+.intro-screen[data-gate="envelope"] .intro-paper {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(247,214,214,.9), transparent 70%),
+    linear-gradient(165deg, #f2cccc 0%, #e9bcbc 55%, #e2b1b1 100%);
+}
+/* the emboss: the hero's floral, bleached almost flat */
+.intro-screen[data-gate="envelope"] .intro-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .3;
+  mix-blend-mode: luminosity;
+  background: url("assets/hero/floral_frame.webp") center / 150% auto repeat;
+}
+
+.envelope {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+/* The card sitting inside, just showing above the pocket's lip. It rises
+   out as the flap lifts. */
+/* Tucked between the back and the pocket front, its top edge hidden
+   under the flap. It only becomes visible once the flap lifts. */
+.env-card {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: min(78%, 310px);
+  /* Top edge at 48%, just under the pocket's 46%: a card that pokes above
+     that line shows its corners past the flap's taper, which is exactly
+     what the two white wedges were. */
+  height: 48%;
+  transform: translateX(-50%);
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(180deg, #fdf8f1, #f7ecdf);
+  box-shadow: 0 -6px 18px -10px rgba(90,40,40,.4);
+  transition: transform .85s cubic-bezier(.16,.82,.24,1) .25s;
+}
+
+/* The pocket front — the two lower folds, drawn as one V-topped panel. */
+/* The front of the envelope — a plain panel, NOT a V. The V you see on
+   a closed envelope is the flap's own two edges lying over this; cutting
+   the same shape out of the pocket as well just let the card show
+   through the corners as two white wedges. */
+.env-pocket {
+  position: absolute;
+  inset: 46% 0 0;
+  background: linear-gradient(170deg, #e3b2b2 0%, #dba5a5 60%, #d29797 100%);
+  box-shadow: 0 -1px 0 rgba(198,158,92,.5);
+}
+
+/* The flap, folded down over the card. Hinged on its own top edge. */
+.env-flap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 56%;
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  transform-style: preserve-3d;
+  background: linear-gradient(178deg, #f0c8c8 0%, #e8bcbc 70%, #e0aeae 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  /* drop-shadow follows the clip-path, so this draws the gold crease
+     along the two diagonals; box-shadow would trace the element box. */
+  filter: drop-shadow(0 1px 0 rgba(198,158,92,.65)) drop-shadow(0 6px 12px rgba(90,40,40,.28));
+  transition: transform 1.05s cubic-bezier(.6,0,.25,1);
+}
+.env-flap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .34;
+  mix-blend-mode: luminosity;
+  background: url("assets/hero/floral_frame.webp") center / 150% auto repeat;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+/* The wax seal, sitting on the flap's point. */
+.env-seal {
+  position: absolute;
+  top: 56%; left: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(88px, 25vw, 116px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #f4dda6 0%, #dcb96e 34%, #c39a4c 62%, #a87f38 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255,247,220,.7),
+    inset 0 -3px 8px rgba(120,84,26,.55),
+    0 8px 20px -8px rgba(90,50,10,.6);
+  transition: opacity .45s ease, transform .5s ease;
+}
+/* the stamped rim */
+.env-seal::before {
+  content: "";
+  position: absolute;
+  inset: 11%;
+  border: 1px solid rgba(126,90,32,.5);
+  border-radius: 50%;
+}
+.env-seal span {
+  position: relative;
+  color: #6d4d15;
+  font-family: var(--font-script);
+  font-size: clamp(.95rem, 3.6vw, 1.2rem);
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255,244,214,.5);
+}
+
+/* ── opening ── */
+/* The flap swings back past vertical, the seal goes with it, and the
+   card rides up out of the pocket. finish() is called off the flap's
+   transitionend, so the timings here ARE the hand-off timing. */
+.intro-screen.is-opening .env-flap { transform: rotateX(-168deg); }
+.intro-screen.is-opening .env-seal { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
+.intro-screen.is-opening .env-card { transform: translateX(-50%) translateY(-38%); }
+.intro-screen.is-opening .intro-prompt { opacity: 0; transition: opacity .4s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .env-flap, .env-card, .env-seal { transition-duration: .001ms !important; }
+}
+
 .intro-screen.is-fading {
   opacity: 0;
   filter: blur(16px);
@@ -365,21 +505,35 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   line-height: 1;
 }
 
+/* Pinyon Script rather than Italiana: cursive, but a formal copperplate
+   that still reads at a glance — and it is already loaded for the script
+   accents, so it costs no extra font request.
+   line-height was .82, which is where "Raghav" collided with the lineage
+   under it: a joined script hangs long descenders well below the
+   baseline, and a line box shorter than the glyphs has nowhere to put
+   them. 1.02 plus the padding below clears the tail of the g.
+   Negative tracking is gone too — it pulls the joins apart on a script
+   and the letters stop connecting. */
 .hero-names {
   margin: 0;
   color: var(--deep-ink);
-  font-family: var(--font-name);
+  font-family: var(--font-script);
   font-weight: 400;
-  font-size: clamp(3.4rem, 13vw, 6.2rem);
-  line-height: .82;
-  letter-spacing: -.045em;
+  font-size: clamp(3.6rem, 14.5vw, 6.8rem);
+  line-height: 1.02;
+  letter-spacing: 0;
 }
-.hero-name { display: block; }
+.hero-name {
+  display: block;
+  padding-bottom: .1em;   /* the descender's own room, above the lineage */
+}
 .hero-person { display: block; }
 .hero-lineage {
   display: block;
   max-width: 22em;
-  margin: .6em auto 0;
+  /* em here is the LINEAGE size, which is tiny — .6em of it was barely a
+     gap under a 6.8rem name. Set in rem so it stays a real gap. */
+  margin: .85rem auto 0;
   color: var(--ink-2);
   font-family: var(--font-display);
   font-size: clamp(.62rem, 2.45vw, .78rem);

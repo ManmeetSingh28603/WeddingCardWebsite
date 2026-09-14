@@ -38,7 +38,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500&family=Italiana&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="preload" as="image" href="assets/hero/envelope_poster.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/hero/opening_poster.webp" fetchpriority="high" />
   <!-- The ground of the card the gate opens onto — wanted the moment the
        film ends, so it is fetched while the film is still playing. -->
   <link rel="preload" as="image" href="assets/hero/floral_frame.webp" />
@@ -106,8 +106,8 @@
        aria-label="Tap to begin celebration">
     <div class="intro-paper" aria-hidden="true"></div>
     <video class="intro-film" id="introVideo"
-           src="assets/video/envelope.mp4"
-           poster="assets/hero/envelope_poster.webp"
+           src="assets/video/opening.mp4"
+           poster="assets/hero/opening_poster.webp"
            muted playsinline webkit-playsinline preload="auto"
            disablepictureinpicture aria-hidden="true"></video>
     <div class="intro-scrim" aria-hidden="true"></div>
@@ -474,9 +474,9 @@
 </div><!-- /#device-frame -->
 
 
-<!-- Background score. Drop an mp3 at assets/music/music.mp3 to enable it;
+<!-- Background score. Drop an mp3 at assets/music/ishq-hai.mp3 to enable it;
      with no file the control hides itself and nothing else changes. -->
-<audio id="bgMusic" src="assets/music/music.mp3" loop preload="auto" aria-hidden="true"></audio>
+<audio id="bgMusic" src="assets/music/ishq-hai.mp3" preload="auto" aria-hidden="true"></audio>
 <button id="musicBtn" class="music-btn" type="button" aria-label="Play music" title="Toggle music" hidden>
   <img class="mb-kamaicha" src="assets/music/kamaicha.png" alt="" aria-hidden="true" draggable="false" />
   <img class="mb-bow" src="assets/music/bow.png" alt="" aria-hidden="true" draggable="false" />

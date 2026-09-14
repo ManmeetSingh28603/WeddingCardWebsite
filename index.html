@@ -1,11 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=bride.html" />
-  <title>Radhika &amp; Raghav</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- The way in for the family, not for guests: guests get a direct link
+       to their own card. Nothing here should be indexed. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Radhika &amp; Raghav — invitations</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500&family=Pinyon+Script&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ground: #f7f2ea;
+    --deep:   #313b29;
+    --ink:    #474936;
+    --olive:  #6d7654;
+    --gold:   #ae8950;
+    --line:   rgba(174,137,80,.32);
+    --sans:   "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --body:   "Cormorant Garamond", Georgia, serif;
+    --script: "Pinyon Script", cursive;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100svh;
+    padding: clamp(34px, 8vw, 68px) clamp(18px, 5vw, 34px) 60px;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(174,137,80,.09), transparent 62%),
+      var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  main { max-width: 660px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: clamp(30px, 6vh, 52px); }
+  h1 {
+    margin: 0;
+    color: var(--deep);
+    font-family: var(--script);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 12vw, 4rem);
+    line-height: 1.05;
+  }
+  .sub {
+    margin: 10px 0 0;
+    color: var(--gold);
+    font-family: var(--sans);
+    font-size: .66rem;
+    font-weight: 500;
+    letter-spacing: .26em;
+    text-indent: .26em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0 0 14px;
+    color: var(--gold);
+    font-family: var(--sans);
+    font-size: .64rem;
+    font-weight: 500;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+  }
+  section + section { margin-top: clamp(30px, 5vh, 46px); }
+
+  .grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    display: block;
+    padding: 20px 20px 18px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: rgba(255,252,246,.8);
+    text-decoration: none;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+  }
+  .card:hover {
+    border-color: rgba(174,137,80,.7);
+    background: #fffdf9;
+    transform: translateY(-2px);
+  }
+  .card-name {
+    display: block;
+    color: var(--deep);
+    font-family: var(--script);
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+  .card-what {
+    display: block;
+    margin-top: 4px;
+    color: var(--olive);
+    font-family: var(--sans);
+    font-size: .58rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .card-note {
+    display: block;
+    margin-top: 10px;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .tool .card-name { font-family: var(--body); font-size: 1.3rem; font-weight: 600; }
+
+  footer {
+    margin-top: clamp(36px, 6vh, 58px);
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--olive);
+    font-size: .95rem;
+    font-style: italic;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
-  <p>Opening the <a href="bride.html">bride invitation</a>…</p>
+<main>
+  <header>
+    <h1>Radhika &amp; Raghav</h1>
+    <p class="sub">Invitations — internal</p>
+  </header>
+
+  <section>
+    <h2>The invitations</h2>
+    <div class="grid">
+      <a class="card" href="bride.html">
+        <span class="card-name">Bride’s card</span>
+        <span class="card-what">Radhika &amp; Raghav</span>
+        <span class="card-note">Opens on the Rumi Darwaza. Hawan, Mehendi, Sangeet, Wedding. Includes Blessings.</span>
+      </a>
+      <a class="card" href="groom.html">
+        <span class="card-name">Groom’s card</span>
+        <span class="card-what">Raghav &amp; Radhika</span>
+        <span class="card-note">Opens on the sealed envelope. Haldi, Sangeet, Wedding, Reception at The Tivoli.</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Make a guest link</h2>
+    <div class="grid">
+      <a class="card tool" href="bride-invite-builder.html">
+        <span class="card-name">Bride invite builder</span>
+        <span class="card-note">Tick a guest’s functions, copy the link, send it.</span>
+      </a>
+      <a class="card tool" href="groom-invite-builder.html">
+        <span class="card-name">Groom invite builder</span>
+        <span class="card-note">The same, for the groom’s side.</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    Guests never see this page — send them a link from one of the builders,
+    or the card address itself for anyone invited to everything.
+  </footer>
+</main>
 </body>
 </html>

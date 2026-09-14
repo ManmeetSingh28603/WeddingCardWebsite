@@ -16,10 +16,12 @@ apps-script/         the RSVP form's backend — not served, deployed to Google
 ```
 
 Everything the site loads lives in `assets/`, all of it referenced. The source
-media those were cut from (`Radhika.png`, `background.mp4`, `envelope.mp4`,
-`video1–4.mp4`, `bg song.mp3` and the WhatsApp originals) has been deleted: it
-was 42 MB the site never loaded, and every asset derived from it is already
-here. If an asset ever needs re-cutting at a different size or crop, the
+media those were cut from (`Radhika.png`, `video1–4.mp4`, `bg song.mp3` and
+the WhatsApp originals) has been deleted, along with the function films once
+they were copied into `assets/video/`: all of it was weight the repo carried
+twice. `background.png` is kept, gitignored, because the hero's floral frame
+was composed from it and would need it again.
+If an asset ever needs re-cutting at a different size or crop, the
 original has to come back from the client first.
 
 Root-level `*.mp4` and `*.mp3` are gitignored, so working files dropped in the
@@ -61,8 +63,8 @@ number. Anything not yet supplied is marked `MISSING` in a comment there.
 Two conventions worth knowing:
 
 - An **empty string** removes a line rather than printing a blank. That is how
-  the hashtag, every hero line and each card's dress code are handled — a gap
-  where a line should be reads as a fault, a shorter card does not.
+  the hashtag and every hero line are handled — a gap where a line should be
+  reads as a fault, a shorter card does not.
 - A contact with an empty `tel` renders **without** call and WhatsApp buttons,
   since a `tel:+` link with no number leads nowhere.
 - `CONFIG.lineage` prints under each name in the hero, the invited side first.
@@ -154,17 +156,16 @@ removes the field altogether if the hotel turns out not to need it.
 
 ## Still missing
 
-Placeholders on the page are written as `— dress code —`, `— name —` and so
-on, so they are obvious. These are what is outstanding:
+Placeholders on the page are written as `— name —` and so on, so they are
+obvious. These are what is outstanding:
 
 | | |
 | --- | --- |
 | Hashtag | not supplied — the line is hidden in the scratch section and the footer |
 | Groom's grandparents | only the parents' line (`S/O …`) was supplied. Kept in `CONFIG.lineage`, which renders nowhere since the invitation card was removed |
-| Dress codes | all six functions. The line is hidden on a card until `dress` is filled in |
-| Times | Haldi &amp; Mehendi, Hawan and Reception all show `— time —` until given |
-| Mehendi time | shows Afternoon; an exact time would be better |
-| Venue address | reverse-geocoded from the Maps link, not supplied — worth confirming |
+| Sadar Apartments | no address or map link supplied, so the Haldi &amp; Mehendi card shows no map button |
+| Metrocity Lawn | the same, and its city is unknown — the card's second line reads "Gate No. 1" |
+| Damson Plum / Tivoli addresses | reverse-geocoded from the Maps links, not supplied — worth confirming |
 
 Two things were inferred rather than given, and are worth confirming:
 
@@ -346,7 +347,7 @@ them so nobody goes hunting:
 | Removed | What went with it |
 | --- | --- |
 | The formal invitation card | the invocation line, the "We request the honor" wording, and **both families' lineage lines** — those strings survive in `CONFIG.lineage` but render nowhere |
-| The Wardrobe planner | the per-function dress-code rail. Dress codes now belong on the cards, where the line stays hidden until `dress` is filled in |
+| The Wardrobe planner | the per-function dress-code rail. Dress codes are not part of the invitation at all now |
 | The Reception | brought back as a card on 25 November |
 
 The scratch section's arch, the wardrobe niche, the palace skyline and the

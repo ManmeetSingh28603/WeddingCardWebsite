@@ -393,7 +393,7 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
 .hero-person { display: block; }
 .hero-lineage {
   display: block;
-  max-width: 22em;
+  max-width: 24em;
   /* em here is the LINEAGE size, which is tiny — .6em of it was barely a
      gap under a 6.8rem name. Set in rem so it stays a real gap. */
   margin: .85rem auto 0;
@@ -520,14 +520,17 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   align-items: center;
   padding: clamp(40px, 9vh, 64px) 24px clamp(10px, 2vh, 20px);
   overflow: hidden;
-  /* painted ground — a blossom garden in place of the supplied art */
+  /* Painted ground. It used to be a pink blossom garden, left over from the
+     watercolour palette the whole page once used; the card is warm paper,
+     deep olive and gold now, so the blooms are gold and olive too. Ends on
+     #f4ecdd, which is where .countdown-section picks up. */
   background:
-    radial-gradient(ellipse 42% 30% at 8% 6%,   rgba(240,178,196,.42), transparent 70%),
-    radial-gradient(ellipse 38% 26% at 94% 10%, rgba(236,170,190,.38), transparent 70%),
-    radial-gradient(ellipse 46% 24% at 12% 94%, rgba(232,160,182,.40), transparent 72%),
-    radial-gradient(ellipse 50% 28% at 88% 97%, rgba(238,176,196,.42), transparent 72%),
-    radial-gradient(ellipse 60% 40% at 50% 48%, rgba(255,253,248,.85), transparent 76%),
-    linear-gradient(170deg, #fdf3ea 0%, #fbeee6 40%, #f9e8e2 100%);
+    radial-gradient(ellipse 42% 30% at 8% 6%,   rgba(220,180,115,.30), transparent 70%),
+    radial-gradient(ellipse 38% 26% at 94% 10%, rgba(174,137,80,.24), transparent 70%),
+    radial-gradient(ellipse 46% 24% at 12% 94%, rgba(139,150,104,.26), transparent 72%),
+    radial-gradient(ellipse 50% 28% at 88% 97%, rgba(200,164,105,.28), transparent 72%),
+    radial-gradient(ellipse 60% 40% at 50% 48%, rgba(255,253,248,.88), transparent 76%),
+    linear-gradient(170deg, #faf5ec 0%, #f7f2ea 40%, #f4ecdd 100%);
 }
 .scratch-section::before {
   content: "";
@@ -538,10 +541,10 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   opacity: .5;
   /* scattered petals in the ground itself */
   background-image:
-    radial-gradient(circle at 20% 22%, rgba(226,138,168,.5) 0 3px, transparent 4px),
-    radial-gradient(circle at 76% 34%, rgba(226,138,168,.4) 0 2px, transparent 3px),
-    radial-gradient(circle at 34% 72%, rgba(214,126,158,.4) 0 3px, transparent 4px),
-    radial-gradient(circle at 86% 68%, rgba(226,138,168,.35) 0 2px, transparent 3px);
+    radial-gradient(circle at 20% 22%, rgba(174,137,80,.38) 0 3px, transparent 4px),
+    radial-gradient(circle at 76% 34%, rgba(139,150,104,.32) 0 2px, transparent 3px),
+    radial-gradient(circle at 34% 72%, rgba(174,137,80,.30) 0 3px, transparent 4px),
+    radial-gradient(circle at 86% 68%, rgba(139,150,104,.28) 0 2px, transparent 3px);
   background-size: 180px 200px, 150px 170px, 210px 230px, 130px 160px;
 }
 .scratch-section::after {
@@ -585,7 +588,7 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   width: min(84vw, 320px);
   height: clamp(52px, 8.4vh, 64px);
   border-radius: 999px;
-  box-shadow: 0 8px 22px -12px rgba(124,56,15,.55);
+  box-shadow: 0 8px 22px -12px rgba(49,59,41,.45);
 }
 .scratch-bar.attention { animation: scrNudge 2.6s ease-in-out infinite; }
 @keyframes scrNudge {
@@ -909,6 +912,42 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   transition: opacity .5s ease;
 }
 .event.is-open .event-film { opacity: 1; }
+
+/* ── the SHUT card, for the cards that have a film ──────────
+   Its face is a frame cut from that film. At the standing .5 opacity under
+   the standing scrim it came back as a tint — grey for the night scenes —
+   which defeats the point of giving every card its own. So the picture is
+   allowed up, and the night ones get the same treatment the opened card
+   gives them: a dark veil with the type flipped to cream, because deep ink
+   on a night sky reads as nothing.
+   These stay below .event.is-open.has-film (three classes to two), so the
+   opened card's own rules still win. */
+.event.has-film .event-art { opacity: .92; }
+.event.has-film::before {
+  background: linear-gradient(180deg,
+    rgba(250,246,238,.82) 0%, rgba(250,246,238,.56) 48%, rgba(250,246,238,.82) 100%);
+}
+.event.has-film--night .event-art { opacity: 1; }
+.event.has-film--night::before {
+  background: linear-gradient(180deg,
+    rgba(12,16,28,.60) 0%, rgba(12,16,28,.42) 48%, rgba(12,16,28,.70) 100%);
+}
+.event.has-film--night .event-name { color: #fdf3e4; }
+.event.has-film--night .event-day  { color: rgba(253,243,228,.80); }
+.event.has-film--night .event-time { color: rgba(253,243,228,.92); }
+.event.has-film--night .event-note  { color: #e7c98f; }
+.event.has-film--night .event-alias { color: #e7c98f; text-shadow: none; }
+.event.has-film--night .event-open { color: rgba(231,201,143,.85); }
+/* One source carries its generator's mark in the bottom-right corner.
+   object-fit: cover maps the source's FULL height onto the element's
+   whenever the card is narrower than the frame — which is the usual case —
+   so the source's bottom edge is the element's bottom edge. Growing the
+   element past the card and letting the card's overflow:hidden clip it
+   therefore takes the mark with it, at any viewport. 106% hides the bottom
+   5.7% of the source; the mark starts 2.4% up from it, so there is better
+   than twice the margin needed. A wider card crops vertically instead and
+   has already lost that edge. */
+.event-film[data-crop="bottom"] { height: 106%; }
 .event.is-open.has-film .event-art { opacity: 0; }
 /* A scrim, so the type holds against whatever part of the painting the
    crop happens to land on. */
@@ -922,6 +961,63 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
 }
 
 .event-summary { position: relative; z-index: 2; }
+/* The function's real name, under the couple's name for it. Pulled up
+   tight against the title so the two read as one unit. */
+.event-alias {
+  margin: -3px 0 9px;
+  color: #8a6a35;
+  text-shadow: 0 1px 7px rgba(252,248,240,.95), 0 0 2px rgba(252,248,240,.8);
+  font-family: var(--font-sans);
+  font-size: clamp(.52rem, 2.2vw, .58rem);
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  text-transform: uppercase;
+}
+.pop-alias {
+  margin: -4px 0 13px;
+  color: var(--gold-ink);
+  font-family: var(--font-sans);
+  font-size: clamp(.54rem, 2.3vw, .6rem);
+  font-weight: 500;
+  letter-spacing: .24em;
+  text-indent: .24em;
+  text-transform: uppercase;
+}
+
+/* A function that runs to a timetable prints it: the part on the left in
+   the eyebrow face, its hour on the right in the reading face. */
+.pop-run {
+  display: grid;
+  gap: 7px;
+  width: min(100%, 17em);
+  margin: 0 auto 22px;
+  padding: 15px 0 0;
+  border-top: 1px solid rgba(174,137,80,.34);
+  list-style: none;
+}
+.pop-run li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pop-run-what {
+  color: var(--olive-ink);
+  font-family: var(--font-sans);
+  font-size: clamp(.52rem, 2.2vw, .58rem);
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.pop-run-when {
+  color: var(--deep-ink);
+  font-family: var(--font-display);
+  font-size: clamp(.95rem, 3.9vw, 1.06rem);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .event-name {
   margin: 0 0 8px;
   color: var(--deep-ink);
@@ -987,29 +1083,54 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   background: linear-gradient(180deg,
     rgba(250,246,238,.86) 0%, rgba(250,246,238,.7) 46%, rgba(250,246,238,.9) 100%);
 }
-/* Over a film that same scrim flattens the picture straight back into a
-   tint, which is the one thing the film was added to fix. This is the
-   lightest veil the dark type still holds against. */
-.event.is-open.has-film::before {
-  background: linear-gradient(180deg,
-    rgba(250,246,238,.80) 0%, rgba(250,246,238,.32) 44%, rgba(250,246,238,.86) 100%);
+/* ── an opened card that has a film IS the film ─────────────
+   The standing treatment — a small panel with a scrim across the whole of
+   it — flattened the picture back into a tint, which is the one thing the
+   film was added to fix. A filmed card opens near full-screen instead and
+   the film is the card: no scrim, nothing cropped, the whole 1080x1920
+   frame playing edge to edge.
+
+   The wording then has to carry itself. The veil is moved OFF the card and
+   ON to the text block, as a gradient that fades out at its own bottom
+   edge — so it is exactly as tall as the words are, however many lines
+   they run to, and everything below them is clean picture. A fixed band
+   would either clip a long card's last line or dirty a short one's
+   artwork. These films are all composed the same way (open sky or wall at
+   the top, the couple at the foot), so the top is where the words go. */
+.event.is-open.has-film {
+  width: min(92vw, 440px);
+  height: min(92svh, 840px);
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
 }
-/* A night film needs the opposite treatment — a dark veil, and the type
-   flipped to cream. Deep ink on a navy sky reads as nothing at all. */
-.event.is-open.has-film--night::before {
+.event.is-open.has-film::before { background: none; }
+.event.is-open.has-film .event-sparks { display: none; }
+
+.event.is-open.has-film .event-detail {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 2;
+  padding: clamp(26px, 6svh, 52px) clamp(18px, 6vw, 30px) clamp(38px, 9vh, 72px);
+  text-align: center;
   background: linear-gradient(180deg,
-    rgba(14,18,30,.74) 0%, rgba(14,18,30,.38) 44%, rgba(14,18,30,.88) 100%);
+    rgba(252,248,240,.86) 0%, rgba(252,248,240,.68) 52%, rgba(252,248,240,0) 100%);
+}
+/* A night film needs the opposite: a dark veil, and the type flipped to
+   cream. Deep ink on a navy sky reads as nothing at all. */
+.event.is-open.has-film--night .event-detail {
+  background: linear-gradient(180deg,
+    rgba(10,14,26,.86) 0%, rgba(10,14,26,.66) 52%, rgba(10,14,26,0) 100%);
 }
 .event.is-open.has-film--night .pop-name,
-.event.is-open.has-film--night .pop-venue,
-.event.is-open.has-film--night .pop-dress strong { color: #fdf3e4; }
+.event.is-open.has-film--night .pop-venue { color: #fdf3e4; }
 .event.is-open.has-film--night .pop-copy  { color: rgba(253,243,228,.92); }
-.event.is-open.has-film--night .pop-when  { color: rgba(253,243,228,.76); }
-.event.is-open.has-film--night .pop-kicker { color: #e7c98f; }
-.event.is-open.has-film--night .pop-dress {
-  border-top-color: rgba(231,201,143,.34);
-  color: rgba(253,243,228,.76);
-}
+.event.is-open.has-film--night .pop-when  { color: rgba(253,243,228,.78); }
+.event.is-open.has-film--night .pop-kicker,
+.event.is-open.has-film--night .pop-alias,
+.event.is-open.has-film--night .pop-run-what { color: #e7c98f; }
+.event.is-open.has-film--night .pop-run-when { color: #fdf3e4; }
+.event.is-open.has-film--night .pop-run { border-top-color: rgba(231,201,143,.34); }
 .event.is-open.has-film--night .event-map-link {
   border-color: rgba(231,201,143,.6);
   color: #fdf3e4;
@@ -1105,27 +1226,6 @@ body.has-open-card { overflow: hidden; }
   text-decoration: none;
   text-transform: uppercase;
 }
-.pop-dress {
-  display: grid;
-  gap: 5px;
-  margin: 20px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(174,137,80,.34);
-  color: var(--olive-ink);
-  font-family: var(--font-sans);
-  font-size: clamp(.54rem, 2.3vw, .6rem);
-  letter-spacing: .2em;
-  text-transform: uppercase;
-}
-.pop-dress strong {
-  color: var(--deep-ink);
-  font-family: var(--font-display);
-  font-size: 1.7em;
-  font-weight: 500;
-  letter-spacing: .02em;
-  text-transform: none;
-}
-
 .event-close {
   position: absolute;
   top: 10px; right: 12px;
@@ -1285,16 +1385,22 @@ body.has-open-card { overflow: hidden; }
    BLESSINGS
    The lists are far too long to sit inside one 9:16 panel, so the
    art is the FLOOR of the page rather than its background: the
-   names scroll over a blush sky the garden grows out of.
+   names scroll over a warm sky the garden grows out of.
+
+   This page used to run its own palette — a lilac-to-blush ground with
+   teal side labels, plum block titles and rust names, four accents that
+   belonged to nothing else on the card. It is on the card's own colours
+   now: warm paper, deep olive ink, gold for every eyebrow and rule.
    ============================================================ */
-.blessings { --plum: #3f2a7d; --rust: #9a4a20; position: relative; width: 100%; }
+.blessings { position: relative; width: 100%; }
 
 .bl-page {
   position: relative;
   width: 100%;
   overflow: hidden;
-  /* carries the sangeet card's lilac down into the garden's blush */
-  background: linear-gradient(180deg, #f3ecf6 0%, #faeae2 16%, #fbe6de 46%, #f9ddd6 100%);
+  /* opens on --card-ground, which is exactly where .venue above it ends,
+     and settles into the warm sand the garden stands in */
+  background: linear-gradient(180deg, #f7f2ea 0%, #f8f1e2 16%, #f7efdf 46%, #f4ead7 100%);
   /* room for the garden to stand in without the names landing in it —
      percentage padding resolves against the WIDTH, so this tracks the
      garden's own scale on every screen */
@@ -1308,7 +1414,7 @@ body.has-open-card { overflow: hidden; }
   width: min(74%, 300px);
   height: 1px;
   transform: translateX(-50%);
-  background: linear-gradient(to right, transparent, rgba(192,138,62,.5), transparent);
+  background: linear-gradient(to right, transparent, rgba(174,137,80,.55), transparent);
   pointer-events: none;
 }
 /* painted ground — the garden the page stands on. Its sky is dissolved into
@@ -1320,12 +1426,12 @@ body.has-open-card { overflow: hidden; }
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 30% 30% at 12% 88%, rgba(226,138,168,.5), transparent 72%),
-    radial-gradient(ellipse 26% 26% at 34% 96%, rgba(240,170,192,.45), transparent 72%),
-    radial-gradient(ellipse 32% 30% at 68% 92%, rgba(228,146,174,.45), transparent 72%),
-    radial-gradient(ellipse 28% 28% at 90% 86%, rgba(238,164,188,.42), transparent 72%),
-    radial-gradient(ellipse 40% 22% at 50% 100%, rgba(120,140,96,.34), transparent 74%),
-    linear-gradient(180deg, transparent 0%, rgba(246,206,196,.5) 46%, rgba(238,180,176,.7) 100%);
+    radial-gradient(ellipse 30% 30% at 12% 88%, rgba(174,137,80,.34), transparent 72%),
+    radial-gradient(ellipse 26% 26% at 34% 96%, rgba(200,164,105,.30), transparent 72%),
+    radial-gradient(ellipse 32% 30% at 68% 92%, rgba(174,137,80,.30), transparent 72%),
+    radial-gradient(ellipse 28% 28% at 90% 86%, rgba(206,172,112,.28), transparent 72%),
+    radial-gradient(ellipse 40% 22% at 50% 100%, rgba(109,118,84,.42), transparent 74%),
+    linear-gradient(180deg, transparent 0%, rgba(240,232,210,.55) 46%, rgba(233,222,196,.78) 100%);
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 34%);
           mask-image: linear-gradient(180deg, transparent 0%, #000 34%);
 }
@@ -1360,18 +1466,18 @@ body.has-open-card { overflow: hidden; }
   font-weight: 400;
   letter-spacing: .34em;
   text-indent: .34em;
-  color: var(--terra-deep);
+  color: var(--deep-ink);
 }
 .bl-note {
   margin: 0 0 clamp(26px, 4.5vh, 44px);
-  color: var(--ink-soft);
+  color: var(--olive-ink);
   font-size: clamp(.9rem, 3.7vw, 1.02rem);
   font-style: italic;
   line-height: 1.5;
 }
 .bl-side {
   margin: 0 0 clamp(16px, 2.6vh, 26px);
-  color: var(--peacock);
+  color: var(--gold-ink);
   font-family: var(--font-caps);
   font-size: clamp(.68rem, 2.9vw, .78rem);
   font-weight: 600;
@@ -1388,7 +1494,7 @@ body.has-open-card { overflow: hidden; }
   position: relative;
   margin: 0 0 .62rem;
   padding-bottom: .42rem;
-  color: var(--plum);
+  color: var(--olive-ink);
   font-size: clamp(.74rem, 3.05vw, .86rem);
   font-style: italic;
   font-weight: 600;
@@ -1403,7 +1509,7 @@ body.has-open-card { overflow: hidden; }
   position: absolute;
   bottom: 0; left: 50%;
   width: 0; height: 1px;
-  background: linear-gradient(to right, transparent, rgba(63,42,125,.42), transparent);
+  background: linear-gradient(to right, transparent, rgba(174,137,80,.48), transparent);
   transform: translateX(-50%);
   transition: width 900ms cubic-bezier(.16,1,.3,1) var(--bl-delay, 0ms);
 }
@@ -1412,7 +1518,7 @@ body.has-open-card { overflow: hidden; }
 .bl-names { margin: 0; }
 .bl-names span {
   display: block;
-  color: var(--rust);
+  color: var(--deep-ink);
   font-size: clamp(.94rem, 3.85vw, 1.06rem);
   font-weight: 600;
   letter-spacing: .042em;
@@ -1959,7 +2065,7 @@ body.has-open-card { overflow: hidden; }
   position: relative;
   width: 100%;
   padding: clamp(22px, 4vh, 36px) clamp(18px, 6vw, 34px) clamp(36px, 6vh, 58px);
-  background: linear-gradient(180deg, #f9e8e2 0%, #f8efe6 42%, var(--card-ground) 100%);
+  background: linear-gradient(180deg, #f4ecdd 0%, #f8f2e6 42%, var(--card-ground) 100%);
 }
 
 .countdown-grid {

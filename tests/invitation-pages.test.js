@@ -17,6 +17,7 @@ for (const f of ['assets/video/opening.mp4',            // bride gate
                  'assets/video/envelope-opening.mp4',   // groom gate
                  'assets/video/wedding-bg.mp4',         // wedding card
                  'assets/video/sangeet-bg.mp4',         // sangeet card
+                 'assets/video/haldi-bg.mp4',           // haldi card
                  'assets/hero/opening_poster.webp',
                  'assets/hero/envelope_poster.jpg',
                  'assets/music/ishq-hai.mp3']) {
@@ -87,8 +88,42 @@ assert.match(script, /film: 'assets\/video\/sangeet-bg\.mp4', filmTone: 'night'/
 assert.match(script, /class="event-film"/);
 assert.match(script, /preload="none"/, 'six cards must not pull six videos on load');
 assert.match(css, /\.event\.is-open \.event-film \{ opacity: 1; \}/);
-assert.match(css, /\.event\.is-open\.has-film--night::before/,
+assert.match(css, /\.event\.is-open\.has-film--night \.event-detail/,
              'a night film needs the dark veil, or the type vanishes into it');
+assert.match(script, /film: 'assets\/video\/haldi-bg\.mp4'/);
+
+/* ── a filmed card opens as the film: full-bleed, no scrim over the
+      picture, and the veil carried by the text block itself so it is only
+      ever as tall as the words ── */
+assert.match(css, /\.event\.is-open\.has-film \{[^}]*height: min\(92svh, 840px\)/s,
+             'a filmed card opens near full-screen');
+assert.match(css, /\.event\.is-open\.has-film::before \{ background: none; \}/,
+             'the all-over scrim must come off, or the film is just a tint');
+assert.match(css, /\.event\.is-open\.has-film \.event-detail \{[^}]*linear-gradient/s,
+             'the wording carries its own fade');
+
+/* ── the gate hands over before the source film's own backdrop shows ── */
+assert.match(groom, /data-film-end="5"/, 'a later cut lets the blue backdrop through');
+
+/* ── Confirm Your Presence is switchable per guest, both sides ── */
+assert.match(script, /attendParam: 'a',/);
+assert.match(script, /function wantsAttendance\(\)/);
+assert.match(script, /if \(!wantsAttendance\(\)\) \{ wrap\.remove\(\); return; \}/,
+             'the panel must go entirely, not just the form');
+for (const [name, b] of [['bride', brideBuilder], ['groom', groomBuilder]]) {
+  assert.match(b, /id="attendance"/, name + ' builder needs the tick box');
+  assert.match(b, /params\.push\('a=0'\)/, name + ' builder must write the parameter');
+}
+
+/* ── the groom's card has no venue section: his guests get the venue on
+      each function's own card ── */
+assert.doesNotMatch(groom, /id="venue"|venue-kicker|venueMapFrame/,
+                    'the groom card must not carry a venue section');
+assert.match(bride, /id="venue"/, 'the bride card keeps hers');
+
+/* ── the RSVP list is headed by whichever side's card it is ── */
+assert.match(script, /SIDE === 'groom' \? 'Groom\u2019s Side' : 'Bride\u2019s Side'/,
+             'the groom card was listing his mother under "Bride\u2019s Side"');
 
 /* ── each side points at its own venue, with its own coordinates ── */
 assert.match(script, /The Tivoli, Chattarpur/);
@@ -99,7 +134,7 @@ assert.match(script, /venue: DAMSON/);
 
 /* ── lineage, and the descender fix that stopped Raghav colliding ── */
 assert.match(script, /GS\/O Smt\. Madhu Khanna/);
-assert.match(script, /GD\/O Lt\. Smt\. Vijay Rastogi/);
+assert.match(script, /GD\/O Lt\. Smt\. Vijay Rastogi &amp; Shri Sharad Chandra Rastogi/);
 assert.match(css, /\.hero-names \{[^}]*--font-script/s, 'the names are set in the script face');
 assert.doesNotMatch(css, /\.hero-names \{[^}]*line-height: \.82/s, 'the clipping line-height must not come back');
 

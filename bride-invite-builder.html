@@ -172,6 +172,11 @@
       <span class="evt-name">Blessings</span>
       <span class="evt-when">Shown by default</span>
     </label>
+    <label class="evt">
+      <input type="checkbox" id="attendance" checked />
+      <span class="evt-name">Confirm Your Presence</span>
+      <span class="evt-when">Shown by default</span>
+    </label>
   </div>
 
   <h2>Their link</h2>
@@ -232,6 +237,7 @@ const chosen = () => boxes().filter(b => b.checked).map(b => b.value);
 function build() {
   const picked = chosen();
   const blessings = document.getElementById('blessings').checked;
+  const attendance = document.getElementById('attendance').checked;
   const params = [];
   let msg;
 
@@ -253,6 +259,13 @@ function build() {
     msg += ' Blessings hidden.';
   }
 
+  /* Confirm Your Presence shows unless the link says otherwise, so only
+     the OFF case needs a parameter. */
+  if (!attendance) {
+    params.push('a=0');
+    msg += ' Confirm Your Presence hidden.';
+  }
+
   const url = SITE + (params.length ? '?' + params.join('&') : '');
   out.value = url;
   note.textContent = params.length ? msg : msg + ' This is the plain invitation.';
@@ -262,6 +275,7 @@ function build() {
 
 host.addEventListener('change', build);
 document.getElementById('blessings').addEventListener('change', build);
+document.getElementById('attendance').addEventListener('change', build);
 document.getElementById('all').addEventListener('click', () => { boxes().forEach(b => b.checked = true); build(); });
 document.getElementById('none').addEventListener('click', () => { boxes().forEach(b => b.checked = false); build(); });
 

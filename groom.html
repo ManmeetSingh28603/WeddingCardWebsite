@@ -106,13 +106,13 @@
     <div class="intro-paper" aria-hidden="true"></div>
 
     <!-- The sealed envelope, filmed: the wax seal breaks, the flap lifts
-         and the light comes out of it. data-film-end hands over at the
-         white flash the burst ends on, so the film's own blow-out IS the
-         dissolve into the invitation — what runs after it in the source
-         is that template's backdrop, which this card has no use for.
+         and the light comes out of it. data-film-end hands over at 5s, on
+         the burst of light and BEFORE the blue backdrop the source template
+         cuts to behind it — that backdrop belongs to their design, not this
+         card, and a glimpse of it was showing.
          data-shape drives the crop; see .intro-film in the stylesheet. -->
     <video class="intro-film" id="introVideo"
-           data-shape="portrait" data-film-end="5.9"
+           data-shape="portrait" data-film-end="5"
            src="assets/video/envelope-opening.mp4"
            poster="assets/hero/envelope_poster.jpg"
            muted playsinline webkit-playsinline preload="auto"
@@ -240,28 +240,11 @@
   </section>
 
 
-  <!-- ============================================================
-       Where the celebration is. The embed is Google's keyless
-       ?output=embed form, so nothing here needs an API key.
-       ============================================================ -->
-  <section class="venue" id="venue" aria-label="Venue and directions">
-    <div class="venue-inner">
-      <p class="venue-kicker" data-venue-kicker>Find your way to us</p>
-      <h2 class="venue-name" data-venue-name>Hotel Damson Plum</h2>
-      <p class="venue-address" data-venue-address></p>
-
-      <div class="venue-map">
-        <iframe class="venue-map-frame" id="venueMapFrame"
-                title="Map showing Hotel Damson Plum, Lucknow"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-                allowfullscreen></iframe>
-        <a class="venue-open" id="venueOpen" target="_blank" rel="noopener noreferrer">
-          <svg aria-hidden="true"><use href="#ic-pin"/></svg>
-          <span>Open in Maps</span>
-        </a>
-      </div>
-    </div>
-  </section>
+  <!-- No venue section on this side. The groom's guests are told where
+       each function is on the card for that function, and the reception
+       card carries the Tivoli's own map link; a second "Find your way to
+       us" for one of the two venues was answering a question this card
+       does not ask. renderVenue() is a no-op without #venue. -->
 
 
   <!-- ============================================================

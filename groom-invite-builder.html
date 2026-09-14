@@ -165,6 +165,15 @@
     <button type="button" id="none">Clear</button>
   </div>
 
+  <h2>Sections</h2>
+  <div class="events">
+    <label class="evt">
+      <input type="checkbox" id="attendance" checked />
+      <span class="evt-name">Confirm Your Presence</span>
+      <span class="evt-when">Shown by default</span>
+    </label>
+  </div>
+
   <h2>Their link</h2>
   <div class="out">
     <textarea class="link" id="link" readonly rows="3"></textarea>
@@ -222,6 +231,7 @@ const chosen = () => boxes().filter(b => b.checked).map(b => b.value);
 
 function build() {
   const picked = chosen();
+  const attendance = document.getElementById('attendance').checked;
   const params = [];
   let msg;
 
@@ -236,8 +246,13 @@ function build() {
     msg = picked.length + ' of ' + EVENTS.length + ' functions. This guest sees only those cards.';
   }
 
-  /* Blessings show unless the link says otherwise, so only the OFF case
-     needs a parameter. */
+  /* Confirm Your Presence shows unless the link says otherwise, so only
+     the OFF case needs a parameter. */
+  if (!attendance) {
+    params.push('a=0');
+    msg += ' Confirm Your Presence hidden.';
+  }
+
   const url = SITE + (params.length ? '?' + params.join('&') : '');
   out.value = url;
   note.textContent = params.length ? msg : msg + ' This is the plain invitation.';
@@ -246,6 +261,7 @@ function build() {
 }
 
 host.addEventListener('change', build);
+document.getElementById('attendance').addEventListener('change', build);
 document.getElementById('all').addEventListener('click', () => { boxes().forEach(b => b.checked = true); build(); });
 document.getElementById('none').addEventListener('click', () => { boxes().forEach(b => b.checked = false); build(); });
 

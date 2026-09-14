@@ -72,6 +72,7 @@ let CONFIG = {
   invite: {
     param: 'e',
     blessingsParam: 'b',
+    attendParam: 'a',
   },
 
   scratch: {
@@ -122,59 +123,89 @@ let CONFIG = {
        at     when the countdown aims at this function; noon if absent
        art    the painting behind the card
        theme  which particle treatment plays: marigold | stars | breeze
-       dress  EMPTY HIDES THE LINE, same convention as the hashtag.
-              No dress codes have been supplied yet.
 
-     Only three paintings exist for six cards, so the daytime ceremonies
-     share the marigold and the two evening ones share the night. Three
-     more would give every function its own. */
+     Every card that has a film takes its closed face from that film — a
+     single frame cut out of it (assets/cards/*-still.jpg) — so the shut
+     card and the opened one are the same scene, and no two cards on a page
+     look alike. Before this, three paintings were shared between six
+     functions and the groom's Engagement and Reception drew the same one.
+     The still doubles as the video's poster, so opening a card has nothing
+     to flash through. */
   events: [
     {
       id: 'haldi', title: 'Haldi &amp; Mehendi',
       day: '18', suffix: 'th', weekday: 'Wednesday', month: 'November',
-      time: '— time —',
+      time: '1:00 pm onwards',
+      at: { h: 13, min: 0 },
       copy: 'Turmeric, marigolds and far too much laughter — the celebration opens here.',
-      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+      art: 'assets/cards/haldi-still.jpg', theme: 'marigold',
+      film: 'assets/video/haldi-bg.mp4',
     },
     {
       id: 'hawan', title: 'Hawan',
       day: '19', suffix: 'th', weekday: 'Thursday', month: 'November',
-      time: '— time —',
+      time: '7:30 pm onwards',
+      at: { h: 19, min: 30 },
       copy: 'The first of the rites, and the quiet beginning of everything that follows.',
-      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+      art: 'assets/cards/hawan-still.jpg', theme: 'marigold',
+      /* a night rite: dark sky, lit mandap — so the wording flips to cream.
+         filmCrop drops the bottom of the frame, where the source carries
+         its generator's mark. */
+      film: 'assets/video/hawan-bg.mp4', filmTone: 'night', filmCrop: 'bottom',
     },
     {
-      id: 'mehendi', title: 'Mehendi',
+      /* The three shared functions carry the couple's own names for them.
+         `subtitle` keeps the function underneath, so a guest still knows
+         which rite Bloomsville is. */
+      id: 'mehendi', title: 'Bloomsville', subtitle: 'Mehendi',
       day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
-      time: 'Afternoon',
+      time: '2:00 pm onwards',
       at: { h: 14, min: 0 },
-      copy: 'An afternoon of henna, music and long tables of food, before the evening begins.',
-      art: 'assets/cards/hawan.webp', theme: 'marigold', dress: '',
+      copy: 'Where henna blooms, laughter flows and everyone gather to celebrate the bride and groom and the beginning of their forever.',
+      art: 'assets/cards/haldi-still.jpg', theme: 'marigold',
+      /* the same film as the groom's Haldi & Mehendi — one marigold set,
+         and this card is the bride's half of that day */
+      film: 'assets/video/haldi-bg.mp4',
     },
     {
-      id: 'sangeet', title: 'Engagement &amp; Sangeet',
+      id: 'sangeet', title: 'Sparkle Street', subtitle: 'Engagement &amp; Sangeet',
       day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
-      time: '6:00 pm onwards',
-      at: { h: 18, min: 0 },
-      copy: 'An evening of dance, music and laughter — come ready to celebrate under the stars.',
-      art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
+      time: '8:00 pm onwards',
+      at: { h: 20, min: 0 },
+      /* A function that runs to a timetable prints the timetable instead of
+         a single time; `time` is still the one-line version the shut card
+         and the countdown use. */
+      schedule: [
+        { what: 'Ring Ceremony', when: '8:00 pm' },
+        { what: 'Sangeet',       when: '8:30 pm onwards' },
+      ],
+      copy: 'A dazzling evening of music, dance, laughter and celebration as we mark the beginning of forever and raise a toast to the love, joy and togetherness that brought us all to RaRaLand.',
+      art: 'assets/cards/sangeet-still.jpg', theme: 'stars',
       film: 'assets/video/sangeet-bg.mp4', filmTone: 'night',
     },
     {
-      id: 'wedding', title: 'Wedding',
+      id: 'wedding', title: 'The Forever Land', subtitle: 'Wedding',
       day: '21', suffix: 'st', weekday: 'Saturday', month: 'November',
-      time: '1:00 – 2:00 pm onwards',
+      time: '1:00 pm onwards',
       at: { h: 13, min: 0 },
-      copy: 'Join us for the vows, and for the evening of celebration that follows them.',
-      art: 'assets/cards/wedding.webp', theme: 'breeze', dress: '',
+      schedule: [
+        { what: 'Baraat',    when: '1:00 pm' },
+        { what: 'Varmala',   when: '2:00 pm' },
+        { what: 'Pheras',    when: '3:00 pm onwards' },
+        { what: 'Reception', when: '7:30 pm onwards' },
+      ],
+      copy: 'Where two journeys become one. The heart of RaRaLand, a beautiful celebration of love, family and the beginning of our forever together.',
+      art: 'assets/cards/wedding-still.jpg', theme: 'breeze',
       film: 'assets/video/wedding-bg.mp4',
     },
     {
       id: 'reception', title: 'Reception',
       day: '25', suffix: 'th', weekday: 'Wednesday', month: 'November',
-      time: '— time —',
+      time: '7:00 pm onwards',
+      at: { h: 19, min: 0 },
       copy: 'One last evening together, to close the celebration the way it began.',
-      art: 'assets/cards/sangeet.webp', theme: 'stars', dress: '',
+      art: 'assets/cards/reception-still.jpg', theme: 'stars',
+      film: 'assets/video/reception-bg.mp4', filmTone: 'night',
     },
   ],
 
@@ -200,8 +231,8 @@ let CONFIG = {
         title: 'Awaiting Eyes',
         names: [
           'Keshav',
-          'Shashwat &ndash; Vasundhara',
-          'Arnav, Twisha, Aradhya &amp; Ritanshi',
+          'Shashwat &ndash; Vasundhra',
+          'Arnav, Tvisha, Aradhya &amp; Ritanshi',
         ],
       },
     ],
@@ -292,9 +323,25 @@ const TIVOLI = {
   mapUrl: 'https://maps.app.goo.gl/U9xHcH8F4znFgR7Z7',
   lat: 28.4966351, lng: 77.1853145,
 };
-const MAP_VIEW = TIVOLI.mapUrl;
-const WEDDING_VENUE = { name: DAMSON.name, city: 'Lucknow', mapUrl: DAMSON.mapUrl };
-const RECEPTION_VENUE = { name: TIVOLI.name, city: '', mapUrl: TIVOLI.mapUrl };
+/* Every function has its own room or address, so the venue is looked up per
+   event rather than derived from a side. `city` is simply the second line.
+   An empty mapUrl prints no link at all, which is better than a wrong pin —
+   Sadar Apartments and Metrocity Lawn were given as names only, with no
+   address or map link, so they have none yet. */
+const V_SADAR      = { name: 'Sadar Apartments',   city: 'Mayur Vihar',                 mapUrl: '' };
+const V_METROCITY  = { name: 'Metrocity Lawn',     city: 'Gate No. 1',                  mapUrl: '' };
+const V_CLOVE      = { name: 'Clove Area, 1st Floor', city: 'Hotel Damson Plum, Lucknow', mapUrl: DAMSON.mapUrl };
+const V_HALL_FIRST = { name: '1st Floor Hall',     city: 'Hotel Damson Plum, Lucknow',  mapUrl: DAMSON.mapUrl };
+const V_HALL_GROUND= { name: 'Ground Floor Hall',  city: 'Hotel Damson Plum, Lucknow',  mapUrl: DAMSON.mapUrl };
+const V_TIVOLI     = { name: TIVOLI.name,          city: 'New Delhi',                   mapUrl: TIVOLI.mapUrl };
+const EVENT_VENUES = {
+  haldi:     V_SADAR,
+  hawan:     V_METROCITY,
+  mehendi:   V_CLOVE,
+  sangeet:   V_HALL_FIRST,
+  wedding:   V_HALL_GROUND,
+  reception: V_TIVOLI,
+};
 const SIDE_CONFIGS = {
   bride: {
     names: 'Radhika & Raghav', order: ['bride', 'groom'], blessings: true,
@@ -312,7 +359,7 @@ const SIDE_CONFIGS = {
 
 CONFIG.lineage = {
   bride: [
-    'GD/O Lt. Smt. Vijay Rastogi &amp; Shri Sharad Rastogi',
+    'GD/O Lt. Smt. Vijay Rastogi &amp; Shri Sharad Chandra Rastogi',
     'D/O Smt. Meetu Rastogi &amp; Shri Atul Chandra Rastogi',
   ],
   groom: [
@@ -326,9 +373,8 @@ Object.assign(CONFIG.venue, SIDE_CONFIGS[SIDE].venue);
 CONFIG.couple.venue = SIDE === 'groom' ? 'The Tivoli, Chattarpur' : 'Hotel Damson Plum, Lucknow';
 CONFIG.events = CONFIG.events.map((event) => ({
   ...event,
-  venue: event.id === 'reception' ? RECEPTION_VENUE
-    : event.id === 'wedding' ? WEDDING_VENUE
-    : { name: 'Hotel Damson Plum', city: 'Lucknow', mapUrl: '' },
+  venue: EVENT_VENUES[event.id]
+    || { name: DAMSON.name, city: 'Lucknow', mapUrl: DAMSON.mapUrl },
 }));
 const SIDE_CONFIG = SIDE_CONFIGS[SIDE];
 CONFIG.couple.names = SIDE_CONFIG.names;
@@ -570,19 +616,32 @@ function renderEventCards() {
     card.setAttribute('aria-expanded', 'false');
     card.style.setProperty('--card-delay', `${i * 90}ms`);
 
-    /* `note` and `dress` are optional: an empty one prints nothing at all
-       rather than an empty row. No dress codes have been supplied yet. */
+    /* `note` is optional: an empty one prints nothing at all rather than
+       an empty row. */
     const note  = ev.note  ? `<p class="event-note">${ev.note}</p>` : '';
     /* preload="none": the film is only wanted once the card is opened, and
        a grid of six must not pull six videos on load. The still art is the
        poster, so the swap has nothing to flash through. */
     const film  = ev.film
-      ? `<video class="event-film" src="${ev.film}"${ev.art ? ` poster="${ev.art}"` : ''}
+      ? `<video class="event-film" src="${ev.film}"${ev.art ? ` poster="${ev.art}"` : ''}${ev.filmCrop ? ` data-crop="${ev.filmCrop}"` : ''}
                 muted loop playsinline webkit-playsinline preload="none"
                 disablepictureinpicture aria-hidden="true"></video>`
       : '';
-    const dress = ev.dress ? `<p class="pop-dress">Dress code<strong>${ev.dress}</strong></p>` : '';
     const when  = `${ev.day}<sup>${ev.suffix}</sup> ${ev.month}`;
+    /* The couple's own name for a function goes on top; the function it
+       actually is goes underneath it, in both the shut and opened card. */
+    const alias = ev.subtitle ? `<p class="event-alias">${ev.subtitle}</p>` : '';
+    const popAlias = ev.subtitle ? `<p class="pop-alias">${ev.subtitle}</p>` : '';
+    /* With a timetable the single time would just repeat its first row, so
+       the opened card shows the date alone and lets the list say the rest. */
+    const runs = Array.isArray(ev.schedule) && ev.schedule.length ? ev.schedule : null;
+    const popWhen = runs ? `${ev.weekday}, ${when}`
+                         : `${ev.weekday}, ${when} &middot; ${ev.time}`;
+    const sched = runs
+      ? `<ul class="pop-run">${runs.map(r =>
+          `<li><span class="pop-run-what">${r.what}</span><span class="pop-run-when">${r.when}</span></li>`
+        ).join('')}</ul>`
+      : '';
 
     card.innerHTML =
       `<div class="event-art" aria-hidden="true"></div>
@@ -590,6 +649,7 @@ function renderEventCards() {
        <div class="event-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
        <div class="event-summary">
          <h3 class="event-name">${ev.title}</h3>
+         ${alias}
          <p class="event-day">${when}</p>
          <p class="event-time">${ev.time}</p>
          ${note}
@@ -599,11 +659,12 @@ function renderEventCards() {
        <div class="event-detail">
          <p class="pop-kicker">We invite you to our</p>
          <h3 class="pop-name">${ev.title}</h3>
-         <p class="pop-when">${ev.weekday}, ${when} &middot; ${ev.time}</p>
+         ${popAlias}
+         <p class="pop-when">${popWhen}</p>
          <p class="pop-copy">${ev.copy}</p>
+         ${sched}
          <p class="pop-venue">${ev.venue.name}${ev.venue.city ? `<br />${ev.venue.city}` : ''}</p>
          ${ev.venue.mapUrl ? `<a class="event-map-link" href="${ev.venue.mapUrl}" target="_blank" rel="noopener noreferrer">Show location on map</a>` : ''}
-         ${dress}
        </div>`;
 
     /* The painting is set as a style rather than in the markup so a missing
@@ -714,9 +775,17 @@ function initFooter() {
 
 /* Blessings show unless a link says otherwise: ?b=0 takes the section
    away entirely, heading and all, rather than leaving an empty panel. */
-function wantsBlessings() {
+function wantsBlessings() { return linkAllows('blessingsParam', 'b'); }
+
+/* Confirm Your Presence is the same story: on unless the link says
+   otherwise, so a guest who is only being told about the day — not asked
+   to register — gets ?a=0 and never sees the form. */
+function wantsAttendance() { return linkAllows('attendParam', 'a'); }
+
+/* Both read the same shape of switch, so they share the reading of it. */
+function linkAllows(configKey, fallbackParam) {
   try {
-    const key = (CONFIG.invite || {}).blessingsParam || 'b';
+    const key = (CONFIG.invite || {})[configKey] || fallbackParam;
     const raw = new URLSearchParams(location.search).get(key);
     if (raw === null) return true;
     return !/^(0|no|off|false)$/i.test(raw.trim());
@@ -789,7 +858,9 @@ function renderRsvp() {
     host.appendChild(ul);
   };
 
-  list('Bride’s Side', CONFIG.rsvp.bride);
+  /* The numbers come from SIDE_CONFIG, so the heading has to follow the
+     side too — the groom's card was listing his mother under "Bride's Side". */
+  list(SIDE === 'groom' ? 'Groom’s Side' : 'Bride’s Side', CONFIG.rsvp.bride);
 }
 
 
@@ -872,6 +943,9 @@ function initAttendance() {
   const wrap = document.getElementById('attend');
   const form = document.getElementById('attendForm');
   if (!wrap || !form) return;
+  /* ?a=0 takes the whole panel away — heading, form and all — rather than
+     leaving a form nobody is meant to fill in. */
+  if (!wantsAttendance()) { wrap.remove(); return; }
 
   const A  = CONFIG.attendance || {};
   const id = (x) => document.getElementById(x);
@@ -1714,7 +1788,7 @@ function initScratch() {
   let sand = [], sandRAF = null, sandAccum = 0;
   /* Gilt fallback, replaced at runtime by colours read back out of the bar
      itself so the grains match whatever the foil was painted as. */
-  let SAND_COLORS = ['#f7c05a', '#f0a327', '#e98a12', '#d9770c', '#ffe3a6'];
+  let SAND_COLORS = ['#9aa473', '#87925f', '#6d7654', '#5a6344', '#dfe6c4'];
   let paletteReady = false;
 
   function samplePalette(w, h, dpr) {
@@ -1829,20 +1903,23 @@ function initScratch() {
     }
     ctx.clip();
 
-    /* Molten gold, lit from the upper left, with a highlight band raked
-       across it so the bar reads as foil rather than as flat paint. */
+    /* Olive foil, lit from the upper left, with a highlight band raked
+       across it so the bar reads as foil rather than as flat paint. It was
+       molten gold-orange, which was the last of the old blossom palette
+       sitting on the card's warm paper; these are the card's own olives,
+       --olive-ink at the middle stop. */
     const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0,    '#f7c05a');
-    g.addColorStop(0.28, '#f0a327');
-    g.addColorStop(0.52, '#e98a12');
-    g.addColorStop(0.78, '#d9770c');
-    g.addColorStop(1,    '#c8630a');
+    g.addColorStop(0,    '#9aa473');
+    g.addColorStop(0.28, '#87925f');
+    g.addColorStop(0.52, '#6d7654');
+    g.addColorStop(0.78, '#5a6344');
+    g.addColorStop(1,    '#454e36');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
 
     const sheen = ctx.createLinearGradient(0, h * 0.1, w * 0.55, h);
     sheen.addColorStop(0,    'rgba(255,255,255,0)');
-    sheen.addColorStop(0.45, 'rgba(255,244,214,.42)');
+    sheen.addColorStop(0.45, 'rgba(246,240,206,.34)');
     sheen.addColorStop(0.6,  'rgba(255,255,255,0)');
     ctx.fillStyle = sheen;
     ctx.fillRect(0, 0, w, h);

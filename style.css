@@ -1111,11 +1111,28 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 2;
-  padding: clamp(26px, 6svh, 52px) clamp(18px, 6vw, 30px) clamp(38px, 9vh, 72px);
+  padding: clamp(20px, 4.2svh, 34px) clamp(18px, 6vw, 30px) clamp(38px, 9vh, 72px);
   text-align: center;
   background: linear-gradient(180deg,
     rgba(252,248,240,.86) 0%, rgba(252,248,240,.68) 52%, rgba(252,248,240,0) 100%);
 }
+/* The longest card — kicker, name, alias, date, copy, a four-row timetable,
+   venue, then the map button — ran its button down on to the couple's
+   heads. The block is pulled up and every gap inside it shaved, which buys
+   about 60px: enough to clear the figures on the tallest card and simply
+   more picture on the short ones. Scoped to filmed cards, since it is the
+   film underneath that is being protected. */
+.event.is-open.has-film .pop-kicker { margin-bottom: 8px; }
+.event.is-open.has-film .pop-name   { margin-bottom: 8px; }
+.event.is-open.has-film .pop-alias  { margin-bottom: 10px; }
+.event.is-open.has-film .pop-when   { margin-bottom: 13px; }
+.event.is-open.has-film .pop-copy   { margin-bottom: 15px; }
+.event.is-open.has-film .pop-run {
+  gap: 6px;
+  padding-top: 12px;
+  margin-bottom: 15px;
+}
+.event.is-open.has-film .event-map-link { margin-top: 11px; }
 /* A night film needs the opposite: a dark veil, and the type flipped to
    cream. Deep ink on a navy sky reads as nothing at all. */
 .event.is-open.has-film--night .event-detail {

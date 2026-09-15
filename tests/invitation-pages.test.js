@@ -17,7 +17,8 @@ for (const f of ['assets/video/opening.mp4',            // bride gate
                  'assets/video/envelope-opening.mp4',   // groom gate
                  'assets/video/wedding-bg.mp4',         // wedding card
                  'assets/video/sangeet-bg.mp4',         // sangeet card
-                 'assets/video/haldi-bg.mp4',           // haldi card
+                 'assets/video/mehendi-bg.mp4',         // Bloomsville
+                 'assets/video/haldi-mehendi-bg.mp4',   // Haldi & Mehendi
                  'assets/hero/opening_poster.webp',
                  'assets/hero/envelope_poster.jpg',
                  'assets/music/ishq-hai.mp3']) {
@@ -90,7 +91,9 @@ assert.match(script, /preload="none"/, 'six cards must not pull six videos on lo
 assert.match(css, /\.event\.is-open \.event-film \{ opacity: 1; \}/);
 assert.match(css, /\.event\.is-open\.has-film--night \.event-detail/,
              'a night film needs the dark veil, or the type vanishes into it');
-assert.match(script, /film: 'assets\/video\/haldi-bg\.mp4'/);
+assert.match(script, /film: 'assets\/video\/mehendi-bg\.mp4'/);
+assert.match(script, /film: 'assets\/video\/haldi-mehendi-bg\.mp4', filmCrop: 'bottom'/,
+             'Haldi & Mehendi needs its own film, and the crop that loses its mark');
 
 /* ── a filmed card opens as the film: full-bleed, no scrim over the
       picture, and the veil carried by the text block itself so it is only
@@ -147,5 +150,17 @@ for (const link of ['bride.html', 'groom.html', 'bride-invite-builder.html', 'gr
 /* ── the builders keep their per-side difference ── */
 assert.match(brideBuilder, /id="blessings"/);
 assert.doesNotMatch(groomBuilder, /id="blessings"/);
+
+/* ── no two functions on the same card may draw the same film: that is
+      what made Engagement and Reception, and later Haldi & Mehendi and
+      Bloomsville, look like the same card twice ── */
+const films = {};
+for (const m of script.matchAll(/id: '([a-z]+)'[\s\S]*?film: '([^']+)'/g)) films[m[1]] = m[2];
+for (const [side, ids] of [['bride', ['hawan', 'mehendi', 'sangeet', 'wedding']],
+                           ['groom', ['haldi', 'mehendi', 'sangeet', 'wedding', 'reception']]]) {
+  const used = ids.map(id => films[id]).filter(Boolean);
+  assert.equal(new Set(used).size, used.length,
+               'two cards on the ' + side + ' page share a film: ' + used.join(', '));
+}
 
 console.log('Invitation page configuration checks passed.');

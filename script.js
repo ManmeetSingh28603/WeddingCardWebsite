@@ -138,8 +138,12 @@ let CONFIG = {
       time: '1:00 pm onwards',
       at: { h: 13, min: 0 },
       copy: 'Turmeric, marigolds and far too much laughter — the celebration opens here.',
-      art: 'assets/cards/haldi-still.jpg', theme: 'marigold',
-      film: 'assets/video/haldi-bg.mp4',
+      art: 'assets/cards/haldi-mehendi-still.jpg', theme: 'marigold',
+      /* Its own set at last — the same bougainvillea arch, but a different
+         one from Bloomsville's, which this card had been borrowing. Light
+         scene, so the wording stays dark. filmCrop drops the bottom of the
+         frame, where this source carries its generator's mark. */
+      film: 'assets/video/haldi-mehendi-bg.mp4', filmCrop: 'bottom',
     },
     {
       id: 'hawan', title: 'Hawan',
@@ -161,11 +165,9 @@ let CONFIG = {
       day: '20', suffix: 'th', weekday: 'Friday', month: 'November',
       time: '2:00 pm onwards',
       at: { h: 14, min: 0 },
-      copy: 'Where henna blooms, laughter flows and everyone gather to celebrate the bride and groom and the beginning of their forever.',
-      art: 'assets/cards/haldi-still.jpg', theme: 'marigold',
-      /* the same film as the groom's Haldi & Mehendi — one marigold set,
-         and this card is the bride's half of that day */
-      film: 'assets/video/haldi-bg.mp4',
+      copy: 'Where henna blooms, laughter flows and everyone gathers to celebrate the bride and groom and the beginning of their forever.',
+      art: 'assets/cards/mehendi-still.jpg', theme: 'marigold',
+      film: 'assets/video/mehendi-bg.mp4',
     },
     {
       id: 'sangeet', title: 'Sparkle Street', subtitle: 'Engagement &amp; Sangeet',
@@ -180,6 +182,9 @@ let CONFIG = {
         { what: 'Sangeet',       when: '8:30 pm onwards' },
       ],
       copy: 'A dazzling evening of music, dance, laughter and celebration as we mark the beginning of forever and raise a toast to the love, joy and togetherness that brought us all to RaRaLand.',
+      /* The ballroom — a dancing floor under chandeliers. It arrived as
+         reception.mp4 but belongs to this evening, not the quiet one on
+         the 25th, and is named for the card it serves. */
       art: 'assets/cards/sangeet-still.jpg', theme: 'stars',
       film: 'assets/video/sangeet-bg.mp4', filmTone: 'night',
     },
@@ -204,6 +209,9 @@ let CONFIG = {
       time: '7:00 pm onwards',
       at: { h: 19, min: 0 },
       copy: 'One last evening together, to close the celebration the way it began.',
+      /* A garden under strung lights — its own film, so the lit-courtyard
+         one it had been borrowing is retired. No crop: unlike its three
+         siblings from the same generator, this export carries no mark. */
       art: 'assets/cards/reception-still.jpg', theme: 'stars',
       film: 'assets/video/reception-bg.mp4', filmTone: 'night',
     },
@@ -324,12 +332,14 @@ const TIVOLI = {
   lat: 28.4966351, lng: 77.1853145,
 };
 /* Every function has its own room or address, so the venue is looked up per
-   event rather than derived from a side. `city` is simply the second line.
-   An empty mapUrl prints no link at all, which is better than a wrong pin —
-   Sadar Apartments and Metrocity Lawn were given as names only, with no
-   address or map link, so they have none yet. */
-const V_SADAR      = { name: 'Sadar Apartments',   city: 'Mayur Vihar',                 mapUrl: '' };
-const V_METROCITY  = { name: 'Metrocity Lawn',     city: 'Gate No. 1',                  mapUrl: '' };
+   event rather than derived from a side. `city` is simply the second line,
+   and an empty mapUrl prints no link at all. The two addresses came from the
+   supplied Maps links, which resolve to SADAR APARTMENT, Mayur Vihar, New
+   Delhi 110091 and Metro City Gate no. 1, Balmikinagar, Lucknow 226006. */
+const V_SADAR      = { name: 'Sadar Apartments',   city: 'Mayur Vihar, New Delhi',
+                       mapUrl: 'https://maps.app.goo.gl/PHzP42YCLCTQx3pS6' };
+const V_METROCITY  = { name: 'Metrocity Lawn, Gate No. 1', city: 'Balmikinagar, Lucknow',
+                       mapUrl: 'https://maps.app.goo.gl/Vvieqmicfh3h9fyS8' };
 const V_CLOVE      = { name: 'Clove Area, 1st Floor', city: 'Hotel Damson Plum, Lucknow', mapUrl: DAMSON.mapUrl };
 const V_HALL_FIRST = { name: '1st Floor Hall',     city: 'Hotel Damson Plum, Lucknow',  mapUrl: DAMSON.mapUrl };
 const V_HALL_GROUND= { name: 'Ground Floor Hall',  city: 'Hotel Damson Plum, Lucknow',  mapUrl: DAMSON.mapUrl };
@@ -350,7 +360,7 @@ const SIDE_CONFIGS = {
   },
   groom: {
     names: 'Raghav & Radhika', order: ['groom', 'bride'], blessings: false,
-    events: ['haldi', 'sangeet', 'wedding', 'reception'],
+    events: ['haldi', 'mehendi', 'sangeet', 'wedding', 'reception'],
     rsvp: [{ name: 'Sonia', shown: '97171 94045', tel: '919717194045' }],
     /* the groom's side gathers at the Tivoli, so that is the map on his card */
     venue: TIVOLI,

@@ -245,7 +245,7 @@ let CONFIG = {
       {
         title: 'With Best Compliments',
         names: [
-          'Shriya Khanna Sehra',
+          'Shriya Khanna',
           'Akash Sehra',
         ],
       },

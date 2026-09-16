@@ -21,10 +21,33 @@
 const SPREADSHEET_ID = '';
 
 const SHEET_NAME  = 'RSVP';
-/* Holds tickets as well as ID copies now. Renaming this does NOT move an
-   existing folder — the script remembers the one it made by id — so if
-   yours is still called "Aadhaar uploads", rename it in Drive to match. */
-const FOLDER_NAME = 'Radhika & Raghav — RSVP uploads';
+
+/* ── The two sides ────────────────────────────────────────────────
+   Every reply says which card it came from. It is written to the parent
+   sheet — the one this script is bound to, which holds everything — and
+   then copied into that side's OWN workbook, so the bride's planner and
+   the groom's can each be given a file containing only their guests.
+   A tab cannot be shared on its own; a file can.
+
+   The uploads are split the same way. A link in the bride's workbook
+   points into the bride's folder, so giving a planner one side's file and
+   one side's folder shows them that side and nothing else.
+
+   Both the workbooks and the folders are made by the script on first use
+   and remembered by id in Script Properties, so renaming one here does
+   NOT move what already exists — rename it in Drive to match. Run
+   sideLinks() from the editor to print the URLs to share. */
+const SIDES = {
+  bride: { label: 'Bride', sheet: 'Bride Guest', file: 'RSVP — Bride Guest',
+           folder: 'Bride Side Guest Files' },
+  groom: { label: 'Groom', sheet: 'Groom Guest', file: 'RSVP — Groom Guest',
+           folder: 'Groom Side Guest Files' },
+};
+
+/* Where a reply goes when it names no side — only possible from a page
+   cached before the side was added to the payload. It still lands in the
+   parent, marked so it is obvious, and is copied to neither workbook. */
+const UNKNOWN_SIDE = '— not recorded —';
 
 /* An address to alert on every submission. Blank sends nothing.
    Gmail allows 100 of these a day on a free account. */
@@ -51,11 +74,15 @@ const ALLOWED_EXT = [
    submission — see sheet_(), which archives a sheet whose headings no
    longer match rather than writing new rows under the old ones. */
 const HEADERS = [
-  'Received at', 'Name', 'Members attending',
+  'Received at', 'Side', 'Name', 'Members attending',
   'Arrival date', 'Arriving by', 'Arrival ticket',
   'Departure date', 'Departing by', 'Departure ticket',
   'Contact number', 'Aadhaar card',
 ];
+
+/* Which column each attachment lands in, by its position in HEADERS.
+   Stated once so the row writer and the rebuild agree. */
+const ATTACH_COL = { arriveTicket: 7, departTicket: 10, aadhaar: 12 };
 
 /* The three uploads, in the order their columns appear. */
 const ATTACHMENTS = [
@@ -105,6 +132,7 @@ function doPost(e) {
     const sheet = sheet_();
     sheet.appendRow([
       new Date(),
+      clean.side ? SIDES[clean.side].label : UNKNOWN_SIDE,
       clean.name,
       clean.members,
       clean.arrive,
@@ -117,16 +145,26 @@ function doPost(e) {
       '',                     // Aadhaar
     ]);
 
-    /* The three attachment columns, by their position in HEADERS. */
     const row = sheet.getLastRow();
-    const cols = { arriveTicket: 6, departTicket: 9, aadhaar: 11 };
-    for (var k in cols) {
+    for (var k in ATTACH_COL) {
       const rich = linkRich_(saved[k]);
-      if (rich) sheet.getRange(row, cols[k]).setRichTextValue(rich);
+      if (rich) sheet.getRange(row, ATTACH_COL[k]).setRichTextValue(rich);
+    }
+
+    /* The parent is the record. The side workbook is a copy of it, so a
+       failure here must not fail the guest — their reply is already safe,
+       and rebuildSides() can restore the copy at any time. */
+    let sideRow = null;
+    try {
+      if (clean.side) sideRow = mirrorRow_(clean.side, sheet, row);
+    } catch (err) {
+      console.error('side copy failed (row ' + row + ' is safe in the parent): ' + err);
     }
 
     notify_(clean, saved);
-    return json_({ ok: true });
+    /* The counts come back so a deployment can be checked end to end
+       without opening the files. Guests never see this. */
+    return json_({ ok: true, filed: { side: clean.side || null, parentRow: row, sideRow: sideRow } });
 
   } catch (err) {
     /* Logged in full for you, summarised for the guest. */
@@ -217,7 +255,12 @@ function validate_(d) {
     return { error: 'Those attachments come to more than ' + MAX_TOTAL_MB + ' MB together.' };
   }
 
+  /* Only the two known values are trusted; anything else is treated as
+     unrecorded rather than used to name a folder or a sheet. */
+  const side = SIDES[String(d.side || '').toLowerCase()] ? String(d.side).toLowerCase() : '';
+
   return {
+    side: side,
     name: name,
     members: members,
     arrive: arrive,
@@ -239,12 +282,86 @@ function toDate_(iso) {
 }
 
 
+/* ── Run these by hand, from the editor ─────────────────────── */
+
+/* The links to share. The bride's planner gets the bride workbook and the
+   bride folder; the groom's gets his. Neither can see the other's, and
+   neither needs the parent. Run this and read the log. */
+function sideLinks() {
+  const out = ['Parent (everything): ' + sheet_().getParent().getUrl(), ''];
+  for (var side in SIDES) {
+    const ss = sideBook_(side);
+    out.push(SIDES[side].label + ' workbook: ' + ss.getUrl());
+    out.push(SIDES[side].label + ' folder:   ' + folder_(side).getUrl());
+    out.push('');
+  }
+  console.log(out.join('\n'));
+  return out.join('\n');
+}
+
+/* Rebuilds both side workbooks from the parent.
+
+   The parent is the record; the side files are a copy of it. That is what
+   makes this safe to run at any time — it never invents a row, it only
+   restores what the parent already says. Use it after editing the parent
+   by hand, or if a side copy ever failed at submission time. */
+function rebuildSides() {
+  const sheet = sheet_();
+  const last  = sheet.getLastRow();
+  const wiped = {};
+
+  for (var side in SIDES) {
+    const dest = sideSheet_(side);
+    if (dest.getLastRow() > 1) {
+      dest.deleteRows(2, dest.getLastRow() - 1);
+    }
+    wiped[side] = 0;
+  }
+  if (last < 2) { console.log('Parent is empty — nothing to rebuild.'); return wiped; }
+
+  const values = sheet.getRange(2, 1, last - 1, HEADERS.length).getValues();
+  const rich   = sheet.getRange(2, 1, last - 1, HEADERS.length).getRichTextValues();
+
+  for (var i = 0; i < values.length; i++) {
+    const label = String(values[i][1] || '').trim();
+    for (var key in SIDES) {
+      if (SIDES[key].label !== label) continue;
+      const dest = sideSheet_(key);
+      const to = dest.getRange(dest.getLastRow() + 1, 1, 1, HEADERS.length);
+      to.setValues([values[i]]);
+      to.setRichTextValues([rich[i]]);
+      wiped[key]++;
+    }
+  }
+  console.log('Rebuilt from ' + values.length + ' parent rows: ' + JSON.stringify(wiped));
+  return wiped;
+}
+
+/* Removes the rows a check run left behind — any whose Name begins
+   "ZZ TEST" — from the parent, then rebuilds the sides from what is left.
+   The uploaded files stay in Drive; delete those from the folders. */
+function deleteTestRows() {
+  const sheet = sheet_();
+  const last  = sheet.getLastRow();
+  if (last < 2) return 0;
+  const names = sheet.getRange(2, 3, last - 1, 1).getValues();   // column C = Name
+  var gone = 0;
+  /* Bottom up, so removing one does not shift the rows still to check. */
+  for (var i = names.length - 1; i >= 0; i--) {
+    if (/^ZZ TEST/i.test(String(names[i][0] || ''))) { sheet.deleteRow(i + 2); gone++; }
+  }
+  rebuildSides();
+  console.log('Removed ' + gone + ' test row(s) and rebuilt the side workbooks.');
+  return gone;
+}
+
+
 /* ── Drive + Sheet ──────────────────────────────────────────── */
 
 /* Returns { aadhaar, arriveTicket, departTicket }, each an ARRAY of Drive
    Files — empty where nothing was attached. */
 function saveUploads_(clean) {
-  const folder = folder_();
+  const folder = folder_(clean.side);
   const out = {};
   for (var i = 0; i < ATTACHMENTS.length; i++) {
     const key  = ATTACHMENTS[i].key;
@@ -295,16 +412,70 @@ function linkRich_(files) {
   return b.build();
 }
 
-function folder_() {
+/* One folder per side, so a planner given the bride's folder cannot browse
+   the groom's guests' ID copies. A reply with no side recorded falls back
+   to the bride's — it has to go somewhere, and the row says it is unknown.
+   Remembered by id, so renaming FOLDER in SIDES does not move an existing
+   folder; rename it in Drive to match. */
+function folder_(side) {
+  const spec  = SIDES[side] || SIDES.bride;
+  const key   = 'FOLDER_ID_' + (SIDES[side] ? side : 'bride');
   const props = PropertiesService.getScriptProperties();
-  const id = props.getProperty('FOLDER_ID');
+  const id    = props.getProperty(key);
   if (id) {
     try { return DriveApp.getFolderById(id); } catch (err) { /* deleted — remake it */ }
   }
-  const found  = DriveApp.getFoldersByName(FOLDER_NAME);
-  const folder = found.hasNext() ? found.next() : DriveApp.createFolder(FOLDER_NAME);
-  props.setProperty('FOLDER_ID', folder.getId());
+  const found  = DriveApp.getFoldersByName(spec.folder);
+  const folder = found.hasNext() ? found.next() : DriveApp.createFolder(spec.folder);
+  props.setProperty(key, folder.getId());
   return folder;
+}
+
+/* That side's own workbook, made on first use and remembered by id. */
+function sideBook_(side) {
+  const spec = SIDES[side];
+  if (!spec) return null;
+  const key   = 'SHEET_ID_' + side;
+  const props = PropertiesService.getScriptProperties();
+  const id    = props.getProperty(key);
+  if (id) {
+    try { return SpreadsheetApp.openById(id); } catch (err) { /* deleted — remake it */ }
+  }
+  const ss = SpreadsheetApp.create(spec.file);
+  props.setProperty(key, ss.getId());
+  return ss;
+}
+
+/* The tab inside it, headed and formatted exactly like the parent so a
+   row can be copied across without translating anything. */
+function sideSheet_(side) {
+  const ss = sideBook_(side);
+  if (!ss) return null;
+  const spec = SIDES[side];
+  let sh = ss.getSheetByName(spec.sheet);
+  if (!sh) {
+    /* A new spreadsheet arrives with one tab called Sheet1. Use it rather
+       than leaving an empty one lying beside the real thing. */
+    const first = ss.getSheets()[0];
+    sh = (ss.getSheets().length === 1 && first.getLastRow() === 0)
+      ? first.setName(spec.sheet)
+      : ss.insertSheet(spec.sheet);
+  }
+  if (sh.getLastRow() === 0) dressSheet_(sh);
+  return sh;
+}
+
+/* Copies one row of the parent — values AND the rich text that carries the
+   attachment links — into that side's sheet. Formulas would lose the
+   links: they return values, and a link is formatting, not a value. */
+function mirrorRow_(side, sh, row) {
+  const dest = sideSheet_(side);
+  if (!dest) return null;
+  const from = sh.getRange(row, 1, 1, HEADERS.length);
+  const to   = dest.getRange(dest.getLastRow() + 1, 1, 1, HEADERS.length);
+  to.setValues(from.getValues());
+  to.setRichTextValues(from.getRichTextValues());
+  return dest.getLastRow();
 }
 
 function sheet_() {
@@ -330,21 +501,26 @@ function sheet_() {
 
   if (!sh) sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
 
-  if (sh.getLastRow() === 0) {
-    sh.appendRow(HEADERS);
-    sh.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight('bold')
-      .setBackground('#f6e7d2');
-    sh.setFrozenRows(1);
-    sh.getRange('A:A').setNumberFormat('dd-mmm-yyyy hh:mm');
-    sh.getRange('D:D').setNumberFormat('dd-mmm-yyyy');   // arrival
-    sh.getRange('G:G').setNumberFormat('dd-mmm-yyyy');   // departure
-    sh.getRange('J:J').setNumberFormat('@');             // keep the number a string
-    /* One per column of HEADERS, in order. */
-    const widths = [150, 190, 140, 130, 120, 240, 130, 120, 240, 140, 240];
-    for (var i = 0; i < widths.length; i++) sh.setColumnWidth(i + 1, widths[i]);
-  }
+  if (sh.getLastRow() === 0) dressSheet_(sh);
   return sh;
+}
+
+/* Headings, widths and number formats. The side workbooks are dressed the
+   same way as the parent, so a row copies across without translating
+   anything and reads identically wherever the planner opens it. */
+function dressSheet_(sh) {
+  sh.appendRow(HEADERS);
+  sh.getRange(1, 1, 1, HEADERS.length)
+    .setFontWeight('bold')
+    .setBackground('#f6e7d2');
+  sh.setFrozenRows(1);
+  sh.getRange('A:A').setNumberFormat('dd-mmm-yyyy hh:mm');
+  sh.getRange('E:E').setNumberFormat('dd-mmm-yyyy');   // arrival
+  sh.getRange('H:H').setNumberFormat('dd-mmm-yyyy');   // departure
+  sh.getRange('K:K').setNumberFormat('@');             // keep the number a string
+  /* One per column of HEADERS, in order. */
+  const widths = [150, 90, 190, 140, 130, 120, 240, 130, 120, 240, 140, 240];
+  for (var i = 0; i < widths.length; i++) sh.setColumnWidth(i + 1, widths[i]);
 }
 
 function headersMatch_(sh) {

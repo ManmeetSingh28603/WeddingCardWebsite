@@ -1337,6 +1337,9 @@ function initAttendance() {
           depart:    fDepart.value,
           departBy:  fDepartBy.value,
           phone:     tidyPhone(fPhone.value),
+          /* Which card this reply came from. The script files bride and
+             groom guests in separate workbooks off this one field. */
+          side:      SIDE,
           /* Lists, one entry per file. The Apps Script reads either shape,
              but a deployment older than this one expects a single object
              and will reject the form — redeploy Code.gs alongside. */

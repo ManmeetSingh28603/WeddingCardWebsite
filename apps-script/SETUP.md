@@ -20,13 +20,44 @@ the page but cannot send.
 
 ---
 
+## Three files, not one
+
+A reply says which card it came from, and the script files it twice:
+
+| | |
+| --- | --- |
+| **the parent** — the sheet this script is bound to | every guest, both sides. The record. |
+| **RSVP — Bride Guest** | the bride's guests only, in a tab called `Bride Guest` |
+| **RSVP — Groom Guest** | the groom's guests only, in `Groom Guest` |
+
+The two side workbooks are **separate files**, not tabs, because Google shares
+by file and not by tab: the bride's planner can be given her workbook without
+seeing the groom's guests. The uploads split the same way, into **Bride Side
+Guest Files** and **Groom Side Guest Files**, so a link in one workbook never
+points into the other side's folder.
+
+Run **`sideLinks`** from the editor (Run ▸ sideLinks, then read the log) to
+print the two workbook URLs and the two folder URLs to hand out.
+
+> **The parent is the record; the side workbooks are a copy of it.** That is
+> deliberate. If a copy ever fails, the guest's reply is already safe in the
+> parent, and **`rebuildSides`** restores both workbooks from it. Run that
+> after editing the parent by hand, too — it never invents a row, it only
+> repeats what the parent says.
+
+Everything is made on first use and remembered by id, so there is nothing to
+create by hand. Renaming a workbook or folder in `SIDES` does **not** move
+one that already exists — rename it in Drive to match.
+
+
 ## What lands in the sheet
 
-One row per guest, eleven columns:
+One row per guest, twelve columns:
 
 | | |
 | --- | --- |
 | Received at | when they replied |
+| Side | which card they replied from — `Bride` or `Groom` |
 | Name · Members attending · Contact number | who is coming |
 | Arrival date · Arriving by · Arrival ticket | in |
 | Departure date · Departing by · Departure ticket | out |
@@ -175,6 +206,13 @@ things are worth being deliberate about:
 
 ---
 
+## Checking it, and clearing up afterwards
+
+A check run leaves rows named `ZZ TEST …`. **`deleteTestRows`** takes them out
+of the parent and rebuilds both side workbooks from what is left. The files
+they uploaded stay in Drive — delete those from the two folders yourself.
+
+
 ## Redeploying after a site change
 
 The site and this script have to agree on the shape of what is posted. The
@@ -189,6 +227,12 @@ than that change gets every reply refused. So when both have changed:
 2. publish the site.
 
 Done in that order there is no window where a guest can be turned away.
+
+The side routing is gentler than that: the old script ignores the extra
+`side` field, and the new one files a reply that names no side into the
+parent marked `— not recorded —` rather than guessing. Neither half can break
+the form. But routing only starts once **both** are live, so keep the same
+order.
 
 
 ## Changing things later

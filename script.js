@@ -217,10 +217,7 @@ let CONFIG = {
     },
   ],
 
-  /* One side only, on request — the groom's-side list was never supplied
-     and the placeholder page has been taken out rather than left showing
-     "— name —" three times. Add a `groom` array here and a matching
-     page() call in renderBlessings() to bring it back. */
+  /* One page per side, each built from its own list below. */
   blessings: {
     note: 'With the love and good wishes of our families.',
     bride: [
@@ -244,6 +241,21 @@ let CONFIG = {
         ],
       },
     ],
+    groom: [
+      {
+        title: 'With Best Compliments',
+        names: [
+          'Shriya Khanna Sehra',
+          'Akash Sehra',
+        ],
+      },
+      {
+        title: 'Awaiting Eyes',
+        names: [
+          'Soraya Khanna Sehra',
+        ],
+      },
+    ],
   },
 
   /* `tel` is the full international form behind the call and WhatsApp
@@ -253,8 +265,8 @@ let CONFIG = {
      button, has been taken out. */
   rsvp: {
     bride: [
-      { name: 'Atul',  shown: '94150 22314', tel: '919415022314' },
-      { name: 'Meetu', shown: '99199 96769', tel: '919919996769' },
+      { name: 'Atul Chandra Rastogi', shown: '94150 22314', tel: '919415022314' },
+      { name: 'Meetu Rastogi',        shown: '99199 96769', tel: '919919996769' },
     ],
   },
 
@@ -338,7 +350,7 @@ const TIVOLI = {
    Delhi 110091 and Metro City Gate no. 1, Balmikinagar, Lucknow 226006. */
 const V_SADAR      = { name: 'Sadar Apartments',   city: 'Mayur Vihar, New Delhi',
                        mapUrl: 'https://maps.app.goo.gl/PHzP42YCLCTQx3pS6' };
-const V_METROCITY  = { name: 'Metrocity Lawn, Gate No. 1', city: 'Balmikinagar, Lucknow',
+const V_METROCITY  = { name: 'Metrocity, Papermill Colony', city: 'Gate No. 1, Lucknow',
                        mapUrl: 'https://maps.app.goo.gl/Vvieqmicfh3h9fyS8' };
 const V_CLOVE      = { name: 'Clove Area, 1st Floor', city: 'Hotel Damson Plum, Lucknow', mapUrl: DAMSON.mapUrl };
 const V_HALL_FIRST = { name: '1st Floor Hall',     city: 'Hotel Damson Plum, Lucknow',  mapUrl: DAMSON.mapUrl };
@@ -355,13 +367,16 @@ const EVENT_VENUES = {
 const SIDE_CONFIGS = {
   bride: {
     names: 'Radhika & Raghav', order: ['bride', 'groom'], blessings: true,
+    /* Her card opens on a Shrinathji pichwai where the other carries the
+       ॐ. Only this side has one; leave it off and the glyph stands. */
+    markImage: 'assets/hero/nathji.jpg',
     events: ['hawan', 'mehendi', 'sangeet', 'wedding'], rsvp: CONFIG.rsvp.bride,
     venue: DAMSON,
   },
   groom: {
-    names: 'Raghav & Radhika', order: ['groom', 'bride'], blessings: false,
+    names: 'Raghav & Radhika', order: ['groom', 'bride'], blessings: true,
     events: ['haldi', 'mehendi', 'sangeet', 'wedding', 'reception'],
-    rsvp: [{ name: 'Sonia', shown: '97171 94045', tel: '919717194045' }],
+    rsvp: [{ name: 'Sonia Khanna', shown: '97171 94045', tel: '919717194045' }],
     /* the groom's side gathers at the Tivoli, so that is the map on his card */
     venue: TIVOLI,
   },
@@ -485,6 +500,18 @@ function renderStrings() {
   const H = CONFIG.hero || {};
   line('[data-hero-eyebrow]', H.eyebrow);
   line('[data-hero-mark]',    H.mark);
+  /* A painting, not a glyph — so the gold ring opens out into a framed
+     panel. A pichwai inside a 54px circle reads as a smudge. */
+  if (SIDE_CONFIG.markImage) {
+    document.querySelectorAll('[data-hero-mark]').forEach((n) => {
+      n.classList.add('hero-mark--art');
+      n.textContent = '';
+      const img = el('img');
+      img.src = SIDE_CONFIG.markImage;
+      img.alt = '';
+      n.appendChild(img);
+    });
+  }
   line('[data-hero-invite]',  H.invite);
   line('[data-hero-dates]',   '');
 
@@ -832,8 +859,11 @@ function renderBlessings() {
     return art;
   };
 
-  /* Only the bride's side now, so the note it used to carry moves here. */
-  host.appendChild(page('bride', 'Bride’s Side', CONFIG.blessings.bride, CONFIG.blessings.note));
+  /* Whichever side's card this is, and only if that side has a list. */
+  const list = CONFIG.blessings[SIDE];
+  if (!list || !list.length) { host.remove(); return; }
+  host.appendChild(page(SIDE, SIDE === 'groom' ? 'Groom’s Side' : 'Bride’s Side',
+                        list, CONFIG.blessings.note));
 }
 
 function renderRsvp() {
@@ -1040,9 +1070,13 @@ function initAttendance() {
   /* ---- the uploads -------------------------------------------- */
   /* Three of these now — the Aadhaar card and a ticket at each end — so
      each field gets its own small controller rather than three copies of
-     the same handler. `picked` on a controller holds the base64 payload
-     once a guest has chosen something, and is the ONLY record that a file
-     is attached: it must never disagree with what the input holds. */
+     the same handler. `picked` on a controller holds the base64 payloads
+     once a guest has chosen, and is the ONLY record that files are
+     attached: it must never disagree with what the input holds.
+
+     It is a LIST. A family replying together has an Aadhaar card each and
+     often a ticket each, and one input that took one file made them send
+     a second form or leave the rest out. */
   function makeUpload(inputId, emptyLabel) {
     const input = id(inputId);
     if (!input) return null;
@@ -1051,9 +1085,9 @@ function initAttendance() {
     const text  = box && box.querySelector('.af-file-text');
 
     const ctl = {
-      input, field, box, picked: null,
+      input, field, box, picked: [],
       clear() {
-        ctl.picked = null;
+        ctl.picked = [];
         input.value = '';
         if (box) box.classList.remove('is-filled');
         if (text) text.textContent = emptyLabel;
@@ -1063,27 +1097,37 @@ function initAttendance() {
 
     input.addEventListener('change', async () => {
       clearErr(input, box);
-      ctl.picked = null;
+      ctl.picked = [];
       if (box) box.classList.remove('is-filled');
 
-      const file = input.files && input.files[0];
-      if (!file) { if (text) text.textContent = emptyLabel; return; }
+      const files = input.files ? Array.prototype.slice.call(input.files) : [];
+      if (!files.length) { if (text) text.textContent = emptyLabel; return; }
 
-      const ext = (file.name.split('.').pop() || '').toLowerCase();
-      if (EXT_OK.indexOf(ext) === -1) {
-        input.value = '';
-        if (text) text.textContent = emptyLabel;
-        err(input, 'Please attach an image, a PDF or a Word document.', box);
-        return;
+      /* Every file is checked before any is read: rejecting the fifth of
+         five after a long wait, with the other four already in hand, is
+         the worst moment to tell someone their file is the wrong kind. */
+      for (var i = 0; i < files.length; i++) {
+        const ext = (files[i].name.split('.').pop() || '').toLowerCase();
+        if (EXT_OK.indexOf(ext) === -1) {
+          input.value = '';
+          if (text) text.textContent = emptyLabel;
+          err(input, 'Please attach images, PDFs or Word documents only.', box);
+          return;
+        }
       }
 
-      if (text) text.textContent = 'Reading…';
+      if (text) text.textContent = files.length > 1 ? 'Reading ' + files.length + ' files…' : 'Reading…';
       try {
-        ctl.picked = await prepareUpload(file);
-        if (text) text.textContent = ctl.picked.name;
+        const done = [];
+        for (var j = 0; j < files.length; j++) done.push(await prepareUpload(files[j]));
+        ctl.picked = done;
+        if (text) text.textContent = done.length === 1
+          ? done[0].name
+          : done.length + ' files attached';
         if (box) box.classList.add('is-filled');
       } catch (e) {
         input.value = '';
+        ctl.picked = [];
         if (text) text.textContent = emptyLabel;
         err(input, (e && e.message) || 'That file could not be read.', box);
       }
@@ -1213,16 +1257,18 @@ function initAttendance() {
 
     /* Tickets stay optional throughout — plenty of guests reply before
        they have booked anything. Only the Aadhaar card is insisted on. */
-    if (upAadhaar && !upAadhaar.picked) {
+    if (upAadhaar && !upAadhaar.picked.length) {
       fail(upAadhaar.input, 'Please attach the Aadhaar card.', upAadhaar.box);
     }
 
     return first;
   }
 
-  /* base64 carries three bytes in every four characters. */
+  /* base64 carries three bytes in every four characters, and each field
+     now holds a list, so this sums across every attached file. */
   const attachedBytes = () => uploads.reduce(
-    (n, u) => n + (u.picked ? Math.ceil(u.picked.data.length * 3 / 4) : 0), 0);
+    (n, u) => n + (u.picked || []).reduce(
+      (m, f) => m + Math.ceil(f.data.length * 3 / 4), 0), 0);
 
 
   /* ---- sending ------------------------------------------------- */
@@ -1291,10 +1337,13 @@ function initAttendance() {
           depart:    fDepart.value,
           departBy:  fDepartBy.value,
           phone:     tidyPhone(fPhone.value),
+          /* Lists, one entry per file. The Apps Script reads either shape,
+             but a deployment older than this one expects a single object
+             and will reject the form — redeploy Code.gs alongside. */
           files: {
-            aadhaar:      upAadhaar ? upAadhaar.picked : null,
-            arriveTicket: upArrive  ? upArrive.picked  : null,
-            departTicket: upDepart  ? upDepart.picked  : null,
+            aadhaar:      upAadhaar ? upAadhaar.picked : [],
+            arriveTicket: upArrive  ? upArrive.picked  : [],
+            departTicket: upDepart  ? upDepart.picked  : [],
           },
           website:   fTrap ? fTrap.value : '',
         }),
@@ -1798,7 +1847,20 @@ function initScratch() {
   let sand = [], sandRAF = null, sandAccum = 0;
   /* Gilt fallback, replaced at runtime by colours read back out of the bar
      itself so the grains match whatever the foil was painted as. */
-  let SAND_COLORS = ['#9aa473', '#87925f', '#6d7654', '#5a6344', '#dfe6c4'];
+  /* The foil, the dust it throws off and the label on it all have to
+     agree, so they are stated once. The bride's is olive, off the card's
+     own --olive-ink; the groom's is a baby pink off his blush envelope,
+     with a deep rose label because cream on baby pink cannot be read. */
+  const FOIL = SIDE === 'groom'
+    ? { stops: ['#fbdfe2', '#f6c8cd', '#efb2b9', '#e299a2', '#d1848e'],
+        sheen: 'rgba(255,246,247,.5)',
+        label: 'rgba(122,58,66,.95)',
+        sand:  ['#f6c8cd', '#efb2b9', '#e299a2', '#d1848e', '#fdeef0'] }
+    : { stops: ['#9aa473', '#87925f', '#6d7654', '#5a6344', '#454e36'],
+        sheen: 'rgba(246,240,206,.34)',
+        label: 'rgba(255,246,226,.94)',
+        sand:  ['#9aa473', '#87925f', '#6d7654', '#5a6344', '#dfe6c4'] };
+  let SAND_COLORS = FOIL.sand.slice();
   let paletteReady = false;
 
   function samplePalette(w, h, dpr) {
@@ -1913,28 +1975,22 @@ function initScratch() {
     }
     ctx.clip();
 
-    /* Olive foil, lit from the upper left, with a highlight band raked
-       across it so the bar reads as foil rather than as flat paint. It was
-       molten gold-orange, which was the last of the old blossom palette
-       sitting on the card's warm paper; these are the card's own olives,
-       --olive-ink at the middle stop. */
+    /* Foil, lit from the upper left, with a highlight band raked across it
+       so the bar reads as foil rather than as flat paint. See FOIL above
+       for which colours, and why each card gets its own. */
     const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0,    '#9aa473');
-    g.addColorStop(0.28, '#87925f');
-    g.addColorStop(0.52, '#6d7654');
-    g.addColorStop(0.78, '#5a6344');
-    g.addColorStop(1,    '#454e36');
+    FOIL.stops.forEach((c, i) => g.addColorStop(i / (FOIL.stops.length - 1), c));
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
 
     const sheen = ctx.createLinearGradient(0, h * 0.1, w * 0.55, h);
     sheen.addColorStop(0,    'rgba(255,255,255,0)');
-    sheen.addColorStop(0.45, 'rgba(246,240,206,.34)');
+    sheen.addColorStop(0.45, FOIL.sheen);
     sheen.addColorStop(0.6,  'rgba(255,255,255,0)');
     ctx.fillStyle = sheen;
     ctx.fillRect(0, 0, w, h);
 
-    ctx.fillStyle = 'rgba(255,246,226,.94)';
+    ctx.fillStyle = FOIL.label;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `500 ${Math.max(12, Math.min(16, h * 0.3))}px "Cormorant Garamond", Georgia, serif`;

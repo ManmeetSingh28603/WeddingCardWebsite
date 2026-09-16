@@ -355,6 +355,8 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   text-transform: uppercase;
 }
 
+/* The bride's mark is a painting rather than a glyph, so the ring opens
+   out into a framed portrait panel — see .hero-mark--art below. */
 .hero-mark {
   display: grid;
   place-items: center;
@@ -366,6 +368,24 @@ video.intro-film::-webkit-media-controls-enclosure { display: none !important; }
   font-family: var(--font-name);
   font-size: 30px;
   line-height: 1;
+}
+.hero-mark--art {
+  width: auto;
+  height: clamp(96px, 17vw, 124px);
+  aspect-ratio: 921 / 1232;
+  padding: 3px;
+  border-radius: 3px;
+  border-color: rgba(174,137,80,.7);
+  background: #fffdf8;
+  box-shadow: 0 7px 20px -12px rgba(49,59,41,.55);
+  overflow: hidden;
+}
+.hero-mark--art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 2px;
 }
 
 /* Pinyon Script rather than Italiana: cursive, but a formal copperplate
@@ -1423,7 +1443,7 @@ body.has-open-card { overflow: hidden; }
      garden's own scale on every screen */
   padding-bottom: 64%;
 }
-.bl-page--bride::before {
+.bl-page::before {
   content: "";
   position: absolute;
   top: 0; left: 50%;
@@ -2320,4 +2340,103 @@ body.has-open-card { overflow: hidden; }
   .hero-content, .scroll-cue, .scratch-couple { opacity: 1 !important; filter: none !important; transform: none !important; }
   .scroll-cue { transform: translateX(-50%) !important; }
   .countdown-particles, .event-sparks { display: none; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   THE GROOM'S CARD IS PINK
+
+   His gate is a blush envelope and the card behind it was the same warm
+   paper as the bride's, so the film handed over into a different room.
+   Every ground is restated here in the envelope's own colour — #ecb4b4,
+   sampled off the film and lightened to something a page can carry.
+
+   ONLY the grounds move. The ink, the gold, every rule and every type
+   size stay exactly as they are on the bride's card, so this is a change
+   of paper rather than a second design to keep in step. The attribute is
+   on <html>, so one selector reaches the whole document.
+   ══════════════════════════════════════════════════════════════════ */
+html[data-invite-side="groom"] { --card-ground: #f9e6e8; }
+
+/* The hero's floral is a cream and sage painting, so a pink page under it
+   still read as cream — it covers nearly the whole screen. A pink laid
+   over it in multiply tints the artwork itself rather than hiding it, so
+   the florals keep their drawing and take the blush. */
+[data-invite-side="groom"] .hero-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #f0bfc4;
+  mix-blend-mode: multiply;
+  opacity: .5;
+  pointer-events: none;
+}
+[data-invite-side="groom"] .hero-veil {
+  background:
+    radial-gradient(ellipse 74% 48% at 50% 44%,
+      rgba(253,243,244,.82) 0%, rgba(253,243,244,.42) 55%, rgba(253,243,244,0) 78%),
+    linear-gradient(to bottom, transparent 72%, var(--card-ground) 100%);
+}
+
+/* the gate, and the veil it hands over through */
+[data-invite-side="groom"] .intro-screen { background: #eec9c9; }
+[data-invite-side="groom"] .intro-paper {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 38%, rgba(255,248,249,.95), transparent 70%),
+    radial-gradient(circle at 18% 16%, rgba(224,122,158,.14), transparent 42%),
+    radial-gradient(circle at 84% 78%, rgba(192,138,62,.10), transparent 46%),
+    linear-gradient(170deg, #fbe9ea 0%, #f3d4d6 52%, #eac3c4 100%);
+}
+[data-invite-side="groom"] .ivory-dissolve {
+  background: radial-gradient(circle at 50% 44%, #fff8f8 0%, #fbe9ea 36%, #f3d4d6 66%, #e9bfc1 100%);
+}
+
+/* the scratch panel and the countdown under it read as one, so they seam
+   on #f4d9dc the way their cream originals seam on #f4ecdd */
+[data-invite-side="groom"] .scratch-section {
+  background:
+    radial-gradient(ellipse 42% 30% at 8% 6%,   rgba(226,138,150,.30), transparent 70%),
+    radial-gradient(ellipse 38% 26% at 94% 10%, rgba(208,112,126,.24), transparent 70%),
+    radial-gradient(ellipse 46% 24% at 12% 94%, rgba(218,130,144,.26), transparent 72%),
+    radial-gradient(ellipse 50% 28% at 88% 97%, rgba(228,148,160,.28), transparent 72%),
+    radial-gradient(ellipse 60% 40% at 50% 48%, rgba(255,250,250,.86), transparent 76%),
+    linear-gradient(170deg, #fdf1f2 0%, #f9e6e8 40%, #f4d9dc 100%);
+}
+[data-invite-side="groom"] .scratch-section::before {
+  background-image:
+    radial-gradient(circle at 20% 22%, rgba(208,112,126,.34) 0 3px, transparent 4px),
+    radial-gradient(circle at 76% 34%, rgba(218,130,144,.28) 0 2px, transparent 3px),
+    radial-gradient(circle at 34% 72%, rgba(208,112,126,.26) 0 3px, transparent 4px),
+    radial-gradient(circle at 86% 68%, rgba(218,130,144,.24) 0 2px, transparent 3px);
+}
+[data-invite-side="groom"] .countdown-section {
+  background: linear-gradient(180deg, #f4d9dc 0%, #f8e9ea 42%, var(--card-ground) 100%);
+}
+
+/* the schedule, and the shut cards standing on it */
+[data-invite-side="groom"] .schedule {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(208,112,126,.10), transparent 62%),
+    linear-gradient(180deg, var(--card-ground) 0%, #f6dce0 52%, var(--card-ground) 100%);
+}
+[data-invite-side="groom"] .event { background: #f7dfe1; }
+
+/* blessings, and the RSVP it hands off to */
+[data-invite-side="groom"] .bl-page {
+  background: linear-gradient(180deg, #f9e6e8 0%, #f7dfe2 16%, #f5d8db 46%, #f2d0d4 100%);
+}
+[data-invite-side="groom"] .bl-page--groom { --bl-handoff: #f2d0d4; }
+[data-invite-side="groom"] .bl-art {
+  background:
+    radial-gradient(ellipse 30% 30% at 12% 88%, rgba(208,112,126,.32), transparent 72%),
+    radial-gradient(ellipse 26% 26% at 34% 96%, rgba(220,134,148,.28), transparent 72%),
+    radial-gradient(ellipse 32% 30% at 68% 92%, rgba(208,112,126,.28), transparent 72%),
+    radial-gradient(ellipse 28% 28% at 90% 86%, rgba(224,144,158,.26), transparent 72%),
+    radial-gradient(ellipse 40% 22% at 50% 100%, rgba(170,92,104,.34), transparent 74%),
+    linear-gradient(180deg, transparent 0%, rgba(244,214,218,.55) 46%, rgba(238,198,204,.78) 100%);
+}
+[data-invite-side="groom"] .rsvp {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 40%, rgba(208,112,126,.10) 0%, transparent 62%),
+    linear-gradient(180deg, #f2d0d4 0%, #fdf2f3 22%, #fdf2f3 70%, #f2d0d4 100%);
 }

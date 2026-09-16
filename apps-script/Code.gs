@@ -102,19 +102,28 @@ function doPost(e) {
        rather than a row pointing at a file that was never created. */
     const saved = saveUploads_(clean);
 
-    sheet_().appendRow([
+    const sheet = sheet_();
+    sheet.appendRow([
       new Date(),
       clean.name,
       clean.members,
       clean.arrive,
       clean.arriveBy,
-      linkCell_(saved.arriveTicket),
+      '',                     // arrival ticket — set as rich text below
       clean.depart,
       clean.departBy,
-      linkCell_(saved.departTicket),
+      '',                     // departure ticket
       "'" + clean.phone,      // leading quote keeps Sheets from eating a 0
-      linkCell_(saved.aadhaar),
+      '',                     // Aadhaar
     ]);
+
+    /* The three attachment columns, by their position in HEADERS. */
+    const row = sheet.getLastRow();
+    const cols = { arriveTicket: 6, departTicket: 9, aadhaar: 11 };
+    for (var k in cols) {
+      const rich = linkRich_(saved[k]);
+      if (rich) sheet.getRange(row, cols[k]).setRichTextValue(rich);
+    }
 
     notify_(clean, saved);
     return json_({ ok: true });
@@ -162,38 +171,46 @@ function validate_(d) {
   /* The tickets are optional — a guest driving in has none, and many reply
      before they have booked. Only the Aadhaar card is insisted on, and
      only while the site is still asking for it. */
+  /* Each field arrives as a LIST — a family replying together has an
+     Aadhaar card each, and often a ticket each. A single object is still
+     accepted so that a page cached from before the change keeps working. */
   const src = d.files || {};
   const files = {};
   let total = 0;
 
   for (var i = 0; i < ATTACHMENTS.length; i++) {
     const spec = ATTACHMENTS[i];
-    const f = src[spec.key];
-    if (!f || !f.data) {
-      if (spec.key === 'aadhaar' && AADHAAR_REQUIRED) {
-        return { error: 'Please attach the Aadhaar card.' };
+    const raw  = src[spec.key];
+    const list = raw == null ? [] : (Array.isArray(raw) ? raw : [raw]);
+    const kept = [];
+
+    for (var j = 0; j < list.length; j++) {
+      const f = list[j];
+      if (!f || !f.data) continue;
+
+      const fname = String(f.name || '').trim();
+      const b64   = String(f.data || '');
+      if (!fname || !b64) continue;
+
+      const ext = (fname.split('.').pop() || '').toLowerCase();
+      if (ALLOWED_EXT.indexOf(ext) === -1) {
+        return { error: spec.label + ' must be an image, a PDF or a Word document.' };
       }
-      files[spec.key] = null;
-      continue;
+
+      /* base64 carries 3 bytes in every 4 characters. */
+      const bytes = Math.ceil(b64.length * 3 / 4);
+      if (bytes > MAX_FILE_MB * 1024 * 1024) {
+        return { error: spec.label + ' is larger than ' + MAX_FILE_MB + ' MB.' };
+      }
+      total += bytes;
+
+      kept.push({ name: fname, ext: ext, type: String(f.type || ''), data: b64, label: spec.label });
     }
 
-    const fname = String(f.name || '').trim();
-    const b64   = String(f.data || '');
-    if (!fname || !b64) { files[spec.key] = null; continue; }
-
-    const ext = (fname.split('.').pop() || '').toLowerCase();
-    if (ALLOWED_EXT.indexOf(ext) === -1) {
-      return { error: spec.label + ' must be an image, a PDF or a Word document.' };
+    if (!kept.length && spec.key === 'aadhaar' && AADHAAR_REQUIRED) {
+      return { error: 'Please attach the Aadhaar card.' };
     }
-
-    /* base64 carries 3 bytes in every 4 characters. */
-    const bytes = Math.ceil(b64.length * 3 / 4);
-    if (bytes > MAX_FILE_MB * 1024 * 1024) {
-      return { error: spec.label + ' is larger than ' + MAX_FILE_MB + ' MB.' };
-    }
-    total += bytes;
-
-    files[spec.key] = { name: fname, ext: ext, type: String(f.type || ''), data: b64, label: spec.label };
+    files[spec.key] = kept;
   }
 
   if (total > MAX_TOTAL_MB * 1024 * 1024) {
@@ -224,39 +241,58 @@ function toDate_(iso) {
 
 /* ── Drive + Sheet ──────────────────────────────────────────── */
 
-/* Returns { aadhaar, arriveTicket, departTicket }, each a Drive File or
-   null where nothing was attached. */
+/* Returns { aadhaar, arriveTicket, departTicket }, each an ARRAY of Drive
+   Files — empty where nothing was attached. */
 function saveUploads_(clean) {
   const folder = folder_();
   const out = {};
   for (var i = 0; i < ATTACHMENTS.length; i++) {
-    const key = ATTACHMENTS[i].key;
-    const f = clean.files[key];
-    if (!f) { out[key] = null; continue; }
-    const blob = Utilities.newBlob(
-      Utilities.base64Decode(f.data),
-      f.type || 'application/octet-stream',
-      uploadName_(clean, f)
-    );
-    out[key] = folder.createFile(blob);
+    const key  = ATTACHMENTS[i].key;
+    const list = clean.files[key] || [];
+    const made = [];
+    for (var j = 0; j < list.length; j++) {
+      const f = list[j];
+      const blob = Utilities.newBlob(
+        Utilities.base64Decode(f.data),
+        f.type || 'application/octet-stream',
+        uploadName_(clean, f, list.length > 1 ? j + 1 : 0)
+      );
+      made.push(folder.createFile(blob));
+    }
+    out[key] = made;
   }
   return out;
 }
 
 /* Named so the folder is legible on its own: the planner can find a
    guest's ticket or ID without going through the sheet at all. */
-function uploadName_(clean, f) {
+function uploadName_(clean, f, nth) {
   const safe  = clean.name.replace(/[^\p{L}\p{N} .'-]/gu, '').trim().slice(0, 50) || 'Guest';
   const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HHmm');
-  return safe + ' — ' + f.label + ' — ' + stamp + '.' + f.ext;
+  /* Numbered only when there is more than one of a kind, so a single
+     attachment keeps the name the planner is used to. */
+  const part  = nth ? ' (' + nth + ')' : '';
+  return safe + ' — ' + f.label + part + ' — ' + stamp + '.' + f.ext;
 }
 
 /* One cell per attachment: clickable, and still readable as a filename.
    HYPERLINK survives a download as .xlsx, so it stays clickable in the
    copy the planner is sent. */
-function linkCell_(file) {
-  if (!file) return '';
-  return '=HYPERLINK("' + file.getUrl() + '","' + file.getName().replace(/"/g, '""') + '")';
+/* A cell can hold ONE =HYPERLINK() formula and no more, so several files
+   in one cell have to be rich text instead: the names on their own lines,
+   each linked separately. Returned as a value to set after the row is
+   appended, since rich text cannot go through appendRow. */
+function linkRich_(files) {
+  const list = files || [];
+  if (!list.length) return null;
+  const names = list.map(function (f) { return f.getName(); });
+  const b = SpreadsheetApp.newRichTextValue().setText(names.join('\n'));
+  var at = 0;
+  for (var i = 0; i < list.length; i++) {
+    b.setLinkUrl(at, at + names[i].length, list[i].getUrl());
+    at += names[i].length + 1;          /* + the newline */
+  }
+  return b.build();
 }
 
 function folder_() {
@@ -340,8 +376,10 @@ function notify_(clean, saved) {
     ];
     for (var i = 0; i < ATTACHMENTS.length; i++) {
       const spec = ATTACHMENTS[i];
-      const f = saved[spec.key];
-      lines.push(spec.label + ': ' + (f ? f.getUrl() : '— none attached —'));
+      const list = saved[spec.key] || [];
+      if (!list.length) { lines.push(spec.label + ': — none attached —'); continue; }
+      lines.push(spec.label + ':');
+      for (var j = 0; j < list.length; j++) lines.push('  ' + list[j].getUrl());
     }
     MailApp.sendEmail({
       to: NOTIFY_EMAIL,

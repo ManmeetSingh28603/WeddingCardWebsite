@@ -32,9 +32,15 @@ One row per guest, eleven columns:
 | Departure date · Departing by · Departure ticket | out |
 | Aadhaar card | for hotel check-in |
 
-The three attachment columns hold a clickable link named after the file.
-`HYPERLINK` survives a download as `.xlsx`, so it stays clickable in the copy
-the planner is sent.
+Each attachment column holds one clickable link per file, named after it.
+A guest can attach several — a family replying together has an Aadhaar card
+each, and often a ticket each — and they arrive on their own lines in the
+one cell.
+
+> A cell can hold **one** `=HYPERLINK()` formula and no more, so several
+> links in a cell are written as rich text instead. That is a Sheets value,
+> not a formula: it survives a download as `.xlsx`, but a CSV export keeps
+> only the names. Export `.xlsx` if the planner needs the links.
 
 > **Already have a sheet from before travel details were added?** Nothing to
 > do. The columns changed, so the first submission after you redeploy renames
@@ -168,6 +174,22 @@ things are worth being deliberate about:
   field disappears from the form.
 
 ---
+
+## Redeploying after a site change
+
+The site and this script have to agree on the shape of what is posted. The
+script reads **either** shape — one file per field, or a list — so a page a
+guest has cached from before a change keeps working.
+
+It does not run the other way. A site that sends lists to a deployment older
+than that change gets every reply refused. So when both have changed:
+
+1. paste the new `Code.gs`, **Deploy → Manage deployments → Edit → Version:
+   New version → Deploy**, then
+2. publish the site.
+
+Done in that order there is no window where a guest can be turned away.
+
 
 ## Changing things later
 

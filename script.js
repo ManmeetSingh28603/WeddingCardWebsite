@@ -135,8 +135,8 @@ let CONFIG = {
     {
       id: 'haldi', title: 'Haldi &amp; Mehendi',
       day: '18', suffix: 'th', weekday: 'Wednesday', month: 'November',
-      time: '1:00 pm onwards',
-      at: { h: 13, min: 0 },
+      time: '3:00 pm onwards',
+      at: { h: 15, min: 0 },
       copy: 'Turmeric, marigolds and far too much laughter — the celebration opens here.',
       art: 'assets/cards/haldi-mehendi-still.jpg', theme: 'marigold',
       /* Its own set at last — the same bougainvillea arch, but a different

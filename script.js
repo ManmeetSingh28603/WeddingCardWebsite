@@ -405,6 +405,12 @@ const SIDE_CONFIG = SIDE_CONFIGS[SIDE];
 CONFIG.couple.names = SIDE_CONFIG.names;
 CONFIG.rsvp.bride = SIDE_CONFIG.rsvp;
 CONFIG.events = CONFIG.events.filter((event) => SIDE_CONFIG.events.includes(event.id));
+/* The bride's card shows only the Reception from the wedding-day timetable;
+   the full Baraat → Varmala → Pheras → Reception sequence is groom-side. */
+if (SIDE === 'bride') {
+  const wed = CONFIG.events.find(e => e.id === 'wedding');
+  if (wed) wed.schedule = [{ what: 'Wedding Reception', when: '7:30 pm onwards' }];
+}
 /* ════════════════════════════════════════════════════════════
    Nothing below here needs editing for ordinary changes.
    ════════════════════════════════════════════════════════════ */

@@ -409,7 +409,11 @@ CONFIG.events = CONFIG.events.filter((event) => SIDE_CONFIG.events.includes(even
    the full Baraat → Varmala → Pheras → Reception sequence is groom-side. */
 if (SIDE === 'bride') {
   const wed = CONFIG.events.find(e => e.id === 'wedding');
-  if (wed) wed.schedule = [{ what: 'Wedding Reception', when: '7:30 pm onwards' }];
+  if (wed) {
+    wed.schedule = [{ what: 'Wedding Reception', when: '7:30 pm onwards' }];
+    wed.time = '7:30 pm onwards';       // text on the closed card
+    wed.at   = { h: 19, min: 30 };      // optional: countdown target
+  }
 }
 /* ════════════════════════════════════════════════════════════
    Nothing below here needs editing for ordinary changes.
